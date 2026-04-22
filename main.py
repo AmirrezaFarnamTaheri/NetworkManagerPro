@@ -1,7 +1,8 @@
 import sys
 import threading
 import time
-import ctypes
+if sys.platform == 'win32':
+    import ctypes
 from PIL import Image, ImageDraw
 import pystray
 from plyer import notification
@@ -9,7 +10,7 @@ import core
 import gui
 
 # --- Auto-Admin Privilege Request ---
-if not core.is_admin():
+if sys.platform == 'win32' and not core.is_admin():
     # If not admin, prompt UAC screen and relaunch script as Admin automatically
     ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, " ".join(sys.argv), None, 1)
     sys.exit()
