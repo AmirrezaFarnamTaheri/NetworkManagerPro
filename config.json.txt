@@ -1,0 +1,18 @@
+{
+    "shecan_update_url": "https://ddns.shecan.ir/update?password=8cbf83432cbc7dd8",
+    "settings": {
+        "start_on_boot": false,
+        "auto_update_ddns": true,
+        "check_interval_seconds": 60
+    },
+    "dns_profiles": {
+        "Shecan": ["178.22.122.101", "185.51.200.1"],
+        "Electro": ["78.157.42.100", "78.157.42.101"],
+        "Cloudflare": ["1.1.1.1", "1.0.0.1"],
+        "Google": ["8.8.8.8", "8.8.4.4"]
+    },
+    "proxy_profiles": [
+        "127.0.0.1:8080",
+        "127.0.0.1:10809"
+    ]
+}
