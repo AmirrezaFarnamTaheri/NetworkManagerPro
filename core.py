@@ -1,7 +1,10 @@
 import subprocess
-import winreg
+import sys
+if sys.platform == 'win32':
+    import winreg
 import requests
-import ctypes
+if sys.platform == 'win32':
+    import ctypes
 import sys
 import psutil
 import socket
@@ -11,6 +14,8 @@ from ping3 import ping
 
 def is_admin():
     """Check if the script is running with administrative privileges."""
+    if sys.platform != 'win32':
+        return True
     try:
         return ctypes.windll.shell32.IsUserAnAdmin()
     except:
@@ -74,6 +79,8 @@ def clear_dns():
 
 def set_proxy(enable, proxy_server=""):
     """Enables or disables the Windows system-wide proxy via Registry."""
+    if sys.platform != 'win32':
+        return False, "Proxy setup requires Windows"
     try:
         internet_settings = winreg.OpenKey(winreg.HKEY_CURRENT_USER, 
                                            r'Software\Microsoft\Windows\CurrentVersion\Internet Settings', 
