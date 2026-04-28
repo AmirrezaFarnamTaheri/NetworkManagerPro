@@ -1,0 +1,9 @@
+[project]
+name = "network-manager-pro"
+version = "2.0.0"
+description = "Windows desktop utility for DNS profiles, proxy toggles, DDNS updates, diagnostics, and monitoring."
+requires-python = ">=3.11,<3.14"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"

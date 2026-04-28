@@ -1,0 +1,8 @@
+{
+    "id": "example_plugin",
+    "name": "Example Plugin",
+    "version": "0.1.0",
+    "api_version": "1",
+    "entrypoint": "plugin.py",
+    "permissions": ["network_state", "events", "ui", "scheduled_tasks"]
+}
