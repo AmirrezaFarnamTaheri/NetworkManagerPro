@@ -21,16 +21,17 @@ class PluginAPI:
     def _has_permission(self, permission):
         return permission in self._permissions
 
+    def _require_permission(self, permission):
+        if not self._has_permission(permission):
+            core.logger().warning("plugin_permission_denied id=%s permission=%s", self.plugin_id, permission)
+            raise PermissionError(f"Plugin manifest does not grant {permission} permission.")
+
     def network_state(self):
-        if not self._has_permission("network_state"):
-            core.logger().warning("plugin_permission_denied id=%s permission=network_state", self.plugin_id)
-            return None
+        self._require_permission("network_state")
         return self._monitor.snapshot() if self._monitor else None
 
     def emit_event(self, event_type, summary, details=None):
-        if not self._has_permission("events"):
-            core.logger().warning("plugin_permission_denied id=%s permission=events", self.plugin_id)
-            return None
+        self._require_permission("events")
         if self._event_store:
             return self._event_store.append(f"plugin.{self.plugin_id}.{event_type}", summary, details or {}, self.plugin_id)
         return None
@@ -51,14 +52,12 @@ class PluginAPI:
         return settings[self.plugin_id]
 
     def register_tab(self, title, builder):
-        if not self._has_permission("ui"):
-            raise PermissionError("Plugin manifest does not grant ui permission.")
+        self._require_permission("ui")
         if self._ui_host:
             self._ui_host.register_plugin_tab(self.plugin_id, title, builder)
 
     def register_periodic_task(self, name, interval_seconds, callback):
-        if not self._has_permission("scheduled_tasks"):
-            raise PermissionError("Plugin manifest does not grant scheduled_tasks permission.")
+        self._require_permission("scheduled_tasks")
         stop = threading.Event()
         try:
             interval = max(self.min_periodic_interval_seconds, int(interval_seconds))
@@ -70,7 +69,9 @@ class PluginAPI:
                 try:
                     callback(self)
                 except Exception as exc:
-                    if not self.emit_event("task_failed", f"{name} failed", {"error": str(exc)}):
+                    if self._has_permission("events") and not self.emit_event("task_failed", f"{name} failed", {"error": str(exc)}):
+                        core.logger().warning("plugin_task_failed id=%s name=%s error=%s", self.plugin_id, name, exc, exc_info=True)
+                    elif not self._has_permission("events"):
                         core.logger().warning("plugin_task_failed id=%s name=%s error=%s", self.plugin_id, name, exc, exc_info=True)
 
         thread = threading.Thread(target=_runner, name=f"PluginTask-{self.plugin_id}-{name}", daemon=True)

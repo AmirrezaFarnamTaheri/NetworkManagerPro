@@ -112,7 +112,11 @@ def check_plugin_config_resilience():
     settings = api.get_config({"enabled": True})
     assert settings == {"enabled": True}
     assert cfg["plugins"]["settings"]["demo"] == {"enabled": True}
-    assert api.network_state() is None
+    try:
+        api.network_state()
+        raise AssertionError("network_state without permission should fail")
+    except PermissionError:
+        pass
 
     allowed = PluginAPI("demo", cfg, monitor=None, event_store=None, permissions=["network_state", "events"])
     assert allowed.emit_event("test", "summary") is None

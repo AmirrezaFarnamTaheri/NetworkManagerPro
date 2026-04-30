@@ -513,7 +513,7 @@ class NetworkManagerGUI(ctk.CTk):
         ctk.CTkLabel(page, text="Plugin center", font=label_font).grid(row=0, column=0, sticky="w")
         ctk.CTkLabel(
             page,
-            text="Trusted local plugins can add tabs, scheduled checks, and history events. Enable them by adding their id to plugins.enabled in config.json.",
+            text="Trusted-only local plugins can add tabs, scheduled checks, and history events. Plugin permissions are API gates, not a sandbox; only enable plugins from publishers you trust.",
             font=body_font,
             text_color=COLORS["muted"],
             justify="left",

@@ -2,6 +2,8 @@
 
 Plugins are trusted local extensions. They run in-process with the same OS privileges as Network Manager Pro.
 
+Security warning: the v1 plugin model is trusted-only. Manifest permissions limit access to official PluginAPI helpers, but they do not sandbox Python code. Do not install plugins from unknown publishers or copied code you have not reviewed.
+
 ## Locations
 
 User plugins:
@@ -51,7 +53,7 @@ Manifest permissions are enforced by the v1 PluginAPI:
 - `ui`: allows `api.register_tab(...)`.
 - `scheduled_tasks`: allows `api.register_periodic_task(...)`.
 
-Permissions are API gates, not a security sandbox. A malicious plugin is still arbitrary Python code inside the elevated process.
+Permissions are API gates, not a security sandbox. A malicious plugin is still arbitrary Python code inside the elevated process. Missing permissions raise `PermissionError` so plugin authors can see exactly which manifest permission is required.
 
 ## Lifecycle
 

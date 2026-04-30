@@ -5,7 +5,7 @@ Prepared: 2026-04-30
 Scope: Windows 10/11 desktop utility for DNS profiles, proxy settings, DDNS updates, diagnostics, event history, trusted plugins, and lightweight traffic visibility.  
 Status: Living roadmap. Research and frontier items are preserved as ambitions, not committed release promises.
 
-Implementation progress: 8 done, 0 partially done, 62 open.  
+Implementation progress: 12 done, 0 partially done, 58 open.  
 Tracking convention: each roadmap item has one checkbox state line. `[x] Done` means the item is complete; `[x] Partially done` means implementation has started but acceptance criteria are not fully satisfied; `[x] Open` means no implementation work has landed yet.
 
 ## 1. Executive Summary
@@ -343,8 +343,8 @@ Tests:
 Risk: Low.
 
 ### R-010: SQLite Event History
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Replaced runtime JSONL history with SQLite at `history\events.sqlite3`, enabled WAL mode, added indexed event storage, kept the existing `append`, `recent`, and `clear` API shape, exported sanitized JSONL only inside diagnostics bundles, removed old runtime JSONL code paths, updated docs and UI path display, and added SQLite history tests.
 
 
 Priority: P1 Next Release  
@@ -370,8 +370,8 @@ Tests:
 Risk: Medium.
 
 ### R-011: Structured Logging Conventions
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added `core.log_event(level, event, **fields)` for structured redacted logging, documented the event naming and redaction convention in this roadmap, and added pytest coverage proving event names are normalized and secrets are not logged raw.
 
 
 Priority: P1 Next Release  
@@ -400,8 +400,8 @@ Logging convention:
 - Use `core.log_event(level, event, **fields)` for new structured log entries.
 
 ### R-012: Crash-Safe Config Migration
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added `CONFIG_VERSION`, forced normalized configs to the current schema version, backed up invalid JSON configs to `.invalid.<timestamp>.bak`, backed up unsupported future schemas to `.unsupported.<timestamp>.bak`, preserved atomic config writes, and added pytest coverage for invalid JSON, unsupported future configs, and schema version normalization.
 
 
 Priority: P1 Next Release  
@@ -425,8 +425,8 @@ Risk: Medium.
 ## 7. Phase 2: Security And Privilege Hardening
 
 ### R-013: Store DDNS Secrets In Windows Credential Manager
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added `keyring` as a runtime dependency, introduced DDNS credential-store helpers, updated GUI saving so new DDNS URLs are stored through keyring and plaintext config is cleared, retained config fallback only for unsaved/imported legacy state, updated security/config docs, and added pytest coverage for keyring storage, keyring absence, and fallback behavior.
 
 
 Priority: P1 Next Release  
@@ -1872,10 +1872,10 @@ Research questions for sensitive areas:
 | R-007 | DDNS test suite | [x] Done | 1 | P1 Next Release | S | Low | R-004 |
 | R-008 | Redaction test suite | [x] Done | 1 | P1 Next Release | S | Low | R-004 |
 | R-009 | Plugin manifest test suite | [x] Done | 1 | P1 Next Release | S | Low | R-004 |
-| R-010 | SQLite event history | [x] Open | 1 | P1 Next Release | M | Medium | R-004 |
-| R-011 | Structured logging conventions | [x] Open | 1 | P1 Next Release | S | Low | R-001 |
-| R-012 | Crash-safe config migration | [x] Open | 1 | P1 Next Release | M | Medium | R-006 |
-| R-013 | Store DDNS secrets in Windows Credential Manager | [x] Open | 2 | P1 Next Release | M | Medium | R-012 |
+| R-010 | SQLite event history | [x] Done | 1 | P1 Next Release | M | Medium | R-004 |
+| R-011 | Structured logging conventions | [x] Done | 1 | P1 Next Release | S | Low | R-001 |
+| R-012 | Crash-safe config migration | [x] Done | 1 | P1 Next Release | M | Medium | R-006 |
+| R-013 | Store DDNS secrets in Windows Credential Manager | [x] Done | 2 | P1 Next Release | M | Medium | R-012 |
 | R-014 | Document current admin risk clearly | [x] Open | 2 | P1 Next Release | S | Low | R-001 |
 | R-015 | Tighten plugin permission enforcement | [x] Open | 2 | P1 Next Release | S | Low | R-009 |
 | R-016 | Trusted-only plugin model | [x] Open | 2 | P1 Next Release | S | Low | R-014, R-015 |
