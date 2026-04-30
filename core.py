@@ -50,6 +50,8 @@ DEFAULT_CONFIG = {
         "check_interval_seconds": 60,
         "minimize_to_tray_on_close": True,
         "pause_background_on_metered": True,
+        "reduce_background_on_battery": True,
+        "pause_ui_refresh_when_minimized": True,
         "rollback_on_connectivity_loss": True,
     },
     "plugins": {
@@ -295,6 +297,8 @@ def normalize_config(config):
         "auto_update_ddns",
         "minimize_to_tray_on_close",
         "pause_background_on_metered",
+        "reduce_background_on_battery",
+        "pause_ui_refresh_when_minimized",
         "rollback_on_connectivity_loss",
     ):
         default_settings[bool_key] = parse_bool(default_settings.get(bool_key), DEFAULT_CONFIG["settings"][bool_key])

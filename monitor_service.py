@@ -7,6 +7,7 @@ import time
 from dataclasses import dataclass, field
 
 import core
+import power_policy
 
 
 @dataclass
@@ -23,6 +24,10 @@ class NetworkState:
     captive_portal_detail: str = ""
     metered: bool | None = None
     background_reduced_mode: bool = False
+    power_on_battery: bool | None = None
+    battery_saver: bool | None = None
+    power_reduced_mode: bool = False
+    power_detail: str = ""
     ddns_last_result: str = "Not run"
     config_mtime: float = 0.0
     monitor_error: str | None = None
@@ -149,7 +154,9 @@ class MonitorService:
         public_ip = self._safe_call(core.get_public_ip)
         captive = self._safe_call(core.detect_captive_portal, default={"status": "unknown", "detail": ""})
         metered = self._safe_call(core.get_metered_connection_status, default={"metered": None})
+        power_status = self._safe_call(power_policy.get_power_status, default={"on_battery": None, "battery_saver": None, "detail": ""})
         policy = core.background_work_policy(cfg, metered)
+        power_plan = power_policy.power_efficiency_policy(cfg, power_status)
         profile = self._selected_profile(cfg)
         primary = profile[0] if profile else None
         latency = self._safe_call(core.measure_latency, primary, default="n/a") if primary else "n/a"
@@ -164,7 +171,11 @@ class MonitorService:
             captive_portal_status=str((captive or {}).get("status") or "unknown"),
             captive_portal_detail=str((captive or {}).get("detail") or ""),
             metered=(metered or {}).get("metered") if isinstance(metered, dict) else None,
-            background_reduced_mode=bool(policy.get("reduced_mode", False)),
+            background_reduced_mode=bool(policy.get("reduced_mode", False) or power_plan.get("reduced_mode", False)),
+            power_on_battery=(power_status or {}).get("on_battery") if isinstance(power_status, dict) else None,
+            battery_saver=(power_status or {}).get("battery_saver") if isinstance(power_status, dict) else None,
+            power_reduced_mode=bool(power_plan.get("reduced_mode", False)),
+            power_detail=str((power_status or {}).get("detail") or ""),
         )
 
     def _detect_settings_changes(self, state):
@@ -184,8 +195,9 @@ class MonitorService:
         if public_ip:
             self._last_seen_public_ip = public_ip
         policy = core.background_work_policy(cfg, core.get_metered_connection_status())
-        if policy.get("pause_ddns"):
-            msg = "Auto-DDNS paused while the current connection is metered."
+        power_plan = power_policy.power_efficiency_policy(cfg, power_policy.get_power_status())
+        if policy.get("pause_ddns") or power_plan.get("pause_ddns"):
+            msg = "Auto-DDNS paused while background work is reduced."
             self._set_ddns_result(msg)
             return msg
         if not public_ip or not auto_update or public_ip == self._last_ddns_success_ip:
@@ -244,7 +256,8 @@ class MonitorService:
         except (TypeError, ValueError):
             interval = 60
         policy = core.background_work_policy(cfg, core.get_metered_connection_status())
-        return int(policy.get("poll_interval_seconds") or interval)
+        power_plan = power_policy.power_efficiency_policy(cfg, power_policy.get_power_status())
+        return int(max(policy.get("poll_interval_seconds") or interval, power_plan.get("poll_interval_seconds") or interval))
 
     def _safe_call(self, func, *args, default=None):
         try:

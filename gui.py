@@ -11,7 +11,10 @@ import customtkinter as ctk
 from PIL import Image
 
 import core
+import deep_diagnostics
 import diagnostics
+import overlay_networks
+import power_policy
 import traffic_collector
 
 ctk.set_appearance_mode("System")
@@ -625,6 +628,16 @@ class NetworkManagerGUI(ctk.CTk):
         ctk.CTkButton(page, text="Restore previous settings", command=self.restore_previous_settings, width=220).grid(
             row=5, column=0, sticky="w", pady=6
         )
+        ctk.CTkLabel(page, text="Advanced checks", font=label_font).grid(row=6, column=0, sticky="w", pady=(18, 8))
+        ctk.CTkButton(page, text="Run captive portal check", command=self.run_captive_portal_diagnostic, width=220).grid(
+            row=7, column=0, sticky="w", pady=6
+        )
+        ctk.CTkButton(page, text="Check overlay clients", command=self.check_overlay_status, width=220).grid(
+            row=8, column=0, sticky="w", pady=6
+        )
+        ctk.CTkButton(page, text="Check power policy", command=self.check_power_status, width=220).grid(
+            row=9, column=0, sticky="w", pady=6
+        )
 
     def _build_history_tab(self, parent, label_font, body_font, small_font):
         page = self._page(parent)
@@ -721,14 +734,26 @@ class NetworkManagerGUI(ctk.CTk):
         ctk.CTkSwitch(page, text="Auto-update DDNS when public IP changes", variable=self.auto_ddns_var).grid(
             row=3, column=0, sticky="w", pady=6
         )
-        ctk.CTkLabel(page, text="Check interval (seconds)", font=small_font).grid(row=4, column=0, sticky="w", pady=(12, 2))
+        self.pause_metered_var = ctk.BooleanVar(value=core.parse_bool(st.get("pause_background_on_metered", True), True))
+        ctk.CTkSwitch(page, text="Reduce background work on metered networks", variable=self.pause_metered_var).grid(
+            row=4, column=0, sticky="w", pady=6
+        )
+        self.power_reduce_var = ctk.BooleanVar(value=core.parse_bool(st.get("reduce_background_on_battery", True), True))
+        ctk.CTkSwitch(page, text="Reduce background work on battery", variable=self.power_reduce_var).grid(
+            row=5, column=0, sticky="w", pady=6
+        )
+        self.rollback_var = ctk.BooleanVar(value=core.parse_bool(st.get("rollback_on_connectivity_loss", True), True))
+        ctk.CTkSwitch(page, text="Roll back DNS/proxy changes if connectivity fails", variable=self.rollback_var).grid(
+            row=6, column=0, sticky="w", pady=6
+        )
+        ctk.CTkLabel(page, text="Check interval (seconds)", font=small_font).grid(row=7, column=0, sticky="w", pady=(12, 2))
         try:
             interval_default = int(st.get("check_interval_seconds", 60))
         except (TypeError, ValueError):
             interval_default = 60
         self.interval_var = ctk.StringVar(value=str(interval_default))
-        ctk.CTkEntry(page, textvariable=self.interval_var, width=140).grid(row=5, column=0, sticky="w", pady=4)
-        ctk.CTkButton(page, text="Save settings", command=self.save_settings).grid(row=6, column=0, sticky="w", pady=16)
+        ctk.CTkEntry(page, textvariable=self.interval_var, width=140).grid(row=8, column=0, sticky="w", pady=4)
+        ctk.CTkButton(page, text="Save settings", command=self.save_settings).grid(row=9, column=0, sticky="w", pady=16)
 
     def _build_help_tab(self, parent, label_font, body_font, small_font):
         page = self._page(parent)
@@ -814,6 +839,9 @@ class NetworkManagerGUI(ctk.CTk):
             text=(
                 f"Effective DNS: {dns_text}\n"
                 f"Proxy: {proxy_text}\n"
+                f"Captive portal: {state.captive_portal_status}\n"
+                f"Metered: {state.metered if state.metered is not None else 'unknown'}\n"
+                f"Power reduced mode: {'yes' if state.power_reduced_mode else 'no'}\n"
                 "Attribution: Unknown unless a plugin or future ETW collector supplies a process."
             )
         )
@@ -841,6 +869,10 @@ class NetworkManagerGUI(ctk.CTk):
             notes.append("DNS appears automatic or unavailable. Apply a profile if name resolution is unreliable.")
         if state.proxy_enabled:
             notes.append(f"Proxy is enabled ({state.proxy_server or 'server unknown'}). Disable it first when web apps cannot connect.")
+        if state.captive_portal_status == "captive":
+            notes.append("Captive portal behavior detected. Complete network sign-in before applying automation.")
+        if state.background_reduced_mode:
+            notes.append("Background work is reduced because the connection or power state asks the app to be quieter.")
         if state.latency in ("Timeout", "Error"):
             notes.append("The selected DNS profile is not responding to ping; try another profile or refresh the interface.")
         if not notes:
@@ -1383,6 +1415,9 @@ class NetworkManagerGUI(ctk.CTk):
             self.config["settings"]["auto_update_ddns"] = auto_ddns
             self.config["settings"]["check_interval_seconds"] = interval
             self.config["settings"]["minimize_to_tray_on_close"] = self.tray_close_var.get()
+            self.config["settings"]["pause_background_on_metered"] = self.pause_metered_var.get()
+            self.config["settings"]["reduce_background_on_battery"] = self.power_reduce_var.get()
+            self.config["settings"]["rollback_on_connectivity_loss"] = self.rollback_var.get()
             cfg = copy.deepcopy(self.config)
         try:
             core.save_config(cfg, self.config_path)
@@ -1392,6 +1427,47 @@ class NetworkManagerGUI(ctk.CTk):
             self._record_event("settings.saved", "Settings saved", {"interval": interval})
         except OSError as e:
             self.show_toast("Error", str(e))
+
+    def run_captive_portal_diagnostic(self):
+        def _done(result):
+            self.show_toast("Success" if result.get("status") in ("open", "captive") else "Notice", result.get("recommendation", "Diagnostic completed."))
+            self._record_event("diagnostic.captive_portal", result.get("status", "unknown"), result)
+
+        self._run_task("Checking captive portal", deep_diagnostics.run_captive_portal_diagnostic, _done, key="diagnostic_captive")
+
+    def check_overlay_status(self):
+        def _work():
+            tools = overlay_networks.detect_overlay_tools()
+            statuses = {}
+            for tool, meta in tools.items():
+                statuses[tool] = (
+                    overlay_networks.run_read_only_status(tool)
+                    if meta.get("installed")
+                    else {"ok": False, "tool": tool, "output": "", "error": "Not installed."}
+                )
+            return {"tools": tools, "statuses": statuses}
+
+        def _done(result):
+            installed = [name for name, meta in result.get("tools", {}).items() if meta.get("installed")]
+            msg = f"Overlay clients installed: {', '.join(installed) if installed else 'none detected'}"
+            self.show_toast("Notice", msg)
+            self._record_event("diagnostic.overlay_status", msg, result)
+
+        self._run_task("Checking overlays", _work, _done, key="diagnostic_overlay")
+
+    def check_power_status(self):
+        def _work():
+            status = power_policy.get_power_status()
+            policy = power_policy.power_efficiency_policy(self.config, status, minimized=not self.winfo_viewable())
+            return {"status": status, "policy": policy}
+
+        def _done(result):
+            policy = result.get("policy", {})
+            msg = f"Power policy: {policy.get('reason', 'unknown')}; poll interval {policy.get('poll_interval_seconds', 'n/a')}s"
+            self.show_toast("Notice", msg)
+            self._record_event("diagnostic.power_status", msg, result)
+
+        self._run_task("Checking power", _work, _done, key="diagnostic_power")
 
     def copy_diagnostics(self):
         text = diagnostics.copyable_diagnostics(self.config, self.monitor.snapshot() if self.monitor else None)

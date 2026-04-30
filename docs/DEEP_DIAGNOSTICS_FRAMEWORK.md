@@ -24,8 +24,17 @@ Results separate evidence from recommendations. Findings should describe what wa
 - Captive portal diagnostics using the existing safe connectivity endpoint classifier.
 - DNS integrity classification from local versus user-approved trusted resolver answers.
 - TLS certificate issuer evidence classification.
+- A Cloudflare DoH JSON resolver helper for user-consented DNS comparison.
 
 The module is testable with injected resolvers, fetchers, and certificate providers. This keeps automated tests local and avoids embedding restricted target lists.
+
+The CLI exposes consent-gated entry points:
+
+```powershell
+python nmp_cli.py diagnose captive --i-consent --json
+python nmp_cli.py diagnose dns --domain example.com --i-consent --json
+python nmp_cli.py diagnose tls --host example.com --i-consent --json
+```
 
 ## DNS Integrity
 

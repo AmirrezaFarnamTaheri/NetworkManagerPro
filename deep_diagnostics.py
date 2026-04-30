@@ -5,6 +5,7 @@ import ssl
 import time
 
 import core
+import requests
 
 
 SCHEMA_VERSION = 1
@@ -96,7 +97,7 @@ def classify_dns_integrity(local_answers, trusted_answers):
 def run_dns_integrity_diagnostic(domain, local_resolver=None, trusted_resolver=None):
     domain = _safe_domain(domain)
     local_resolver = local_resolver or _resolve_system
-    trusted_resolver = trusted_resolver or _resolve_system
+    trusted_resolver = trusted_resolver or resolve_cloudflare_doh
     try:
         local_answers = local_resolver(domain)
     except Exception as exc:
@@ -169,6 +170,26 @@ def run_tls_inspection_diagnostic(host, expected_issuer_keywords=None, cert_fetc
 def _resolve_system(domain):
     infos = socket.getaddrinfo(domain, None, proto=socket.IPPROTO_TCP)
     return sorted({info[4][0] for info in infos})
+
+
+def resolve_cloudflare_doh(domain, record_type="A", session=None):
+    """Resolve a benign user-approved domain through Cloudflare DoH JSON."""
+    domain = _safe_domain(domain)
+    session = session or requests.Session()
+    response = session.get(
+        "https://cloudflare-dns.com/dns-query",
+        params={"name": domain, "type": str(record_type or "A").upper()},
+        headers={"accept": "application/dns-json"},
+        timeout=8,
+    )
+    response.raise_for_status()
+    payload = response.json()
+    answers = []
+    for item in payload.get("Answer", []) or []:
+        data = str(item.get("data") or "").strip()
+        if data:
+            answers.append(data.rstrip(".").lower())
+    return sorted(set(answers))
 
 
 def _fetch_certificate(host, port=443):

@@ -75,7 +75,9 @@ For maintenance tools:
 ## Verification
 
 ```powershell
-python -m py_compile core.py diagnostics.py gui.py history_store.py main.py monitor_service.py plugin_api.py plugin_manager.py traffic_collector.py scripts\smoke_check.py
+$files = Get-ChildItem -Path . -Filter *.py -Recurse | Where-Object { $_.FullName -notmatch '\\.venv' -and $_.FullName -notmatch '\\.venv-build' -and $_.FullName -notmatch '\\build\\' -and $_.FullName -notmatch '\\dist\\' } | ForEach-Object { $_.FullName }
+python -m py_compile @files
+python -m pytest
 python scripts\smoke_check.py
 ```
 

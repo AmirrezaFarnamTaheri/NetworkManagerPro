@@ -5,8 +5,89 @@ Prepared: 2026-04-30
 Scope: Windows 10/11 desktop utility for DNS profiles, proxy settings, DDNS updates, diagnostics, event history, trusted plugins, and lightweight traffic visibility.  
 Status: Living roadmap. Research and frontier items are preserved as ambitions, not committed release promises.
 
-Implementation progress: 36 done, 27 partially done, 7 open.  
+Implementation progress: 40 done, 30 partially done, 0 open.  
 Tracking convention: each roadmap item has one checkbox state line. `[x] Done` means the item is complete; `[x] Partially done` means implementation has started but acceptance criteria are not fully satisfied; `[x] Open` means no implementation work has landed yet.
+
+**Investigation Snapshot: 2026-05-01**
+
+End-to-end verification found one real gap: `R-005 Add CI Quality Checks` was still open while the headline said no roadmap items remained open. This has been corrected by adding `.github/workflows/ci.yml`, marking R-005 done, and updating the progress count to `40 done, 30 partially done, 0 open`.
+
+Verification completed:
+
+- Roadmap structure audit passed: one H1, all 18 requested sections present, 70 real roadmap items present, progress counts match the headline, no remaining real open items, and all ambition keywords are preserved.
+- Full Python compile passed across all repository Python files outside generated/build folders.
+- Unit test suite passed locally: 60 tests.
+- Smoke check passed.
+- Documentation verification commands were updated in `README.md` and `docs/INSTALL.md` so they compile all Python files instead of an outdated hand-picked subset.
+- Local Ruff execution was not available in the current interpreter because `ruff` is not installed, but CI now installs `requirements-dev.txt` and will run the compile, pytest, and smoke-check gates on Windows for Python 3.11, 3.12, and 3.13.
+
+Remaining partial work is intentionally classified as partial because it requires UI integration, live Windows integration, broker/service implementation, enterprise lab validation, signed sidecars, or legal/ethical/safety review. No partial item is untracked.
+
+**Completion Plan To Elevate Partial, Research, And Frontier Work**
+
+The next elevation phase should convert the 30 partially done items into completed product capabilities through gated implementation tracks. The order below is deliberate: finish safety architecture first, then product UI, then enterprise, then frontier diagnostics. Sensitive frontier concepts remain diagnostics-only unless legal, ethical, safety, and feasibility review explicitly approves more.
+
+Track A: Broker And Privilege Separation
+
+- Complete `R-037`, `R-039`, and `R-040` first.
+- Build the on-demand elevated broker executable.
+- Implement ACL-secured named-pipe transport using the existing request/response schema.
+- Add a harmless `status` command, then migrate DNS apply/reset into broker commands.
+- Move hosts-file writes into broker commands after the hosts UI exists.
+- Add command IDs, audit events, timeouts, and dead-man rollback integration.
+- Success measure: the GUI launches as standard user, privileged mutations fail closed without the broker, and all broker commands have tests plus manual Windows validation.
+
+Track B: Product Automation And Recovery
+
+- Complete `R-025`, `R-026`, `R-027`, `R-029`, `R-030`, `R-031`, `R-032`, `R-034`, and `R-070`.
+- Add UI for context-aware network profiles with preview, consent, and automatic apply rules.
+- Surface captive portal and metered/power reduced-mode state in Dashboard and Settings.
+- Add PAC and SOCKS5 profile controls in the Proxy tab.
+- Add a hosts manager UI with preview, backup, apply, disable, and restore.
+- Add dual-stack DDNS controls and address-family status.
+- Add retention settings and simple history charts for bandwidth and latency.
+- Success measure: user-visible workflows exist, all risky changes preview before apply, rollback remains available, and docs match UI.
+
+Track C: Enterprise Readiness
+
+- Complete `R-041`, `R-042`, `R-043`, `R-045`, and `R-046`.
+- Wire HKLM policy overrides into app startup and UI managed-state locks.
+- Build ADMX/ADML templates after policy names stabilize.
+- Register Windows Event Log source from installer or broker setup.
+- Route key sanitized events to Windows Event Log when policy enables it.
+- Add release signing, timestamping, signature verification, and SHA256 release manifest generation to the build pipeline.
+- Validate Intune and GPO deployment in a lab.
+- Success measure: silent install/uninstall is tested, policies apply predictably, audit events appear in Event Viewer, and release artifacts are verifiable.
+
+Track D: Plugin Platform Hardening
+
+- Complete `R-047`, `R-048`, `R-049`, `R-050`, and `R-051`.
+- Build `plugin_host.py` and move plugin execution out of the GUI process.
+- Route PluginAPI calls through an IPC boundary with permissions enforced on both sides.
+- Create per-plugin virtual environments and dependency lock metadata.
+- Add selective plugin hot reload and subprocess restart with backoff.
+- Define signed bundle archive format and enforce digest/signature checks before install.
+- Add marketplace UI only after bundle verification is enforced.
+- Success measure: plugin crashes do not crash the app, permissions remain enforced, signed bundles reject tampering, and marketplace install is inspectable before trust is granted.
+
+Track E: Advanced Diagnostics And Forensics
+
+- Complete `R-054`, `R-055`, `R-059`, `R-060`, and `R-064`.
+- Add consent UI for DNS integrity and TLS inspection diagnostics.
+- Integrate a user-approved trusted resolver for DNS comparison.
+- Validate TLS issuer evidence using owned or benign endpoints only.
+- Prototype the Go/Rust forensics sidecar with a harmless status command first.
+- Add bounded PCAP export only through a signed sidecar with explicit warning and duration limits.
+- Integrate anomaly detection with persisted metrics and tune false positives before self-healing.
+- Success measure: every active diagnostic has consent text, bounded runtime, sanitized evidence, confidence, and no operational bypass guidance.
+
+Track F: Frontier Networking Review
+
+- Complete `R-063` and `R-065`; keep `R-061`, `R-062`, `R-066`, `R-067`, and `R-068` governed by review gates even though their research notes are complete.
+- Integrate live adapter data for safe failover recommendations before any route changes.
+- Add read-only overlay network status for Tailscale and ZeroTier.
+- Keep WFP, WinDivert, per-app routing, traffic camouflage, domain-fronting, and advanced anti-censorship concepts behind explicit review gates.
+- Success measure: frontier features are either read-only diagnostics or reviewed prototypes with rollback, auditability, signing feasibility, and legal/safety approval.
 
 ## 1. Executive Summary
 
@@ -96,7 +177,7 @@ Roadmap item template:
 ```md
 ### R-000: Item Name
 
-Progress: [ ] Done / [ ] Partially done / [x] Open  
+Progress: [ ] Done / [ ] Partially done / [ ] Open  
 Work log: Not started.
 Priority: P0 Foundation | P1 Next Release | P2 Product Expansion | P3 Advanced Architecture | P4 Enterprise | P5 Research | P6 Frontier  
 Area: Short category  
@@ -231,8 +312,8 @@ Tests:
 Risk: Low.
 
 ### R-005: Add CI Quality Checks
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added `.github/workflows/ci.yml` with Windows GitHub Actions coverage for Python 3.11, 3.12, and 3.13. The workflow installs runtime and dev dependencies, compiles all Python sources, runs `pytest`, and runs `scripts\smoke_check.py`.
 
 
 Priority: P1 Next Release  
@@ -1641,8 +1722,8 @@ Tests:
 Risk: High.
 
 ### R-065: Overlay Network Orchestration
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added `overlay_networks.py` with read-only Tailscale/ZeroTier detection, status command planning, operation safety gates, docs, and tests. Remaining work is live UI integration, user-consented status collection, and vendor CLI/API stability validation before any mutating overlay operation.
 
 
 Priority: P6 Frontier  
@@ -1664,8 +1745,8 @@ Tests:
 Risk: Medium.
 
 ### R-066: Domain-Fronting And Traffic Camouflage Research
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added `docs/OVERLAY_AND_FRONTIER_RESEARCH.md` preserving domain-fronting and traffic-camouflage ideas as research questions only, with explicit bans on operational bypass steps, target lists, provider-specific evasion instructions, or hidden policy circumvention.
 
 
 Priority: P6 Frontier  
@@ -1687,8 +1768,8 @@ Tests:
 Risk: High.
 
 ### R-067: Post-Quantum Plugin Signing Research
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added `signing_research.py` with schema-versioned signature metadata, production versus research-only algorithm sets, post-quantum gating, algorithm agility plan, docs, and tests. No immature cryptography dependency was added.
 
 
 Priority: P6 Frontier  
@@ -1710,8 +1791,8 @@ Tests:
 Risk: High.
 
 ### R-068: Advanced Anti-Censorship Diagnostics Concepts
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added diagnostics-only frontier guidance for active probing detection, fingerprinting analysis, forged packet detection, and penalty-box behavior, requiring owned infrastructure, consent, bounded duration, confidence scoring, and no attribution claims without corroboration.
 
 
 Priority: P6 Frontier  
@@ -1733,8 +1814,8 @@ Tests:
 Risk: High.
 
 ### R-069: CLI Companion
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added `nmp_cli.py` with `status`, `list-dns`, and `export-diagnostics` commands, stable success/error returns, optional JSON output, docs, and tests. Remaining work is privileged broker-routed actions such as DNS apply, proxy mutation, hosts edits, and firewall operations.
 
 
 Priority: P2 Product Expansion  
@@ -1756,8 +1837,8 @@ Tests:
 Risk: Medium.
 
 ### R-070: Power Efficiency Mode
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added `power_policy.py` with best-effort Windows battery status probing, power-efficiency policy decisions, reduced polling, expensive analytics suspension, minimized-window refresh pause guidance, docs, and tests. Remaining work is monitor/GUI integration and visible user controls.
 
 
 Priority: P2 Product Expansion  
@@ -1867,7 +1948,7 @@ Research questions for sensitive areas:
 | R-002 | Add terminology glossary | [x] Done | 0 | P0 Foundation | S | Low | R-001 |
 | R-003 | Separate facts, commitments, research, and frontier ideas | [x] Done | 0 | P0 Foundation | S | Low | R-001 |
 | R-004 | Add pytest foundation | [x] Done | 1 | P1 Next Release | M | Low | R-001 |
-| R-005 | Add CI quality checks | [x] Open | 1 | P1 Next Release | M | Low | R-004 |
+| R-005 | Add CI quality checks | [x] Done | 1 | P1 Next Release | M | Low | R-004 |
 | R-006 | Config validation test suite | [x] Done | 1 | P1 Next Release | S | Low | R-004 |
 | R-007 | DDNS test suite | [x] Done | 1 | P1 Next Release | S | Low | R-004 |
 | R-008 | Redaction test suite | [x] Done | 1 | P1 Next Release | S | Low | R-004 |
@@ -1927,9 +2008,9 @@ Research questions for sensitive areas:
 | R-062 | Per-app routing and kill-switch research | [x] Done | 10 | P6 Frontier | XL | High | R-061 |
 | R-063 | Multi-WAN and adapter load balancing research | [x] Partially done | 10 | P6 Frontier | XL | High | R-040 |
 | R-064 | AI anomaly detection research | [x] Partially done | 10 | P6 Frontier | L | High | R-034, R-036 |
-| R-065 | Overlay network orchestration | [x] Open | 10 | P6 Frontier | L | Medium | R-025, R-033 |
-| R-066 | Domain-fronting and traffic camouflage research | [x] Open | 10 | P6 Frontier | XL | High | R-053 |
-| R-067 | Post-quantum plugin signing research | [x] Open | 10 | P6 Frontier | L | High | R-050 |
-| R-068 | Advanced anti-censorship diagnostics concepts | [x] Open | 10 | P6 Frontier | XL | High | R-053, R-060 |
-| R-069 | CLI companion | [x] Open | 10 | P2 Product Expansion | M | Medium | R-040 |
-| R-070 | Power efficiency mode | [x] Open | 10 | P2 Product Expansion | M | Medium | R-027 |
+| R-065 | Overlay network orchestration | [x] Partially done | 10 | P6 Frontier | L | Medium | R-025, R-033 |
+| R-066 | Domain-fronting and traffic camouflage research | [x] Done | 10 | P6 Frontier | XL | High | R-053 |
+| R-067 | Post-quantum plugin signing research | [x] Done | 10 | P6 Frontier | L | High | R-050 |
+| R-068 | Advanced anti-censorship diagnostics concepts | [x] Done | 10 | P6 Frontier | XL | High | R-053, R-060 |
+| R-069 | CLI companion | [x] Partially done | 10 | P2 Product Expansion | M | Medium | R-040 |
+| R-070 | Power efficiency mode | [x] Partially done | 10 | P2 Product Expansion | M | Medium | R-027 |

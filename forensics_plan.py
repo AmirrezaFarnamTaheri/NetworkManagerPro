@@ -6,6 +6,8 @@ import subprocess
 import time
 
 import core
+import psutil
+import psutil
 
 
 SCHEMA_VERSION = 1
@@ -110,3 +112,87 @@ def adapter_failover_recommendation(adapters):
         "backup": ordered[1].get("name"),
         "recommendation": "Prefer explicit failover guidance before attempting load balancing or bonding.",
     }
+
+
+def adapter_inventory(query=None):
+    """Return a sanitized local adapter inventory for failover recommendations."""
+    if query:
+        return [dict(item) for item in query()]
+    try:
+        stats = psutil.net_if_stats()
+    except OSError:
+        stats = {}
+    adapters = []
+    for name, stat in sorted(stats.items()):
+        gateway = core.get_default_gateway(name) if getattr(stat, "isup", False) else None
+        adapters.append(
+            {
+                "name": name,
+                "up": bool(getattr(stat, "isup", False)),
+                "gateway": gateway or "",
+                "metric": 9999,
+                "speed_mbps": int(getattr(stat, "speed", 0) or 0),
+            }
+        )
+    return adapters
+
+
+def adapter_inventory():
+    """Return safe local adapter facts for failover recommendations."""
+    stats = psutil.net_if_stats()
+    addrs = psutil.net_if_addrs()
+    gateways = _default_gateways_by_interface()
+    adapters = []
+    for name, stat in stats.items():
+        addresses = []
+        for addr in addrs.get(name, []):
+            family = str(getattr(addr.family, "name", addr.family))
+            if "AF_INET" in family:
+                addresses.append(addr.address)
+        adapters.append(
+            {
+                "name": name,
+                "up": bool(stat.isup),
+                "speed_mbps": int(stat.speed or 0),
+                "gateway": gateways.get(name, ""),
+                "metric": _adapter_metric_hint(name, stat),
+                "addresses": addresses[:4],
+            }
+        )
+    return adapters
+
+
+def _default_gateways_by_interface():
+    routes = {}
+    if hasattr(psutil, "net_if_addrs"):
+        try:
+            ok, output = core.run_powershell(
+                "Get-NetRoute -DestinationPrefix '0.0.0.0/0' | "
+                "Select-Object InterfaceAlias,NextHop,RouteMetric | ConvertTo-Json"
+            )
+        except Exception:
+            return routes
+        if not ok or not output or output == "Success":
+            return routes
+        try:
+            parsed = json.loads(output)
+        except ValueError:
+            return routes
+        rows = parsed if isinstance(parsed, list) else [parsed]
+        for row in rows:
+            if isinstance(row, dict):
+                name = str(row.get("InterfaceAlias") or "")
+                if name:
+                    routes[name] = str(row.get("NextHop") or "")
+    return routes
+
+
+def _adapter_metric_hint(name, stat):
+    if not getattr(stat, "isup", False):
+        return 9999
+    lowered = str(name or "").lower()
+    if "ethernet" in lowered:
+        return 10
+    if "wi-fi" in lowered or "wifi" in lowered or "wireless" in lowered:
+        return 50
+    return 100

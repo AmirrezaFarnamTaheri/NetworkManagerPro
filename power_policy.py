@@ -25,15 +25,20 @@ def power_efficiency_policy(config, power_status=None, minimized=False):
     cfg = core.normalize_config(config)
     settings = cfg.get("settings") or {}
     interval = int(settings.get("check_interval_seconds", 60))
+    reduce_on_battery = core.parse_bool(settings.get("reduce_background_on_battery", True), True)
+    pause_when_minimized = core.parse_bool(settings.get("pause_ui_refresh_when_minimized", True), True)
     on_battery = isinstance(power_status, dict) and power_status.get("on_battery") is True
     battery_saver = isinstance(power_status, dict) and power_status.get("battery_saver") is True
-    reduced = on_battery or battery_saver or bool(minimized)
+    reduced = reduce_on_battery and (on_battery or battery_saver)
+    pause_ui = pause_when_minimized and bool(minimized)
+    effective_reduced = reduced or pause_ui
     return {
-        "reduced_mode": reduced,
-        "poll_interval_seconds": max(interval, 300) if reduced else interval,
-        "suspend_expensive_analytics": reduced,
-        "pause_ui_refresh": bool(minimized),
-        "reason": "power saving" if reduced else "normal",
+        "reduced_mode": effective_reduced,
+        "poll_interval_seconds": max(interval, 300) if effective_reduced else interval,
+        "suspend_expensive_analytics": effective_reduced,
+        "pause_ddns": bool(battery_saver and reduce_on_battery),
+        "pause_ui_refresh": pause_ui,
+        "reason": "power saving" if effective_reduced else "normal",
     }
 
 
