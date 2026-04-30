@@ -30,6 +30,12 @@ Use signed plugin bundles as the first implementation target:
 - Can enterprise policy pin an internal publisher?
 - Should unsigned local-development plugins require a visible development mode?
 
+## Algorithm Agility
+
+`signing_research.py` defines schema-versioned signature metadata so plugin bundles are not locked to one algorithm forever. Classical algorithms such as Ed25519 or ECDSA P-256 remain the practical production path for near-term research.
+
+Post-quantum candidates such as ML-DSA and SLH-DSA are tracked as research-only until libraries, tooling, bundle formats, and ecosystem support are mature enough for production use. No immature cryptography should be added as a runtime dependency solely for future-proofing.
+
 ## Prototype Acceptance Criteria
 
 - A signed sample bundle installs successfully.

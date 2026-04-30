@@ -5,7 +5,7 @@ Prepared: 2026-04-30
 Scope: Windows 10/11 desktop utility for DNS profiles, proxy settings, DDNS updates, diagnostics, event history, trusted plugins, and lightweight traffic visibility.  
 Status: Living roadmap. Research and frontier items are preserved as ambitions, not committed release promises.
 
-Implementation progress: 34 done, 23 partially done, 13 open.  
+Implementation progress: 36 done, 27 partially done, 7 open.  
 Tracking convention: each roadmap item has one checkbox state line. `[x] Done` means the item is complete; `[x] Partially done` means implementation has started but acceptance criteria are not fully satisfied; `[x] Open` means no implementation work has landed yet.
 
 ## 1. Executive Summary
@@ -1501,8 +1501,8 @@ Tests:
 Risk: High.
 
 ### R-059: PCAP Export Research
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added `forensics_plan.py` with bounded PCAP capture planning, explicit-start metadata, output directory selection, sensitive-content warning, output format constraints, docs, and tests. Remaining work is an actual capture implementation in a signed sidecar and manual validation with user-owned traffic.
 
 
 Priority: P5 Research  
@@ -1524,8 +1524,8 @@ Tests:
 Risk: High.
 
 ### R-060: Go Or Rust Forensics Sidecar Research
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added sidecar request/result schema, timeout bounds, JSON stdin/stdout invocation helper, result validation, redaction, docs, and tests. Remaining work is choosing Go or Rust through a prototype and shipping a signed optional sidecar binary.
 
 
 Priority: P5 Research  
@@ -1549,8 +1549,8 @@ Risk: High.
 ## 15. Phase 10: Frontier Research And Ambitious Capabilities
 
 ### R-061: WFP And WinDivert Enforcement Research
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added `docs/FRONTIER_FORENSICS_AND_ENFORCEMENT_RESEARCH.md` and an enforcement research gate requiring legal/ethical/safety review, driver/signing feasibility, rollback design, performance testing, and audit visibility before any WFP or WinDivert prototype can leave lab-only research.
 
 
 Priority: P6 Frontier  
@@ -1572,8 +1572,8 @@ Tests:
 Risk: High.
 
 ### R-062: Per-App Routing And Kill-Switch Research
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added research guidance requiring reversible, auditable, user-confirmed firewall-style controls before any per-app routing or blocking prototype. The safety gate blocks hidden enforcement and keeps this away from evasion or policy-bypass behavior.
 
 
 Priority: P6 Frontier  
@@ -1595,8 +1595,8 @@ Tests:
 Risk: High.
 
 ### R-063: Multi-WAN And Adapter Load Balancing Research
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added adapter failover recommendation logic that distinguishes single-path from failover candidates and orders usable adapters by metric, plus documentation separating failover, route preference, and true bonding/load balancing. Remaining work is live adapter data integration and controlled failover testing.
 
 
 Priority: P6 Frontier  
@@ -1618,8 +1618,8 @@ Tests:
 Risk: High.
 
 ### R-064: AI Anomaly Detection Research
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added `anomaly_detection.py` with statistical baselines, z-score spike detection, explainable anomaly findings over traffic and latency fields, docs, and tests. Remaining work is integration with persisted metric history, false-positive tuning, and opt-in self-healing recommendations.
 
 
 Priority: P6 Frontier  
@@ -1921,12 +1921,12 @@ Research questions for sensitive areas:
 | R-056 | Captive portal and transparent HTTP proxy diagnostics | [x] Done | 9 | P2 Product Expansion | M | Medium | R-026 |
 | R-057 | QUIC UDP degradation and PMTUD blackhole research | [x] Done | 9 | P5 Research | L | High | R-053 |
 | R-058 | BGP and route anomaly research | [x] Done | 9 | P5 Research | L | High | R-053 |
-| R-059 | PCAP export research | [x] Open | 9 | P5 Research | L | High | R-036, R-053 |
-| R-060 | Go or Rust forensics sidecar research | [x] Open | 9 | P5 Research | L | High | R-053 |
-| R-061 | WFP and WinDivert enforcement research | [x] Open | 10 | P6 Frontier | XL | High | R-040, R-053 |
-| R-062 | Per-app routing and kill-switch research | [x] Open | 10 | P6 Frontier | XL | High | R-061 |
-| R-063 | Multi-WAN and adapter load balancing research | [x] Open | 10 | P6 Frontier | XL | High | R-040 |
-| R-064 | AI anomaly detection research | [x] Open | 10 | P6 Frontier | L | High | R-034, R-036 |
+| R-059 | PCAP export research | [x] Partially done | 9 | P5 Research | L | High | R-036, R-053 |
+| R-060 | Go or Rust forensics sidecar research | [x] Partially done | 9 | P5 Research | L | High | R-053 |
+| R-061 | WFP and WinDivert enforcement research | [x] Done | 10 | P6 Frontier | XL | High | R-040, R-053 |
+| R-062 | Per-app routing and kill-switch research | [x] Done | 10 | P6 Frontier | XL | High | R-061 |
+| R-063 | Multi-WAN and adapter load balancing research | [x] Partially done | 10 | P6 Frontier | XL | High | R-040 |
+| R-064 | AI anomaly detection research | [x] Partially done | 10 | P6 Frontier | L | High | R-034, R-036 |
 | R-065 | Overlay network orchestration | [x] Open | 10 | P6 Frontier | L | Medium | R-025, R-033 |
 | R-066 | Domain-fronting and traffic camouflage research | [x] Open | 10 | P6 Frontier | XL | High | R-053 |
 | R-067 | Post-quantum plugin signing research | [x] Open | 10 | P6 Frontier | L | High | R-050 |
