@@ -41,6 +41,20 @@ For a development-only onefile executable check without the installer, run:
 scripts\build_release.ps1 -SkipInstaller
 ```
 
+## Silent Enterprise Install
+
+The Inno Setup installer supports standard silent switches:
+
+```powershell
+NetworkManagerPro-Setup-2.0.0.exe /SILENT /SUPPRESSMSGBOXES /NORESTART
+NetworkManagerPro-Setup-2.0.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+"%ProgramFiles%\Network Manager Pro\unins000.exe" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+```
+
+Uninstall preserves `%LOCALAPPDATA%\NetworkManagerPro` by default. Enterprise cleanup of user data must be explicit so config, logs, diagnostics, and history are not removed accidentally.
+
+For Intune, GPO, policy keys, and release verification, see `docs\ENTERPRISE_DEPLOYMENT.md`.
+
 ## Development Run
 
 Use a normal virtual environment:

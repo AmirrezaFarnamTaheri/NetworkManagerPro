@@ -6,6 +6,7 @@ import re
 import sys
 
 import core
+import plugin_platform
 from plugin_api import PluginAPI
 
 
@@ -17,6 +18,7 @@ class PluginManager:
         self.ui_host = ui_host
         self.plugins = []
         self._loaded_ids = set()
+        self._fingerprints = {}
 
     def discover(self):
         manifests = []
@@ -53,6 +55,21 @@ class PluginManager:
                 self._emit("plugin.load_failed", "Plugin failed to load", {"manifest": manifest_path, "error": str(exc)})
         return self.plugins
 
+    def changed_manifests(self):
+        changed = []
+        for manifest_path in self.discover():
+            try:
+                fingerprint = plugin_platform.manifest_fingerprint(manifest_path)
+            except Exception:
+                continue
+            if self._fingerprints.get(manifest_path) != fingerprint:
+                changed.append(manifest_path)
+        return changed
+
+    def reload_enabled(self):
+        self.stop_all()
+        return self.load_enabled()
+
     def stop_all(self):
         for item in list(self.plugins):
             api = item.get("api")
@@ -88,8 +105,10 @@ class PluginManager:
         if not re.match(r"^[A-Za-z0-9_.-]+$", str(manifest["id"])):
             raise ValueError("Plugin id may only contain letters, numbers, dot, dash, and underscore")
         permissions = manifest.get("permissions", [])
-        if not isinstance(permissions, list) or not all(isinstance(item, str) for item in permissions):
-            raise ValueError("Plugin permissions must be a list of strings")
+        ok, normalized_or_error = plugin_platform.validate_permissions(permissions)
+        if not ok:
+            raise ValueError(normalized_or_error)
+        manifest["permissions"] = normalized_or_error
         return manifest
 
     def _load_plugin(self, manifest_path, manifest):
@@ -135,6 +154,7 @@ class PluginManager:
             raise
         self.plugins.append(item)
         self._loaded_ids.add(manifest["id"])
+        self._fingerprints[manifest_path] = plugin_platform.manifest_fingerprint(manifest_path)
         self._emit("plugin.loaded", f"Plugin loaded: {manifest['name']}", {"id": manifest["id"], "version": manifest["version"]})
         return item
 

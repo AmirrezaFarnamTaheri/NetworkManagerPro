@@ -7,6 +7,7 @@ import zipfile
 from datetime import UTC, datetime
 
 import core
+import deep_diagnostics
 from history_store import EventStore
 
 DIAGNOSTICS_SCHEMA_VERSION = 2
@@ -37,6 +38,10 @@ def diagnostics_summary(config=None, monitor_state=None):
         "enabled_plugin_ids": _enabled_plugin_ids(cfg),
         "config": core.sanitize_config(cfg),
         "state": _state_dict(monitor_state),
+        "deep_diagnostics": {
+            "schema_version": deep_diagnostics.SCHEMA_VERSION,
+            "available_tests": sorted(deep_diagnostics.TEST_CATALOG.keys()),
+        },
     }
 
 

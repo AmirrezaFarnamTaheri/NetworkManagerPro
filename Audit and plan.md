@@ -5,7 +5,7 @@ Prepared: 2026-04-30
 Scope: Windows 10/11 desktop utility for DNS profiles, proxy settings, DDNS updates, diagnostics, event history, trusted plugins, and lightweight traffic visibility.  
 Status: Living roadmap. Research and frontier items are preserved as ambitions, not committed release promises.
 
-Implementation progress: 28 done, 11 partially done, 31 open.  
+Implementation progress: 34 done, 23 partially done, 13 open.  
 Tracking convention: each roadmap item has one checkbox state line. `[x] Done` means the item is complete; `[x] Partially done` means implementation has started but acceptance criteria are not fully satisfied; `[x] Open` means no implementation work has landed yet.
 
 ## 1. Executive Summary
@@ -1083,8 +1083,8 @@ Risk: High.
 ## 12. Phase 7: Enterprise Readiness
 
 ### R-041: HKLM Policy Overrides
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added `enterprise_policy.py` with the reserved `HKLM\SOFTWARE\Policies\NetworkManagerPro` root, normalized machine policy values, user-config override application, managed-state reporting, enterprise documentation, and tests. Remaining work is registry-backed UI integration, ADMX/ADML packaging, and broker-owned HKLM setup.
 
 
 Priority: P4 Enterprise  
@@ -1106,8 +1106,8 @@ Tests:
 Risk: High.
 
 ### R-042: Intune And GPO Deployment Model
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added `docs/ENTERPRISE_DEPLOYMENT.md` with Intune Win32 app packaging guidance, install/uninstall commands, detection rule, GPO deployment model, policy deployment options, and future ADMX direction. Remaining work is validated Intune packaging, ADMX/ADML templates, and enterprise lab testing.
 
 
 Priority: P4 Enterprise  
@@ -1129,8 +1129,8 @@ Tests:
 Risk: Medium.
 
 ### R-043: Windows Event Log Export
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added `event_log.py` with sanitized payload formatting, Event Log source registration command generation, and a Windows `Write-EventLog` wrapper. Tests verify redaction and source escaping. Remaining work is installer or broker registration plus routing key app events to Event Log when policy enables it.
 
 
 Priority: P4 Enterprise  
@@ -1152,8 +1152,8 @@ Tests:
 Risk: Medium.
 
 ### R-044: SIEM And OpenTelemetry Research
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added `docs/SIEM_OPENTELEMETRY_RESEARCH.md` comparing Windows Event Forwarding, OpenTelemetry, Syslog, Splunk HEC, Datadog, and Microsoft Sentinel. The research recommends Windows Event Log plus Windows Event Forwarding first, with OTLP and vendor exporters deferred until local audit events stabilize.
 
 
 Priority: P5 Research  
@@ -1175,8 +1175,8 @@ Tests:
 Risk: High.
 
 ### R-045: Silent Installer Options
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Documented supported Inno Setup silent install/uninstall switches in `docs/INSTALL.md` and enterprise deployment guidance, and clarified that user data is preserved by default while cleanup must be explicit. Remaining work is installer-level optional cleanup behavior and manual validation against built setup artifacts.
 
 
 Priority: P4 Enterprise  
@@ -1198,8 +1198,8 @@ Tests:
 Risk: Medium.
 
 ### R-046: Code Signing And Update Verification
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added `release_verification.py` with SHA256 release manifest creation, manifest verification, and Authenticode `signtool verify` wrapper plus tests for hash verification and mismatch detection. Remaining work is CI signing secret integration, timestamping, post-build signature checks, and published update metadata.
 
 
 Priority: P4 Enterprise  
@@ -1223,8 +1223,8 @@ Risk: Medium.
 ## 13. Phase 8: Plugin Platform And Marketplace
 
 ### R-047: Plugin Subprocess Isolation
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added `plugin_platform.py` with subprocess isolation planning, host command shape, timeout metadata, per-plugin capability summaries, and docs describing the plugin host model. Remaining work is the real `plugin_host.py`, IPC transport, crash restart policy, and routing PluginAPI calls across the boundary.
 
 
 Priority: P3 Advanced Architecture  
@@ -1246,8 +1246,8 @@ Tests:
 Risk: High.
 
 ### R-048: Per-Plugin Virtual Environments
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added deterministic per-plugin environment paths under `%LOCALAPPDATA%\NetworkManagerPro\plugin_envs\<plugin_id>`, documented the dependency isolation model, and covered path planning in tests. Remaining work is dependency metadata, environment creation, install failure handling, and subprocess execution from the plugin environment.
 
 
 Priority: P2 Product Expansion  
@@ -1269,8 +1269,8 @@ Tests:
 Risk: High.
 
 ### R-049: Plugin Hot Reload
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added manifest/entrypoint fingerprinting, `PluginManager.changed_manifests()`, and `PluginManager.reload_enabled()` that stops existing plugin tasks before reloading. Tests verify changed plugin code is detected. Remaining work is selective reload, UI controls, and subprocess host restart once isolation exists.
 
 
 Priority: P2 Product Expansion  
@@ -1292,8 +1292,8 @@ Tests:
 Risk: Medium.
 
 ### R-050: Signed Plugin Bundles
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added plugin bundle digest manifest generation, verification that detects missing or tampered files, path escape protection, tests, and supply-chain design notes. Remaining work is archive format, publisher signatures, key rotation, revocation, and installation-time enforcement.
 
 
 Priority: P5 Research  
@@ -1315,8 +1315,8 @@ Tests:
 Risk: High.
 
 ### R-051: Plugin Marketplace UI
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added marketplace registry parsing with publisher, bundle URL, digest, permissions, and signature metadata, plus documentation for browse/install/update/remove UI requirements and risk warnings. Remaining work is the actual Marketplace tab, trusted registry transport, install/update/remove workflow, and signed bundle enforcement.
 
 
 Priority: P5 Research  
@@ -1338,8 +1338,8 @@ Tests:
 Risk: High.
 
 ### R-052: WASM Plugin Runtime Research
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added `docs/WASM_PLUGIN_RUNTIME_RESEARCH.md`, recommending subprocess Python isolation first and keeping WASM as a later specialized runtime if `wasmtime-py`, WASI capability limits, packaging, and developer experience prove acceptable. The decision gate and prototype criteria are documented.
 
 
 Priority: P5 Research  
@@ -1363,8 +1363,8 @@ Risk: High.
 ## 14. Phase 9: Deep Diagnostics And Network Forensics
 
 ### R-053: Consent-Based Diagnostics Framework
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added `deep_diagnostics.py` with versioned consent prompts, passive/local-active/external-active test classification, duration and data-collected metadata, cancellable test descriptions, and a result schema that separates evidence from recommendations. Diagnostics summary now exposes available deep diagnostic tests, with unit coverage.
 
 
 Priority: P5 Research  
@@ -1386,8 +1386,8 @@ Tests:
 Risk: High.
 
 ### R-054: DNS Poisoning And Transparent DNS Proxy Detection
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added DNS integrity classification for local versus user-approved trusted resolver answers, status outcomes for normal/filtered/mismatch/partial/inconclusive results, sanitized evidence schema, docs, and tests. Remaining work is UI consent flow, trusted encrypted resolver integration, and controlled transparent DNS proxy lab validation.
 
 
 Priority: P5 Research  
@@ -1409,8 +1409,8 @@ Tests:
 Risk: High.
 
 ### R-055: SNI Filtering And SSL Inspection Detection
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added TLS certificate issuer/subject evidence collection and classification scaffolding, expected issuer hint checks, safe-domain validation, docs, and tests. Remaining work is UI consent, owned-domain SNI comparison research, and controlled network validation without prohibited target lists.
 
 
 Priority: P5 Research  
@@ -1432,8 +1432,8 @@ Tests:
 Risk: High.
 
 ### R-056: Captive Portal And Transparent HTTP Proxy Diagnostics
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Deep diagnostics now reuse the safe captive portal classifier to distinguish normal connectivity, likely captive portal redirects, modified endpoint content, and inconclusive failures. Results include safe evidence and user-facing recommendations without collecting unnecessary content.
 
 
 Priority: P2 Product Expansion  
@@ -1455,8 +1455,8 @@ Tests:
 Risk: Medium.
 
 ### R-057: QUIC UDP Degradation And PMTUD Blackhole Research
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added `docs/TRANSPORT_AND_ROUTE_DIAGNOSTICS_RESEARCH.md` with safe UDP/QUIC comparison boundaries, PMTUD research limits, prototype constraints, cancellation requirements, and sidecar direction for any raw-socket or platform-specific work.
 
 
 Priority: P5 Research  
@@ -1478,8 +1478,8 @@ Tests:
 Risk: High.
 
 ### R-058: BGP And Route Anomaly Research
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added route anomaly research guidance covering sanitized local route evidence, traceroute summaries, optional ASN/Geo-IP and looking-glass research, confidence levels, and a strict no-attribution-without-evidence rule.
 
 
 Priority: P5 Research  
@@ -1903,24 +1903,24 @@ Research questions for sensitive areas:
 | R-038 | Windows Service versus on-demand broker decision record | [x] Done | 6 | P3 Advanced Architecture | M | Medium | R-018 |
 | R-039 | Named pipe IPC with ACLs | [x] Partially done | 6 | P3 Advanced Architecture | L | High | R-038 |
 | R-040 | Move privileged mutations into broker | [x] Partially done | 6 | P3 Advanced Architecture | L | High | R-037, R-039 |
-| R-041 | HKLM policy overrides | [x] Open | 7 | P4 Enterprise | L | High | R-037 |
-| R-042 | Intune and GPO deployment model | [x] Open | 7 | P4 Enterprise | M | Medium | R-041 |
-| R-043 | Windows Event Log export | [x] Open | 7 | P4 Enterprise | M | Medium | R-010, R-040 |
-| R-044 | SIEM and OpenTelemetry research | [x] Open | 7 | P5 Research | L | High | R-043 |
-| R-045 | Silent installer options | [x] Open | 7 | P4 Enterprise | M | Medium | R-042 |
-| R-046 | Code signing and update verification | [x] Open | 7 | P4 Enterprise | M | Medium | R-005 |
-| R-047 | Plugin subprocess isolation | [x] Open | 8 | P3 Advanced Architecture | L | High | R-016, R-039 |
-| R-048 | Per-plugin virtual environments | [x] Open | 8 | P2 Product Expansion | L | High | R-047 |
-| R-049 | Plugin hot reload | [x] Open | 8 | P2 Product Expansion | M | Medium | R-016 |
-| R-050 | Signed plugin bundles | [x] Open | 8 | P5 Research | L | High | R-017 |
-| R-051 | Plugin marketplace UI | [x] Open | 8 | P5 Research | L | High | R-050 |
-| R-052 | WASM plugin runtime research | [x] Open | 8 | P5 Research | L | High | R-047 |
-| R-053 | Consent-based diagnostics framework | [x] Open | 9 | P5 Research | L | High | R-003, R-035 |
-| R-054 | DNS poisoning and transparent DNS proxy detection | [x] Open | 9 | P5 Research | L | High | R-053 |
-| R-055 | SNI filtering and SSL inspection detection | [x] Open | 9 | P5 Research | L | High | R-053 |
-| R-056 | Captive portal and transparent HTTP proxy diagnostics | [x] Open | 9 | P2 Product Expansion | M | Medium | R-026 |
-| R-057 | QUIC UDP degradation and PMTUD blackhole research | [x] Open | 9 | P5 Research | L | High | R-053 |
-| R-058 | BGP and route anomaly research | [x] Open | 9 | P5 Research | L | High | R-053 |
+| R-041 | HKLM policy overrides | [x] Partially done | 7 | P4 Enterprise | L | High | R-037 |
+| R-042 | Intune and GPO deployment model | [x] Partially done | 7 | P4 Enterprise | M | Medium | R-041 |
+| R-043 | Windows Event Log export | [x] Partially done | 7 | P4 Enterprise | M | Medium | R-010, R-040 |
+| R-044 | SIEM and OpenTelemetry research | [x] Done | 7 | P5 Research | L | High | R-043 |
+| R-045 | Silent installer options | [x] Partially done | 7 | P4 Enterprise | M | Medium | R-042 |
+| R-046 | Code signing and update verification | [x] Partially done | 7 | P4 Enterprise | M | Medium | R-005 |
+| R-047 | Plugin subprocess isolation | [x] Partially done | 8 | P3 Advanced Architecture | L | High | R-016, R-039 |
+| R-048 | Per-plugin virtual environments | [x] Partially done | 8 | P2 Product Expansion | L | High | R-047 |
+| R-049 | Plugin hot reload | [x] Partially done | 8 | P2 Product Expansion | M | Medium | R-016 |
+| R-050 | Signed plugin bundles | [x] Partially done | 8 | P5 Research | L | High | R-017 |
+| R-051 | Plugin marketplace UI | [x] Partially done | 8 | P5 Research | L | High | R-050 |
+| R-052 | WASM plugin runtime research | [x] Done | 8 | P5 Research | L | High | R-047 |
+| R-053 | Consent-based diagnostics framework | [x] Done | 9 | P5 Research | L | High | R-003, R-035 |
+| R-054 | DNS poisoning and transparent DNS proxy detection | [x] Partially done | 9 | P5 Research | L | High | R-053 |
+| R-055 | SNI filtering and SSL inspection detection | [x] Partially done | 9 | P5 Research | L | High | R-053 |
+| R-056 | Captive portal and transparent HTTP proxy diagnostics | [x] Done | 9 | P2 Product Expansion | M | Medium | R-026 |
+| R-057 | QUIC UDP degradation and PMTUD blackhole research | [x] Done | 9 | P5 Research | L | High | R-053 |
+| R-058 | BGP and route anomaly research | [x] Done | 9 | P5 Research | L | High | R-053 |
 | R-059 | PCAP export research | [x] Open | 9 | P5 Research | L | High | R-036, R-053 |
 | R-060 | Go or Rust forensics sidecar research | [x] Open | 9 | P5 Research | L | High | R-053 |
 | R-061 | WFP and WinDivert enforcement research | [x] Open | 10 | P6 Frontier | XL | High | R-040, R-053 |
