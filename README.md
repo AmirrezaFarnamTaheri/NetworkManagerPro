@@ -21,7 +21,7 @@ Supported build/runtime Python versions for source builds are 3.11 through 3.13.
 
 - Config: `%LOCALAPPDATA%\NetworkManagerPro\config.json`
 - Logs: `%LOCALAPPDATA%\NetworkManagerPro\logs\app.log`
-- History: `%LOCALAPPDATA%\NetworkManagerPro\history\events.jsonl`
+- History: `%LOCALAPPDATA%\NetworkManagerPro\history\events.sqlite3`
 - User plugins: `%LOCALAPPDATA%\NetworkManagerPro\plugins\`
 
 The app creates config from built-in defaults on first launch. There is no required loose config file beside the executable.

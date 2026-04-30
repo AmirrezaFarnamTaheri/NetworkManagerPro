@@ -37,7 +37,7 @@ The file is created automatically from built-in defaults. The installed executab
 ## Keys
 
 - `config_version`: current config schema version.
-- `ddns_update_url`: optional HTTP(S) GET URL for your DDNS provider. Leave empty until configured.
+- `ddns_update_url`: reserved for legacy import fallback only. New saves store the DDNS URL in Windows Credential Manager and keep this config value empty.
 - `settings.auto_update_ddns`: sync DDNS when the public IP differs from the last successful synced IP.
 - `settings.check_interval_seconds`: monitor interval, clamped from 15 to 86400 seconds.
 - `settings.minimize_to_tray_on_close`: close button hides the window instead of exiting.

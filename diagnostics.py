@@ -1,11 +1,13 @@
 import json
 import os
 import re
+import sqlite3
 import uuid
 import zipfile
 from datetime import datetime
 
 import core
+from history_store import EventStore
 
 
 def diagnostics_summary(config=None, monitor_state=None):
@@ -17,7 +19,7 @@ def diagnostics_summary(config=None, monitor_state=None):
             "app_base": core.app_base_dir(),
             "config": core.config_path(),
             "logs": core.logs_dir(),
-            "history": core.history_events_path(),
+            "history": core.history_db_path(),
             "plugins": core.plugins_dir(),
         },
         "config": core.sanitize_config(config or core.load_config() or {}),
@@ -37,7 +39,7 @@ def export_bundle(config=None, monitor_state=None):
     with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as bundle:
         bundle.writestr("summary.json", summary)
         _write_text_if_exists(bundle, core.log_file_path(), "logs/app.log")
-        _write_history_if_exists(bundle, core.history_events_path(), "history/events.jsonl")
+        _write_history_if_exists(bundle, core.history_db_path(), "history/events.jsonl")
     return path
 
 
@@ -54,16 +56,9 @@ def _write_history_if_exists(bundle, source, arcname):
     try:
         if not os.path.exists(source):
             return
-        rows = []
-        with open(source, "r", encoding="utf-8", errors="replace") as f:
-            for line in f:
-                try:
-                    item = json.loads(line)
-                    rows.append(json.dumps(core.redact_value(item), ensure_ascii=False, sort_keys=True, default=str))
-                except json.JSONDecodeError:
-                    rows.append(_redact_text(line.rstrip("\n")))
-        bundle.writestr(arcname, "\n".join(rows) + ("\n" if rows else ""))
-    except OSError as exc:
+        history = EventStore(source).export_jsonl()
+        bundle.writestr(arcname, history + ("\n" if history else ""))
+    except (OSError, sqlite3.Error) as exc:
         bundle.writestr(f"errors/{arcname}.error.txt", str(exc))
 
 

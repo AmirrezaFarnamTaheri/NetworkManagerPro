@@ -580,7 +580,7 @@ class NetworkManagerGUI(ctk.CTk):
         help_text = (
             f"Config: {self.config_path}\n"
             f"Logs: {core.logs_dir()}\n"
-            f"History: {core.history_events_path()}\n"
+            f"History: {core.history_db_path()}\n"
             f"Plugins: {core.plugins_dir()}\n\n"
             "Use Dashboard for live status, History for recent actions and detected changes, "
             "and Tools for diagnostics export."
@@ -872,13 +872,19 @@ class NetworkManagerGUI(ctk.CTk):
             self.show_toast("Error", normalized_or_error)
             return
         url = normalized_or_error
+        if url:
+            stored, stored_or_error = core.store_ddns_update_url(url)
+            if not stored:
+                self.show_toast("Error", stored_or_error)
+                return
+            url = stored_or_error
+        else:
+            core.clear_ddns_update_url()
         with self._config_lock:
             if not isinstance(self.config.get("settings"), dict):
                 self.config["settings"] = {}
-            if url:
-                self.config["ddns_update_url"] = url
-            else:
-                self.config.pop("ddns_update_url", None)
+            self.config["ddns_update_url"] = ""
+            if not url:
                 self.config["settings"]["auto_update_ddns"] = False
                 if hasattr(self, "auto_ddns_var"):
                     self.auto_ddns_var.set(False)

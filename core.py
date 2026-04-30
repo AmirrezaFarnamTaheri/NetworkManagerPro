@@ -18,6 +18,11 @@ import psutil
 import requests
 from ping3 import ping
 
+try:
+    import keyring
+except Exception:
+    keyring = None
+
 _config_file_lock = threading.RLock()
 _http_lock = threading.RLock()
 _http_session = requests.Session()
@@ -29,12 +34,14 @@ _public_ip_cache = {
 }
 _RUN_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
 _RUN_VALUE_NAME = "NetworkManagerPro"
+_DDNS_CREDENTIAL_USER = "ddns_update_url"
 APP_NAME = "NetworkManagerPro"
 APP_DISPLAY_NAME = "Network Manager Pro"
 APP_VERSION = "2.0.0"
+CONFIG_VERSION = 1
 
 DEFAULT_CONFIG = {
-    "config_version": 1,
+    "config_version": CONFIG_VERSION,
     "ddns_update_url": "",
     "settings": {
         "auto_update_ddns": False,
@@ -64,6 +71,14 @@ _HOSTNAME_RE = re.compile(
 
 def logger():
     return logging.getLogger(APP_NAME)
+
+
+def log_event(level, event, **fields):
+    """Log a structured event name with redacted key/value fields."""
+    safe_event = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(event or "app.event")).strip("_") or "app.event"
+    safe_fields = redact_value(fields)
+    message = " ".join(f"{key}={json.dumps(value, sort_keys=True, default=str)}" for key, value in sorted(safe_fields.items()))
+    logger().log(level, "%s%s%s", safe_event, " " if message else "", message)
 
 
 def config_lock():
@@ -96,8 +111,8 @@ def history_dir():
     return os.path.join(app_data_dir(), "history")
 
 
-def history_events_path():
-    return os.path.join(history_dir(), "events.jsonl")
+def history_db_path():
+    return os.path.join(history_dir(), "events.sqlite3")
 
 
 def plugins_dir():
@@ -138,7 +153,7 @@ def setup_logging(level=logging.INFO):
         app_base_dir(),
         config_path(),
         log_path,
-        history_events_path(),
+        history_db_path(),
         plugins_dir(),
     )
     return log_path
@@ -168,8 +183,22 @@ def load_config(config_path=None):
             return None
         try:
             with open(config_path, "r", encoding="utf-8") as f:
-                return normalize_config(json.load(f))
-        except (OSError, json.JSONDecodeError) as exc:
+                raw = json.load(f)
+            if _config_version(raw) > CONFIG_VERSION:
+                backup = _backup_config_file(config_path, "unsupported")
+                logger().warning(
+                    "config_load_unsupported_version path=%s backup=%s version=%s",
+                    config_path,
+                    backup,
+                    _config_version(raw),
+                )
+                return None
+            return normalize_config(raw)
+        except json.JSONDecodeError as exc:
+            backup = _backup_config_file(config_path, "invalid")
+            logger().warning("config_load_invalid_json path=%s backup=%s error=%s", config_path, backup, exc, exc_info=True)
+            return None
+        except OSError as exc:
             logger().warning("config_load_failed path=%s error=%s", config_path, exc, exc_info=True)
             return None
 
@@ -202,6 +231,27 @@ def save_config(config, config_path=None):
 
 def default_config():
     return copy.deepcopy(DEFAULT_CONFIG)
+
+
+def _config_version(config):
+    if not isinstance(config, dict):
+        return CONFIG_VERSION
+    try:
+        return int(config.get("config_version", CONFIG_VERSION))
+    except (TypeError, ValueError):
+        return CONFIG_VERSION
+
+
+def _backup_config_file(path, reason):
+    try:
+        if not os.path.exists(path):
+            return ""
+        backup = f"{path}.{reason}.{int(time.time())}.bak"
+        os.replace(path, backup)
+        return backup
+    except OSError:
+        logger().warning("config_backup_failed path=%s reason=%s", path, reason, exc_info=True)
+        return ""
 
 
 def normalize_config(config):
@@ -264,6 +314,7 @@ def normalize_config(config):
 
     if merged.get("ddns_update_url") is not None:
         merged["ddns_update_url"] = str(merged["ddns_update_url"]).strip()
+    merged["config_version"] = CONFIG_VERSION
     return merged
 
 
@@ -439,15 +490,52 @@ def sanitize_config(cfg):
     return sanitized
 
 
+def store_ddns_update_url(url):
+    """Store the DDNS update URL in the OS credential store."""
+    valid, normalized_or_error = validate_http_url(url, required=True)
+    if not valid:
+        return False, normalized_or_error
+    if keyring is None:
+        return False, "Python keyring is not available."
+    try:
+        keyring.set_password(APP_NAME, _DDNS_CREDENTIAL_USER, normalized_or_error)
+        return True, normalized_or_error
+    except Exception as exc:
+        logger().warning("ddns_secret_store_failed error=%s", exc, exc_info=True)
+        return False, f"Credential storage error: {exc}"
+
+
+def clear_ddns_update_url():
+    """Remove the DDNS update URL from the OS credential store."""
+    if keyring is None:
+        return True
+    try:
+        keyring.delete_password(APP_NAME, _DDNS_CREDENTIAL_USER)
+    except Exception:
+        logger().debug("ddns_secret_clear_skipped", exc_info=True)
+    return True
+
+
+def _load_ddns_update_url_secret():
+    if keyring is None:
+        return None
+    try:
+        value = keyring.get_password(APP_NAME, _DDNS_CREDENTIAL_USER)
+    except Exception:
+        logger().debug("ddns_secret_load_failed", exc_info=True)
+        return None
+    return str(value).strip() if value else None
+
+
 def get_ddns_update_url(cfg):
-    """DDNS update URL from config."""
+    """DDNS update URL from OS credential storage, with config fallback for unsaved legacy state."""
+    secret = _load_ddns_update_url_secret()
+    if secret:
+        return secret
     if not cfg or not isinstance(cfg, dict):
         return None
     url = cfg.get("ddns_update_url")
-    if url is None:
-        return None
-    url = str(url).strip()
-    return url or None
+    return str(url).strip() or None
 
 
 def run_at_startup_command():

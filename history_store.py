@@ -1,8 +1,10 @@
 import json
 import os
+import sqlite3
 import threading
 import time
 import uuid
+from contextlib import closing
 from dataclasses import asdict, dataclass, field
 
 import core
@@ -19,21 +21,32 @@ class Event:
 
 
 class EventStore:
-    def __init__(self, path=None, max_bytes=5_000_000):
-        self.path = path or core.history_events_path()
-        self.max_bytes = max_bytes
+    def __init__(self, path=None):
+        self.path = path or core.history_db_path()
         self._lock = threading.RLock()
         os.makedirs(os.path.dirname(self.path), exist_ok=True)
+        self._init_db()
 
     def append(self, event_type, summary, details=None, attribution="NetworkManagerPro"):
-        event = Event(event_type, summary, core.redact_value(details or {}), attribution)
+        event = Event(event_type, str(summary), core.redact_value(details or {}), str(attribution))
         record = asdict(event)
-        with self._lock:
-            self._rotate_if_needed()
-            with open(self.path, "a", encoding="utf-8", newline="\n") as f:
-                f.write(json.dumps(record, ensure_ascii=False, sort_keys=True, default=str) + "\n")
-                f.flush()
-                os.fsync(f.fileno())
+        details_json = json.dumps(record["details"], ensure_ascii=False, sort_keys=True, default=str)
+        with self._lock, closing(self._connect()) as conn:
+            with conn:
+                conn.execute(
+                    """
+                    INSERT INTO events (id, timestamp, type, summary, details, attribution)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        record["id"],
+                        record["timestamp"],
+                        record["type"],
+                        record["summary"],
+                        details_json,
+                        record["attribution"],
+                    ),
+                )
         core.logger().info("event type=%s summary=%s", event_type, summary)
         return record
 
@@ -44,35 +57,75 @@ class EventStore:
             limit = 100
         if limit <= 0:
             return []
-        if not os.path.exists(self.path):
-            return []
-        with self._lock:
-            with open(self.path, "r", encoding="utf-8") as f:
-                lines = f.readlines()
-        events = []
-        for line in reversed(lines):
-            try:
-                item = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-            if event_type and item.get("type") != event_type:
-                continue
-            events.append(item)
-            if len(events) >= limit:
-                break
-        return list(reversed(events))
+        with self._lock, closing(self._connect()) as conn:
+            if event_type:
+                rows = conn.execute(
+                    """
+                    SELECT id, timestamp, type, summary, details, attribution
+                    FROM events
+                    WHERE type = ?
+                    ORDER BY timestamp DESC, rowid DESC
+                    LIMIT ?
+                    """,
+                    (str(event_type), limit),
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    """
+                    SELECT id, timestamp, type, summary, details, attribution
+                    FROM events
+                    ORDER BY timestamp DESC, rowid DESC
+                    LIMIT ?
+                    """,
+                    (limit,),
+                ).fetchall()
+        return list(reversed([self._row_to_event(row) for row in rows]))
 
     def clear(self):
-        with self._lock:
-            open(self.path, "w", encoding="utf-8").close()
-        self.append("history.cleared", "History cleared")
+        with self._lock, closing(self._connect()) as conn:
+            with conn:
+                conn.execute("DELETE FROM events")
+        return self.append("history.cleared", "History cleared")
 
-    def _rotate_if_needed(self):
-        if os.path.exists(self.path) and os.path.getsize(self.path) > self.max_bytes:
-            backup = self.path + ".1"
-            try:
-                if os.path.exists(backup):
-                    os.remove(backup)
-                os.replace(self.path, backup)
-            except OSError:
-                core.logger().warning("history_rotate_failed path=%s", self.path, exc_info=True)
+    def export_jsonl(self):
+        rows = self.recent(100000)
+        return "\n".join(json.dumps(core.redact_value(row), ensure_ascii=False, sort_keys=True, default=str) for row in rows)
+
+    def _connect(self):
+        conn = sqlite3.connect(self.path, timeout=10)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA foreign_keys=ON")
+        return conn
+
+    def _init_db(self):
+        with self._lock, closing(self._connect()) as conn:
+            with conn:
+                conn.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS events (
+                        id TEXT PRIMARY KEY,
+                        timestamp REAL NOT NULL,
+                        type TEXT NOT NULL,
+                        summary TEXT NOT NULL,
+                        details TEXT NOT NULL DEFAULT '{}',
+                        attribution TEXT NOT NULL
+                    )
+                    """
+                )
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_events_timestamp ON events(timestamp)")
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_events_type_timestamp ON events(type, timestamp)")
+
+    def _row_to_event(self, row):
+        try:
+            details = json.loads(row["details"] or "{}")
+        except json.JSONDecodeError:
+            details = {}
+        return {
+            "id": row["id"],
+            "timestamp": row["timestamp"],
+            "type": row["type"],
+            "summary": row["summary"],
+            "details": core.redact_value(details),
+            "attribution": row["attribution"],
+        }

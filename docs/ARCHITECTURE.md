@@ -8,7 +8,7 @@ Network Manager Pro is a Windows desktop app packaged as a PyInstaller onefile e
 - `main.py` owns startup, elevation, single-instance protection, tray integration, service lifetime, plugin loading, and graceful shutdown.
 - `gui.py` owns the CustomTkinter interface and dispatches slow operations to background worker threads.
 - `monitor_service.py` owns the single polling loop for effective network state, external config reloads, settings-change events, and automatic DDNS updates.
-- `history_store.py` stores local event history as JSON lines with rotation.
+- `history_store.py` stores local event history in SQLite with WAL enabled.
 - `diagnostics.py` exports redacted diagnostics bundles.
 - `traffic_collector.py` provides best-effort process connection summaries.
 - `plugin_manager.py` and `plugin_api.py` load trusted plugins from bundled and user plugin folders.
@@ -19,7 +19,7 @@ User-writable data lives under `%LOCALAPPDATA%\NetworkManagerPro`:
 
 - `config.json`: normalized user configuration.
 - `logs\app.log`: rotating app log.
-- `history\events.jsonl`: local event history.
+- `history\events.sqlite3`: local event history.
 - `plugins\`: optional user-installed plugins.
 
 Bundled docs, assets, and example plugins are embedded into `NetworkManagerPro.exe` by PyInstaller. They are not required beside the installed executable.

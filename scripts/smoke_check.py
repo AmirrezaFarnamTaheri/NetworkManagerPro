@@ -120,7 +120,7 @@ def check_plugin_config_resilience():
 
 def check_history_serialization():
     with tempfile.TemporaryDirectory() as tmp:
-        store = EventStore(os.path.join(tmp, "events.jsonl"))
+        store = EventStore(os.path.join(tmp, "events.sqlite3"))
         store.append("test.object", "Object detail", {"path": os.path.join(tmp, "x"), "type": object()})
         assert store.recent(0) == []
         events = store.recent(1)
