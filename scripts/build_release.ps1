@@ -1,5 +1,8 @@
 param(
-    [switch]$SkipInstaller
+    [switch]$SkipInstaller,
+    [string]$SigningCertPath = $env:NMP_SIGNING_CERT_PATH,
+    [string]$SigningCertPassword = $env:NMP_SIGNING_CERT_PASSWORD,
+    [string]$TimestampUrl = "http://timestamp.digicert.com"
 )
 
 # Build onefile app + single-file Inno Setup installer (Windows).
@@ -66,14 +69,41 @@ function Invoke-Native {
     }
 }
 
+function Invoke-SignArtifact {
+    param([Parameter(Mandatory = $true)][string]$Path)
+
+    if (!$SigningCertPath) {
+        Write-Host "Skipping Authenticode signing because no signing certificate path was provided." -ForegroundColor Yellow
+        return
+    }
+    $signtool = Get-Command signtool.exe -ErrorAction SilentlyContinue
+    if (!$signtool) {
+        throw "signtool.exe was not found, but signing was requested."
+    }
+    $args = @("sign", "/fd", "SHA256", "/tr", $TimestampUrl, "/td", "SHA256", "/f", $SigningCertPath)
+    if ($SigningCertPassword) {
+        $args += @("/p", $SigningCertPassword)
+    }
+    $args += $Path
+    Invoke-Native "Sign $Path" { & $signtool.Source @args }
+    Invoke-Native "Verify signature $Path" { & $signtool.Source verify /pa /all $Path }
+}
+
 $Python = @(Get-PythonCommand)
 $PythonExe = $Python[0]
 $PythonArgs = if ($Python.Count -gt 1) { $Python[1..($Python.Count - 1)] } else { @() }
 $BuildVenv = Join-Path $Root ".venv-build"
 $BuildPython = Join-Path $BuildVenv "Scripts\python.exe"
-$Iss = Join-Path $Root "installer\NetworkManagerPro.iss"
+$Iss = Join-Path $Root "installer\LucidNet.iss"
 
-$CoreVersion = Get-RegexValue -Text (Get-Content -Raw (Join-Path $Root "core.py")) -Pattern 'APP_VERSION\s*=\s*"([^"]+)"' -Label "core APP_VERSION"
+$CoreVersion = (& $PythonExe @PythonArgs -c "import sys; sys.path.insert(0, r'$Root'); import branding; print(branding.PRODUCT_VERSION)").Trim()
+if (!$CoreVersion) {
+    throw "Could not read branding PRODUCT_VERSION."
+}
+$InstallerBaseName = (& $PythonExe @PythonArgs -c "import sys; sys.path.insert(0, r'$Root'); import branding; print(branding.INSTALLER_BASENAME)").Trim()
+if (!$InstallerBaseName) {
+    throw "Could not read branding INSTALLER_BASENAME."
+}
 $ProjectVersion = Get-RegexValue -Text (Get-Content -Raw (Join-Path $Root "pyproject.toml")) -Pattern 'version\s*=\s*"([^"]+)"' -Label "pyproject version"
 $InstallerVersion = Get-RegexValue -Text (Get-Content -Raw $Iss) -Pattern '#define\s+MyAppVersion\s+"([^"]+)"' -Label "installer version"
 if ($CoreVersion -ne $ProjectVersion -or $CoreVersion -ne $InstallerVersion) {
@@ -101,10 +131,11 @@ Invoke-Native "Generate icons" { & $BuildPython scripts\make_icons.py }
 Write-Host "Running PyInstaller..." -ForegroundColor Cyan
 Invoke-Native "PyInstaller build" { & $BuildPython -m PyInstaller --noconfirm main.spec }
 
-$Exe = Join-Path $Root "dist\NetworkManagerPro.exe"
+$Exe = Join-Path $Root "dist\$InstallerBaseName.exe"
 if (!(Test-Path $Exe)) {
     throw "Expected build output missing: $Exe"
 }
+Invoke-SignArtifact $Exe
 
 $candidates = @(
     "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
@@ -114,14 +145,19 @@ $iscc = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
 
 if ($SkipInstaller) {
     Write-Host "Skipping installer because -SkipInstaller was supplied." -ForegroundColor Yellow
-    Write-Host "Build output: dist\NetworkManagerPro.exe" -ForegroundColor Green
+    $Manifest = Join-Path $Root "dist\release-manifest.json"
+    Invoke-Native "Write release manifest" { & $BuildPython -c "import release_verification; release_verification.write_release_manifest([r'$Exe'], '$CoreVersion', r'$Manifest')" }
+    Write-Host "Build output: dist\$InstallerBaseName.exe" -ForegroundColor Green
 } elseif ($iscc) {
     Write-Host "Building installer with Inno Setup..." -ForegroundColor Cyan
     Invoke-Native "Inno Setup build" { & $iscc $Iss }
-    $Installer = Join-Path $Root "installer\output\NetworkManagerPro-Setup-$CoreVersion.exe"
+    $Installer = Join-Path $Root "installer\output\$InstallerBaseName-Setup-$CoreVersion.exe"
     if (!(Test-Path $Installer)) {
         throw "Expected installer output missing: $Installer"
     }
+    Invoke-SignArtifact $Installer
+    $Manifest = Join-Path $Root "installer\output\release-manifest.json"
+    Invoke-Native "Write release manifest" { & $BuildPython -c "import release_verification; release_verification.write_release_manifest([r'$Exe', r'$Installer'], '$CoreVersion', r'$Manifest')" }
     Write-Host "Done. Installer: $Installer" -ForegroundColor Green
 } else {
     throw "Inno Setup 6 was not found. Install it from https://jrsoftware.org/isdl.php, or run scripts\build_release.ps1 -SkipInstaller for a development-only onefile exe."

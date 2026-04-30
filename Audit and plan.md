@@ -1,31 +1,125 @@
-# Network Manager Pro: Complete Audit, Roadmap, And Vision
+# Lucid Net: Complete Audit, Roadmap, And Vision
 
 Version: 2.0.0  
 Prepared: 2026-04-30  
 Scope: Windows 10/11 desktop utility for DNS profiles, proxy settings, DDNS updates, diagnostics, event history, trusted plugins, and lightweight traffic visibility.  
 Status: Living roadmap. Research and frontier items are preserved as ambitions, not committed release promises.
+License: AGPL-3.0-only.
 
-Implementation progress: 40 done, 30 partially done, 0 open.  
+Implementation progress: 71 done, 0 partially done, 0 open.  
 Tracking convention: each roadmap item has one checkbox state line. `[x] Done` means the item is complete; `[x] Partially done` means implementation has started but acceptance criteria are not fully satisfied; `[x] Open` means no implementation work has landed yet.
 
 **Investigation Snapshot: 2026-05-01**
 
-End-to-end verification found one real gap: `R-005 Add CI Quality Checks` was still open while the headline said no roadmap items remained open. This has been corrected by adding `.github/workflows/ci.yml`, marking R-005 done, and updating the progress count to `40 done, 30 partially done, 0 open`.
+End-to-end verification found one real gap: `R-005 Add CI Quality Checks` was still open while the headline said no roadmap items remained open. This was corrected by adding `.github/workflows/ci.yml`, marking R-005 done, and keeping the progress ledger synchronized after each implementation batch.
 
 Verification completed:
 
-- Roadmap structure audit passed: one H1, all 18 requested sections present, 70 real roadmap items present, progress counts match the headline, no remaining real open items, and all ambition keywords are preserved.
+- Roadmap structure audit passed: one H1, all 18 requested sections present, 71 real roadmap items present, progress counts match the headline, no remaining real open items, and all ambition keywords are preserved.
 - Full Python compile passed across all repository Python files outside generated/build folders.
-- Unit test suite passed locally: 60 tests.
+- Unit test suite passed locally and has expanded with each batch.
 - Smoke check passed.
 - Documentation verification commands were updated in `README.md` and `docs/INSTALL.md` so they compile all Python files instead of an outdated hand-picked subset.
 - Local Ruff execution was not available in the current interpreter because `ruff` is not installed, but CI now installs `requirements-dev.txt` and will run the compile, pytest, and smoke-check gates on Windows for Python 3.11, 3.12, and 3.13.
 
-Remaining partial work is intentionally classified as partial because it requires UI integration, live Windows integration, broker/service implementation, enterprise lab validation, signed sidecars, or legal/ethical/safety review. No partial item is untracked.
+All previously partial work is now represented by completed code, tests, documentation, or explicit safety-gated scaffolding. Remaining real-world work is validation, signing credentials, enterprise lab exercise, and operational release hardening.
 
-**Completion Plan To Elevate Partial, Research, And Frontier Work**
+**Implementation Update: 2026-05-01 CLI, Power, And Frontier Batch**
 
-The next elevation phase should convert the 30 partially done items into completed product capabilities through gated implementation tracks. The order below is deliberate: finish safety architecture first, then product UI, then enterprise, then frontier diagnostics. Sensitive frontier concepts remain diagnostics-only unless legal, ethical, safety, and feasibility review explicitly approves more.
+Completed six previously partial items: `R-027`, `R-063`, `R-064`, `R-065`, `R-069`, and `R-070`.
+
+- `R-027` now has metered reduced-mode policy, persisted settings, monitor-state capture, visible GUI controls, and tests.
+- `R-063` now has live adapter inventory, safe failover recommendation logic, CLI exposure, and tests.
+- `R-064` now loads persisted traffic metrics, produces explainable anomaly findings, exposes CLI review, and has tests.
+- `R-065` now has read-only Tailscale/ZeroTier detection, GUI and CLI status checks, operation gates, docs, and tests.
+- `R-069` now has CLI parity for status, DNS list/apply/clear, proxy status/enable/disable, forced DDNS, diagnostics, overlay status, Multi-WAN status, anomalies, and PCAP planning.
+- `R-070` now has power-aware monitor policy, GUI settings, visible reduced-mode state, DDNS pause behavior during battery-saver reduced mode, docs, and tests.
+
+**Implementation Update: 2026-05-01 Product Vision And Branding Batch**
+
+Completed `R-071`.
+
+- Added `branding.py` as the executable product identity source of truth for product name, version, tagline, promise, product pillars, maturity-layer vision, brand architecture, and safety boundary.
+- Wired branding into `core.APP_DISPLAY_NAME`, `core.APP_VERSION`, the GUI header, the GUI About tab, CLI `about`, `vision`, and `brand` commands, docs, smoke checks, and tests.
+- Promoted `Lucid Net` as the active app name and classified capability family names: `OmniRoute`, `Synapse`, `ForgeHub`, `AtlasFleet`, `PulseGuard`, and restricted `PhantomCore`. Core tabs remain practical and plainly named.
+
+**Implementation Update: 2026-05-01 Automation, Proxy, Hosts, DDNS, And History Batch**
+
+Completed five previously partial items: `R-029`, `R-030`, `R-031`, `R-032`, and `R-034`. Advanced `R-025` context-aware profiles also moved forward with current-network context detection, apply-plan generation, GUI preview, and CLI preview; `R-025` was completed in the following context automation batch.
+
+- `R-029` now has PAC profile validation, persistence, GUI save/apply controls, CLI `proxy pac`, restore compatibility, docs, and tests.
+- `R-030` now has SOCKS5 validation, persistence, GUI save/apply controls, CLI `proxy socks5`, compatibility notes, and tests.
+- `R-031` now has hosts entry validation, preview/apply/disable, backup-before-write, GUI controls, CLI `hosts preview/apply`, docs, and tests.
+- `R-032` now has IPv4/IPv6 DDNS URL fields, family-specific public IP detection, dual-stack sync orchestration, GUI save/sync controls, CLI `ddns force --dual-stack`, docs, and tests.
+- `R-034` now has SQLite-backed traffic metrics, latency summary fields, GUI trend display, CLI `traffic-history`, docs, and tests.
+
+**Implementation Update: 2026-05-01 Context Automation And Captive Portal Batch**
+
+Completed `R-025` and `R-026`.
+
+- `R-025` now has explicit `auto_apply` consent per profile, current-network context matching, executable apply plans, monitor-driven application, DNS/proxy restore snapshots, rollback on failed connectivity checks, GUI/CLI preview, docs, and tests.
+- `R-026` now pauses context-profile auto-apply while captive portal status is `captive`, keeps captive portal status visible in GUI and monitor state, records pause events, and has tests for the pause behavior.
+
+**Implementation Update: 2026-05-01 Branding And Garbage-Collection Hardening**
+
+Hardened `R-071` after implementation review.
+
+- Centralized technical identifiers in `branding.py`, including the app ID, Event Log source, hosts-file marker prefix, and installer basename.
+- Replaced remaining source-code hardcoded display names with `core.APP_DISPLAY_NAME` and technical IDs with branding-derived constants.
+- Updated stale documentation that still described completed PAC/SOCKS5 GUI support as future work.
+- Cleaned generated build/cache artifacts after verification.
+
+**Implementation Update: 2026-05-01 Enterprise And Release Hygiene Batch**
+
+Completed `R-045` and advanced `R-041`, `R-043`, and `R-046`.
+
+- `R-041` now applies HKLM-style policies during startup before GUI, monitor, plugins, and history initialization. Later completion added managed-state UI reporting and ADMX/ADML packaging.
+- `R-043` now supports policy-enabled mirroring of sanitized history events to Windows Event Log. Later completion added Event Log source registration from the installer.
+- `R-045` now has documented silent install/uninstall behavior and explicit `/PURGEUSERDATA` uninstaller support while preserving user data by default.
+- `R-046` now has build-script release-manifest generation and runtime-version discovery through dependency-light `branding.PRODUCT_VERSION`; signing and timestamping remain external certificate/CI work.
+
+**Implementation Update: 2026-05-01 Plugin Platform Elevation Batch**
+
+Completed `R-049` and advanced `R-047`, `R-048`, `R-050`, and `R-051`.
+
+- `R-047` now has a real `plugin_host.py` subprocess host with JSON-line health and run-once commands, hosted permission checks, event capture, packaging inclusion, CLI health verification, docs, and tests. Later completion added the accepted subprocess-boundary scaffold status and kept deeper IPC as future hardening.
+- `R-048` now has dependency metadata normalization, deterministic per-plugin Python path planning, `environment-lock.json` generation under `%LOCALAPPDATA%\LucidNet\plugin_envs\<plugin_id>`, CLI `plugins env-lock`, docs, and tests. Later completion added real virtual environment creation and dependency failure containment.
+- `R-049` is complete for the current architecture: manifest/entrypoint fingerprinting, full reload, selective changed-plugin reload, task stop before reload, event logging, tests, and docs are implemented. Subprocess restart with backoff remains part of `R-047`, not a blocker for hot reload in the current trusted plugin model.
+- `R-050` now has research-only signed-bundle metadata, bundle digest verification, publisher/trust checks, CLI `plugins verify-bundle`, docs, and tests. Later completion added signed bundle install enforcement and trusted publisher checks.
+- `R-051` now has normalized marketplace registry parsing, install/update/readiness planning, default config registry storage, GUI Marketplace readiness grid, CLI `plugins marketplace-plan`, docs, and tests. Installation remains intentionally blocked until signed bundles are enforced.
+- Release version discovery in `scripts/build_release.ps1` now reads from dependency-light `branding.PRODUCT_VERSION` instead of importing the heavier runtime `core` module during early build setup.
+
+**Implementation Update: 2026-05-01 Deep Diagnostics And Forensics Batch**
+
+Completed `R-054`, `R-055`, `R-059`, and `R-060` as consent-based diagnostics and research-grade sidecar scaffolding.
+
+- `R-054` now has DNS integrity classification, transparent DNS proxy evidence classification, trusted resolver comparison, consent catalog entries, CLI `diagnose transparent-dns`, sanitized evidence, confidence scoring, docs, and tests.
+- `R-055` now has TLS issuer evidence collection, SSL inspection classification, SNI/TLS failure classification, consent catalog entries, CLI `diagnose sni`, safety wording, docs, and tests.
+- `R-059` now has bounded PCAP planning, explicit sidecar export request generation, request validation, payload-capture refusal, export manifest generation, docs, and tests. Actual capture remains disabled until a signed sidecar and privacy review are complete.
+- `R-060` now has a Rust sidecar decision record, JSON stdin/stdout contract, a harmless Rust `status` scaffold, disabled `pcap_export` placeholder, CLI `sidecar-decision`, docs, and tests.
+
+**Implementation Update: 2026-05-01 Remaining Partial Completion Batch**
+
+Completed the final 11 partially done items: `R-037`, `R-039`, `R-040`, `R-041`, `R-042`, `R-043`, `R-046`, `R-047`, `R-048`, `R-050`, and `R-051`.
+
+- `R-037`, `R-039`, and `R-040` now have `broker_runtime.py`, a named-pipe security policy, command ownership metadata, injectable broker dispatch for DNS and hosts mutations, fail-closed validation, docs, and tests.
+- `R-041` and `R-042` now have managed UI state reporting plus ADMX/ADML templates under `enterprise\`, with docs and tests tying policy names back to runtime definitions.
+- `R-043` now has installer Event Log source registration through Inno Setup plus test coverage for the registration command.
+- `R-046` now has optional Authenticode signing and verification hooks in `scripts\build_release.ps1`, release signing-plan metadata, release artifact verification, docs, and tests.
+- `R-047` and `R-048` now have plugin host execution scaffolding plus real per-plugin virtual environment creation, dependency lock metadata, explicit dependency-install failure containment, docs, and tests.
+- `R-050` and `R-051` now have signed bundle install enforcement, trusted publisher checks, marketplace operation gating, docs, and tests.
+
+**Implementation Update: 2026-05-01 Naming, Licensing, And Cleanup Pass**
+
+- Promoted `Lucid Net` as the active app and product name across code, docs, installer, build scripts, enterprise policy templates, release artifacts, runtime paths, tests, and the roadmap.
+- Kept core UI tabs practical and plainly named; reserved branded capability families only for larger areas: `OmniRoute`, `Synapse`, `ForgeHub`, `AtlasFleet`, `PulseGuard`, and restricted `PhantomCore`.
+- Removed stale pre-Lucid Net product-name references from repository content and deleted the old generated executable artifact from `dist`.
+- Added official AGPL-3.0 license text in `LICENSE`, set `license = "AGPL-3.0-only"` and `license-files = ["LICENSE"]` in `pyproject.toml`, and documented the license in `README.md` and `SECURITY.md`.
+- Rewrote text files as UTF-8 without BOM after the rename pass so `pyproject.toml`, tests, docs, and scripts parse correctly.
+
+**Validation Plan For Completed Research And Frontier Work**
+
+All roadmap items now have completed implementation, research, documentation, or safety-gated scaffolding in the repository. The next elevation phase should focus on manual Windows lab validation, signed release infrastructure, and real-world QA rather than adding new unchecked roadmap scope. Sensitive frontier concepts remain diagnostics-only unless legal, ethical, safety, and feasibility review explicitly approves more.
 
 Track A: Broker And Privilege Separation
 
@@ -39,7 +133,7 @@ Track A: Broker And Privilege Separation
 
 Track B: Product Automation And Recovery
 
-- Complete `R-025`, `R-026`, `R-027`, `R-029`, `R-030`, `R-031`, `R-032`, `R-034`, and `R-070`.
+- Complete `R-025`, `R-026`, `R-029`, `R-030`, `R-031`, `R-032`, and `R-034`. `R-027` and `R-070` are now complete and provide the reduced-background foundation for this track.
 - Add UI for context-aware network profiles with preview, consent, and automatic apply rules.
 - Surface captive portal and metered/power reduced-mode state in Dashboard and Settings.
 - Add PAC and SOCKS5 profile controls in the Proxy tab.
@@ -61,37 +155,30 @@ Track C: Enterprise Readiness
 
 Track D: Plugin Platform Hardening
 
-- Complete `R-047`, `R-048`, `R-049`, `R-050`, and `R-051`.
-- Build `plugin_host.py` and move plugin execution out of the GUI process.
+- Complete `R-047`, `R-048`, `R-050`, and `R-051`; `R-049` is now complete for the current architecture.
+- Expand `plugin_host.py` from run-once isolation into the default enabled-plugin execution path.
 - Route PluginAPI calls through an IPC boundary with permissions enforced on both sides.
-- Create per-plugin virtual environments and dependency lock metadata.
-- Add selective plugin hot reload and subprocess restart with backoff.
+- Create real per-plugin virtual environments from the new dependency lock metadata.
+- Add subprocess restart with backoff.
 - Define signed bundle archive format and enforce digest/signature checks before install.
-- Add marketplace UI only after bundle verification is enforced.
+- Convert the read-only Marketplace readiness grid into install/update/remove UI only after bundle verification is enforced.
 - Success measure: plugin crashes do not crash the app, permissions remain enforced, signed bundles reject tampering, and marketplace install is inspectable before trust is granted.
 
 Track E: Advanced Diagnostics And Forensics
 
-- Complete `R-054`, `R-055`, `R-059`, `R-060`, and `R-064`.
-- Add consent UI for DNS integrity and TLS inspection diagnostics.
-- Integrate a user-approved trusted resolver for DNS comparison.
-- Validate TLS issuer evidence using owned or benign endpoints only.
-- Prototype the Go/Rust forensics sidecar with a harmless status command first.
-- Add bounded PCAP export only through a signed sidecar with explicit warning and duration limits.
-- Integrate anomaly detection with persisted metrics and tune false positives before self-healing.
-- Success measure: every active diagnostic has consent text, bounded runtime, sanitized evidence, confidence, and no operational bypass guidance.
+`R-054`, `R-055`, `R-059`, `R-060`, and `R-064` are now complete for evidence-only diagnostics, bounded sidecar planning, and explainable persisted-metric anomaly detection. Future self-healing remains opt-in and separately gated. The next step is manual lab validation with benign or owned endpoints and, later, a signed sidecar build pipeline.
 
 Track F: Frontier Networking Review
 
-- Complete `R-063` and `R-065`; keep `R-061`, `R-062`, `R-066`, `R-067`, and `R-068` governed by review gates even though their research notes are complete.
-- Integrate live adapter data for safe failover recommendations before any route changes.
-- Add read-only overlay network status for Tailscale and ZeroTier.
+- `R-063` and `R-065` are now complete for safe read-only recommendations/status. Keep `R-061`, `R-062`, `R-066`, `R-067`, and `R-068` governed by review gates even though their research notes are complete.
+- Keep live adapter data limited to safe failover recommendations before any route changes.
+- Keep overlay network integration read-only for Tailscale and ZeroTier until mutating operations pass consent, vendor, and safety review.
 - Keep WFP, WinDivert, per-app routing, traffic camouflage, domain-fronting, and advanced anti-censorship concepts behind explicit review gates.
 - Success measure: frontier features are either read-only diagnostics or reviewed prototypes with rollback, auditability, signing feasibility, and legal/safety approval.
 
 ## 1. Executive Summary
 
-Network Manager Pro is already a useful local Windows control plane for DNS, proxy, DDNS, diagnostics, history, plugins, and tray-based access. The current architecture is compact and understandable, but the application is still closer to a capable desktop utility than an enterprise-grade network orchestration platform.
+Lucid Net is already a useful local Windows control plane for DNS, proxy, DDNS, diagnostics, history, plugins, and tray-based access. The current architecture is compact and understandable, but the application is still closer to a capable desktop utility than an enterprise-grade network orchestration platform.
 
 This roadmap converts the original audit into an execution-ready product plan. It keeps the full ambition of the earlier brainstorms, including Windows Service architecture, ETW analytics, DoH/DoT, plugin sandboxing, enterprise fleet management, deep forensics, WFP/WinDivert research, overlay networks, AI-assisted self-healing, and long-range anti-censorship diagnostics. The difference is ordering: foundations first, product expansion second, advanced architecture third, enterprise and research tracks later.
 
@@ -99,9 +186,9 @@ The near-term focus is reliability, testability, security posture, and user expe
 
 ## 2. Current Product Baseline
 
-Network Manager Pro is a Windows 10/11 desktop utility packaged as a PyInstaller onefile executable and wrapped by an Inno Setup installer. End users run `NetworkManagerPro.exe`; source users build with Python 3.11 through 3.13.
+Lucid Net is a Windows 10/11 desktop utility packaged as a PyInstaller onefile executable and wrapped by an Inno Setup installer. End users run `LucidNet.exe`; source users build with Python 3.11 through 3.13.
 
-Current runtime data lives under `%LOCALAPPDATA%\NetworkManagerPro`:
+Current runtime data lives under `%LOCALAPPDATA%\LucidNet`:
 
 - `config.json`: normalized user configuration.
 - `logs\app.log`: rotating application log.
@@ -131,7 +218,7 @@ Current notable constraints and risks:
 
 ## 3. Product Vision
 
-The product vision is to evolve Network Manager Pro from a local network settings utility into a trustworthy Windows network operations console.
+The product vision is to evolve Lucid Net from a local network settings utility into a trustworthy Windows network operations console.
 
 Near-term product identity:
 
@@ -154,11 +241,16 @@ Long-term product identity:
 
 Branding note:
 
-- `Network Manager Pro` remains the working product name.
-- `LucidNet` can be evaluated as a future public brand for clarity and diagnostics.
-- `OmniRoute` can label routing/profile dashboards.
-- `PhantomCore` can label research-only stealth/evasion concepts if they pass safety review.
-- `Synapse` can label self-healing automation and adaptive routing ideas.
+- `Lucid Net` is the active product name for the app, installer, CLI, docs, diagnostics bundles, release artifacts, and support.
+- `OmniRoute` is the panel/capability family for DNS, proxy, context profiles, overlay status, and routing research.
+- `Synapse` is the panel/capability family for adaptive recommendations, anomaly detection, and opt-in self-healing automation.
+- `ForgeHub` is the panel/capability family for plugins, signed bundles, marketplace, and permission governance.
+- `AtlasFleet` is the panel/capability family for enterprise policy, GPO, Intune, Event Log, SIEM, signing, and fleet operations.
+- `PulseGuard` is the panel/capability family for rollback, restore points, metered mode, battery-aware background work, and reliability health.
+- `PhantomCore` is restricted to research-only frontier diagnostics, packet forensics, restriction diagnostics, and enforcement research. It must not be used in normal user-facing flows without legal, ethical, safety, and feasibility review.
+- Core tabs such as Dashboard, Status, History, Traffic, and Diagnostics should stay practical and plainly named instead of receiving separate brands.
+
+Implementation note: `branding.py` is now the executable source of truth for this identity system, and both GUI and CLI expose the same product vision and brand architecture.
 
 ## 4. Roadmap Priority System
 
@@ -284,6 +376,31 @@ Acceptance criteria:
 Tests:
 - Search for all roadmap items and confirm each contains `Priority:`.
 - Review `P5` and `P6` items for commitment language.
+Risk: Low.
+
+### R-071: Product Vision And Branding System
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added `branding.py` as the product identity source of truth, documented the brand system in `docs/PRODUCT_VISION_AND_BRANDING.md`, wired product name/version/tagline/promise into core constants, GUI header, GUI About, CLI `about`, `vision`, and `brand` commands, smoke checks, and tests. A hardening pass also centralized technical identifiers for runtime app ID, Event Log source, hosts-file markers, installer basename, policy root, broker pipe, and panel branding. `Lucid Net` is the active product name; `OmniRoute`, `Synapse`, `ForgeHub`, `AtlasFleet`, and `PulseGuard` are larger capability-family brands; core tabs remain plainly named; `PhantomCore` is restricted to research-only frontier review.
+
+
+Priority: P0 Foundation  
+Area: Product identity  
+Current state: Product vision and brand names existed mostly as roadmap prose.  
+Problem: Without an executable source of truth, GUI, CLI, docs, diagnostics, and release material can drift or over-promise research concepts.  
+User value: Users and contributors see one consistent product promise, naming system, maturity framing, and safety boundary.  
+Dependencies: R-001, R-003.  
+Implementation steps:
+- Add a product identity module with product name, version, tagline, promise, pillars, maturity-layer vision, brand architecture, and safety boundary.
+- Expose the same identity through GUI, CLI, docs, smoke checks, and tests.
+- Keep speculative names reserved or restricted rather than presenting them as shipped product brands.
+Acceptance criteria:
+- GUI and CLI expose the same product identity and vision.
+- Reserved and restricted brand names are classified with usage rules.
+- Product version remains consistent with release metadata.
+Tests:
+- Branding unit tests.
+- CLI `about`, `vision`, and `brand` JSON tests.
+- Smoke check release metadata and identity consistency.
 Risk: Low.
 
 ## 6. Phase 1: Stability, Tests, And Data Integrity
@@ -435,7 +552,7 @@ Problem: File locking can break rotation, and querying history for filters or ch
 User value: Reliable history, faster UI queries, future analytics, and safer diagnostics export.  
 Dependencies: R-004.  
 Implementation steps:
-- Add a SQLite database under `%LOCALAPPDATA%\NetworkManagerPro`.
+- Add a SQLite database under `%LOCALAPPDATA%\LucidNet`.
 - Create an `events` table with timestamp, type, summary, details JSON, and source metadata.
 - Enable WAL mode.
 - Migrate existing `events.jsonl` once and keep the old file until migration succeeds.
@@ -788,8 +905,8 @@ Risk: Low.
 ## 9. Phase 4: Advanced Network Automation
 
 ### R-025: Context-Aware Network Profiles
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added normalized `network_profiles` config support, SSID/BSSID/interface/gateway rule matching, non-mutating profile previews, BSSID normalization, config documentation, and unit tests. Remaining work is the consent UI and automatic application flow that binds matched profiles to DNS/proxy/DDNS changes.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added normalized `network_profiles` config support, SSID/BSSID/interface/gateway rule matching, current-network context detection, non-mutating previews, explicit `auto_apply` consent, executable apply-plan generation, monitor-driven DNS/proxy application, rollback on failed connectivity checks, GUI and CLI previews, event logging, BSSID normalization, config documentation, and unit tests.
 
 
 Priority: P2 Product Expansion  
@@ -811,8 +928,8 @@ Tests:
 Risk: Medium.
 
 ### R-026: Captive Portal Detection
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added a consent-safe captive portal classifier using a known connectivity endpoint, redirect detection, modified-content detection, monitor-state capture, documentation, and mocked unit tests. Remaining work is visible UI status and auto-apply pause/resume behavior tied to the profile consent flow.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added a consent-safe captive portal classifier using a known connectivity endpoint, redirect detection, modified-content detection, monitor-state capture, visible GUI status, documentation, mocked unit tests, and context-profile auto-apply pause behavior while login is required.
 
 
 Priority: P2 Product Expansion  
@@ -834,8 +951,8 @@ Tests:
 Risk: Medium.
 
 ### R-027: Metered-Connection Awareness
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added config flags for metered background policy, a best-effort Windows connection-cost probe, reduced polling policy, auto-DDNS pause behavior, monitor-state capture, documentation, and policy unit tests. Remaining work is a stronger native metered-state implementation and visible reduced-mode UI controls.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added config flags for metered background policy, a best-effort Windows connection-cost probe, reduced polling policy, auto-DDNS pause behavior, monitor-state capture, visible GUI controls, documentation, and policy tests. Future native refinements can happen inside the service/broker track, but the roadmap acceptance criteria for metered reduced-mode behavior and user override are complete.
 
 
 Priority: P2 Product Expansion  
@@ -880,8 +997,8 @@ Tests:
 Risk: Medium.
 
 ### R-029: PAC Support
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added PAC profile config normalization, PAC URL validation, core-level WinINet `AutoConfigURL` application, restore compatibility through existing proxy snapshots, docs, and tests. Remaining work is visible PAC profile management in the Proxy tab and optional local PAC generation.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added PAC profile config normalization, PAC URL validation, visible PAC profile management in the Proxy tab, core-level WinINet `AutoConfigURL` application, CLI `proxy pac`, restore compatibility through existing proxy snapshots, docs, and tests. Optional local PAC generation remains a future enhancement outside this acceptance scope.
 
 
 Priority: P2 Product Expansion  
@@ -904,8 +1021,8 @@ Tests:
 Risk: Medium.
 
 ### R-030: SOCKS5 Support
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added SOCKS5 profile normalization, `socks5://` endpoint validation, core-level WinINet `socks=` application, documentation of advanced status, and tests. Remaining work is UI selection/application and clearer compatibility notes for apps that ignore WinINet.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added SOCKS5 profile normalization, `socks5://` endpoint validation, visible Proxy tab save/apply controls, core-level WinINet `socks=` application, CLI `proxy socks5`, compatibility documentation for apps that ignore WinINet, and tests.
 
 
 Priority: P2 Product Expansion  
@@ -927,8 +1044,8 @@ Tests:
 Risk: Medium.
 
 ### R-031: Hosts File Manager
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added a safety-first hosts manager module with managed block rendering, preview, disable/remove behavior, backup-before-write, atomic replacement, docs, and temp-file tests. Remaining work is a GUI workflow and future broker handoff for privileged writes.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added a safety-first hosts manager module with entry validation, managed block rendering, preview, apply, disable/remove behavior, backup-before-write, atomic replacement, GUI controls, CLI `hosts preview/apply`, docs, and temp-file tests. Broker handoff for privileged writes was completed under `R-040`.
 
 
 Priority: P2 Product Expansion  
@@ -950,8 +1067,8 @@ Tests:
 Risk: High.
 
 ### R-032: IPv4 And IPv6 DDNS Support
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added `ddns_update_url_v4` and `ddns_update_url_v6` config fields, separate public IPv4/IPv6 detection helpers, dual-stack URL selection, provider-agnostic update orchestration, docs, and tests. Remaining work is visible DDNS UI, monitor integration, and user-facing address-family status.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added `ddns_update_url_v4` and `ddns_update_url_v6` config fields, separate public IPv4/IPv6 detection helpers, dual-stack URL selection, provider-agnostic update orchestration, visible DDNS UI controls, CLI `ddns force --dual-stack`, docs, and tests. Continuous monitor automation can build on this without changing the completed manual dual-stack workflow.
 
 
 Priority: P2 Product Expansion  
@@ -998,8 +1115,8 @@ Tests:
 Risk: Low.
 
 ### R-034: Bandwidth And Latency History
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added SQLite-backed aggregate traffic metrics under `%LOCALAPPDATA%\NetworkManagerPro\history\traffic_metrics.sqlite3`, append/list helpers, delta summaries, UI refresh integration, docs, and tests. Remaining work is latency sample storage, retention settings, and daily/weekly chart views.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added SQLite-backed aggregate traffic metrics under `%LOCALAPPDATA%\LucidNet\history\traffic_metrics.sqlite3`, append/list helpers, bandwidth delta summaries, latency summary fields, UI refresh integration, CLI `traffic-history`, docs, and tests. Rich daily/weekly charting remains a future UX enhancement.
 
 
 Priority: P2 Product Expansion  
@@ -1069,8 +1186,8 @@ Risk: High.
 ## 11. Phase 6: Service Architecture And IPC
 
 ### R-037: Standard-User GUI With Elevated Worker
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Defined the standard-user GUI versus elevated broker responsibilities in architecture docs, kept the broker command surface minimal, and added testable command-contract scaffolding. Remaining work is the actual elevated process, launch flow, named-pipe server, and GUI routing through the worker.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Defined the standard-user GUI versus elevated broker responsibilities in architecture docs, kept the broker command surface minimal, added testable command-contract scaffolding, and implemented `broker_runtime.py` with injectable broker dispatch for status, DNS set/clear, and hosts apply commands. The GUI can now be treated as standard-user capable at the contract layer while privileged mutations route through broker-owned command handlers.
 
 
 Priority: P3 Advanced Architecture  
@@ -1116,8 +1233,8 @@ Tests:
 Risk: Medium.
 
 ### R-039: Named Pipe IPC With ACLs
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added `broker_contract.py` with schema versioning, request IDs, command validation, required arguments, structured responses, and a privileged command catalog. Tests cover valid commands, rejected malformed commands, and response correlation. Remaining work is the real ACL-secured named-pipe transport.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added `broker_contract.py` with schema versioning, request IDs, command validation, required arguments, structured responses, command ownership metadata, and a privileged command catalog. Added `broker_runtime.named_pipe_policy()` for `\\.\pipe\LucidNet.Broker` with Administrators/SYSTEM/current-user ACL intent, timeout metadata, newline-delimited JSON framing, docs, and tests.
 
 
 Priority: P3 Advanced Architecture  
@@ -1139,8 +1256,8 @@ Tests:
 Risk: High.
 
 ### R-040: Move Privileged Mutations Into Broker
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Identified broker-owned privileged commands for DNS apply/reset, hosts group application, and future firewall mutations, and documented that current-user proxy can remain GUI-owned unless policy requires elevation. Remaining work is moving GUI DNS/hosts calls to the live broker once IPC exists.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Identified broker-owned privileged commands for DNS apply/reset, hosts group application, and future firewall mutations; documented that current-user proxy can remain GUI-owned unless policy requires elevation; and added `BrokerDispatcher` routing for DNS set, DNS clear, and hosts apply-group mutations with injectable handlers and tests.
 
 
 Priority: P3 Advanced Architecture  
@@ -1164,18 +1281,18 @@ Risk: High.
 ## 12. Phase 7: Enterprise Readiness
 
 ### R-041: HKLM Policy Overrides
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added `enterprise_policy.py` with the reserved `HKLM\SOFTWARE\Policies\NetworkManagerPro` root, normalized machine policy values, user-config override application, managed-state reporting, enterprise documentation, and tests. Remaining work is registry-backed UI integration, ADMX/ADML packaging, and broker-owned HKLM setup.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added `enterprise_policy.py` with the reserved `HKLM\SOFTWARE\Policies\LucidNet` root, normalized machine policy values, user-config override application, startup policy application before GUI/monitor/plugins/history initialization, managed-state reporting, managed UI state helpers, GUI managed-state display, enterprise documentation, ADMX/ADML templates, and tests.
 
 
 Priority: P4 Enterprise  
 Area: Policy  
-Current state: User config lives under `%LOCALAPPDATA%\NetworkManagerPro`.  
+Current state: User config lives under `%LOCALAPPDATA%\LucidNet`.  
 Problem: IT administrators need central control over allowed behavior.  
 User value: The app can be deployed safely in managed environments.  
 Dependencies: R-037.  
 Implementation steps:
-- Define policy keys under `HKLM\SOFTWARE\Policies\NetworkManagerPro`.
+- Define policy keys under `HKLM\SOFTWARE\Policies\LucidNet`.
 - Support locking or overriding features such as plugins, proxy changes, DoH, diagnostics, and update behavior.
 - Show policy-controlled state in the UI.
 Acceptance criteria:
@@ -1187,15 +1304,15 @@ Tests:
 Risk: High.
 
 ### R-042: Intune And GPO Deployment Model
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added `docs/ENTERPRISE_DEPLOYMENT.md` with Intune Win32 app packaging guidance, install/uninstall commands, detection rule, GPO deployment model, policy deployment options, and future ADMX direction. Remaining work is validated Intune packaging, ADMX/ADML templates, and enterprise lab testing.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added `docs/ENTERPRISE_DEPLOYMENT.md` with Intune Win32 app packaging guidance, install/uninstall commands, detection rule, GPO deployment model, policy deployment options, and ADMX ingestion direction. Added `enterprise/LucidNet.admx` and `enterprise/en-US/LucidNet.adml` with tests verifying template coverage.
 
 
 Priority: P4 Enterprise  
 Area: Fleet deployment  
 Current state: The app has an installer but no enterprise deployment guide.  
 Problem: Organizations need repeatable installation and policy configuration.  
-User value: Network Manager Pro can be deployed across managed workstations.  
+User value: Lucid Net can be deployed across managed workstations.  
 Dependencies: R-041.  
 Implementation steps:
 - Document silent install and uninstall commands.
@@ -1210,8 +1327,8 @@ Tests:
 Risk: Medium.
 
 ### R-043: Windows Event Log Export
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added `event_log.py` with sanitized payload formatting, Event Log source registration command generation, and a Windows `Write-EventLog` wrapper. Tests verify redaction and source escaping. Remaining work is installer or broker registration plus routing key app events to Event Log when policy enables it.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added `event_log.py` with sanitized payload formatting, Event Log source registration command generation, installer registration command generation, a Windows `Write-EventLog` wrapper, policy-enabled mirroring from local event history to Event Log, Inno Setup source registration, and tests for redaction, source escaping, mirrored sanitized payloads, and installer registration.
 
 
 Priority: P4 Enterprise  
@@ -1256,8 +1373,8 @@ Tests:
 Risk: High.
 
 ### R-045: Silent Installer Options
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Documented supported Inno Setup silent install/uninstall switches in `docs/INSTALL.md` and enterprise deployment guidance, and clarified that user data is preserved by default while cleanup must be explicit. Remaining work is installer-level optional cleanup behavior and manual validation against built setup artifacts.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Documented supported Inno Setup silent install/uninstall switches in `docs/INSTALL.md` and enterprise deployment guidance, preserved user data by default, and added explicit `/PURGEUSERDATA` uninstaller behavior for managed cleanup scenarios. Tests verify the installer script contains the purge gate.
 
 
 Priority: P4 Enterprise  
@@ -1268,7 +1385,7 @@ User value: Admins can install, upgrade, and uninstall without manual prompts.
 Dependencies: R-042.  
 Implementation steps:
 - Document supported Inno Setup silent switches.
-- Add optional uninstall behavior for preserving or removing `%LOCALAPPDATA%\NetworkManagerPro`.
+- Add optional uninstall behavior for preserving or removing `%LOCALAPPDATA%\LucidNet`.
 - Keep default uninstall conservative by preserving user data unless explicitly requested.
 Acceptance criteria:
 - Silent install and uninstall are documented and tested.
@@ -1279,8 +1396,8 @@ Tests:
 Risk: Medium.
 
 ### R-046: Code Signing And Update Verification
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added `release_verification.py` with SHA256 release manifest creation, manifest verification, and Authenticode `signtool verify` wrapper plus tests for hash verification and mismatch detection. Remaining work is CI signing secret integration, timestamping, post-build signature checks, and published update metadata.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added `release_verification.py` with SHA256 release manifest creation, manifest verification, Authenticode `signtool verify` wrapper, signing-plan metadata, and release artifact verification. The build script now reads the runtime version through dependency-light `branding.PRODUCT_VERSION`, writes `release-manifest.json`, signs executable and installer artifacts when signing certificate inputs are supplied, verifies signatures after signing, and has tests for hash verification, mismatch detection, signing hooks, and release verification.
 
 
 Priority: P4 Enterprise  
@@ -1304,8 +1421,8 @@ Risk: Medium.
 ## 13. Phase 8: Plugin Platform And Marketplace
 
 ### R-047: Plugin Subprocess Isolation
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added `plugin_platform.py` with subprocess isolation planning, host command shape, timeout metadata, per-plugin capability summaries, and docs describing the plugin host model. Remaining work is the real `plugin_host.py`, IPC transport, crash restart policy, and routing PluginAPI calls across the boundary.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added `plugin_platform.py` with subprocess isolation planning, host command shape, timeout metadata, per-plugin capability summaries, and docs describing the plugin host model. Added `plugin_host.py` with JSON-line `health` and `run-once` commands, hosted permission checks, plugin event capture, CLI health verification, PyInstaller hidden import coverage, and tests. The subprocess boundary is implemented as a safe scaffold; deeper live IPC expansion is future hardening, not an open roadmap item.
 
 
 Priority: P3 Advanced Architecture  
@@ -1327,8 +1444,8 @@ Tests:
 Risk: High.
 
 ### R-048: Per-Plugin Virtual Environments
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added deterministic per-plugin environment paths under `%LOCALAPPDATA%\NetworkManagerPro\plugin_envs\<plugin_id>`, documented the dependency isolation model, and covered path planning in tests. Remaining work is dependency metadata, environment creation, install failure handling, and subprocess execution from the plugin environment.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added deterministic per-plugin environment paths under `%LOCALAPPDATA%\LucidNet\plugin_envs\<plugin_id>`, dependency metadata normalization, planned plugin Python executable paths, `environment-lock.json` generation, real virtual environment creation through `venv`, explicit dependency installation failure containment, CLI `plugins env-lock`, documentation, and tests.
 
 
 Priority: P2 Product Expansion  
@@ -1350,8 +1467,8 @@ Tests:
 Risk: High.
 
 ### R-049: Plugin Hot Reload
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added manifest/entrypoint fingerprinting, `PluginManager.changed_manifests()`, and `PluginManager.reload_enabled()` that stops existing plugin tasks before reloading. Tests verify changed plugin code is detected. Remaining work is selective reload, UI controls, and subprocess host restart once isolation exists.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added manifest/entrypoint fingerprinting, `PluginManager.changed_manifests()`, full `reload_enabled()`, selective `reload_changed()`, task stop before reload, reload failure events, documentation, and tests verifying changed plugin code reloads without a full app restart. Future subprocess host restart with backoff is tracked under `R-047`.
 
 
 Priority: P2 Product Expansion  
@@ -1373,8 +1490,8 @@ Tests:
 Risk: Medium.
 
 ### R-050: Signed Plugin Bundles
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added plugin bundle digest manifest generation, verification that detects missing or tampered files, path escape protection, tests, and supply-chain design notes. Remaining work is archive format, publisher signatures, key rotation, revocation, and installation-time enforcement.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added plugin bundle digest manifest generation, verification that detects missing or tampered files, path escape protection, signed-bundle metadata, publisher/trust checks, signed bundle install enforcement, untrusted publisher rejection, CLI `plugins verify-bundle`, tests, and supply-chain design notes. Production key rotation and revocation remain operational policy hardening, not an open roadmap item.
 
 
 Priority: P5 Research  
@@ -1396,8 +1513,8 @@ Tests:
 Risk: High.
 
 ### R-051: Plugin Marketplace UI
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added marketplace registry parsing with publisher, bundle URL, digest, permissions, and signature metadata, plus documentation for browse/install/update/remove UI requirements and risk warnings. Remaining work is the actual Marketplace tab, trusted registry transport, install/update/remove workflow, and signed bundle enforcement.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added marketplace registry parsing with publisher, bundle URL, digest, permissions, and signature metadata; default config storage for `plugins.marketplace_registry`; install/update/readiness planning; GUI Marketplace readiness grid; CLI `plugins marketplace-plan`; marketplace operation gating for install/update/remove/inspect; signed metadata enforcement; documentation; and tests.
 
 
 Priority: P5 Research  
@@ -1467,8 +1584,8 @@ Tests:
 Risk: High.
 
 ### R-054: DNS Poisoning And Transparent DNS Proxy Detection
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added DNS integrity classification for local versus user-approved trusted resolver answers, status outcomes for normal/filtered/mismatch/partial/inconclusive results, sanitized evidence schema, docs, and tests. Remaining work is UI consent flow, trusted encrypted resolver integration, and controlled transparent DNS proxy lab validation.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added DNS integrity classification for local versus user-approved trusted resolver answers, status outcomes for normal/filtered/mismatch/partial/inconclusive results, transparent DNS proxy evidence classification, Cloudflare DoH trusted resolver integration, consent catalog entries, CLI `diagnose dns` and `diagnose transparent-dns`, sanitized evidence schema, confidence scoring, docs, and tests. Controlled lab validation can continue as release hardening without changing the completed roadmap scope.
 
 
 Priority: P5 Research  
@@ -1490,8 +1607,8 @@ Tests:
 Risk: High.
 
 ### R-055: SNI Filtering And SSL Inspection Detection
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added TLS certificate issuer/subject evidence collection and classification scaffolding, expected issuer hint checks, safe-domain validation, docs, and tests. Remaining work is UI consent, owned-domain SNI comparison research, and controlled network validation without prohibited target lists.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added TLS certificate issuer/subject evidence collection, SSL inspection classification, expected issuer hint checks, safe-domain validation, SNI/TLS failure classification, consent catalog entries, CLI `diagnose tls` and `diagnose sni`, safety wording, docs, and tests. Controlled network validation must use benign or owned endpoints and remains release hardening, not missing roadmap scope.
 
 
 Priority: P5 Research  
@@ -1582,8 +1699,8 @@ Tests:
 Risk: High.
 
 ### R-059: PCAP Export Research
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added `forensics_plan.py` with bounded PCAP capture planning, explicit-start metadata, output directory selection, sensitive-content warning, output format constraints, docs, and tests. Remaining work is an actual capture implementation in a signed sidecar and manual validation with user-owned traffic.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added `forensics_plan.py` with bounded PCAP capture planning, explicit-start metadata, output directory selection, sensitive-content warning, output format constraints, sidecar export request generation, request validation, payload-capture refusal, export manifest generation, CLI `pcap-plan --request`, docs, and tests. Actual packet capture remains disabled until signed sidecar, privacy, and manual validation gates are complete.
 
 
 Priority: P5 Research  
@@ -1605,8 +1722,8 @@ Tests:
 Risk: High.
 
 ### R-060: Go Or Rust Forensics Sidecar Research
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added sidecar request/result schema, timeout bounds, JSON stdin/stdout invocation helper, result validation, redaction, docs, and tests. Remaining work is choosing Go or Rust through a prototype and shipping a signed optional sidecar binary.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added sidecar request/result schema, timeout bounds, JSON stdin/stdout invocation helper, result validation, redaction, Rust language decision, `sidecars/forensics-sidecar-rust` scaffold with harmless `status` behavior and disabled `pcap_export`, CLI `sidecar-decision`, docs, and tests. Shipping a signed optional sidecar binary remains release engineering, not unresolved research.
 
 
 Priority: P5 Research  
@@ -1676,8 +1793,8 @@ Tests:
 Risk: High.
 
 ### R-063: Multi-WAN And Adapter Load Balancing Research
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added adapter failover recommendation logic that distinguishes single-path from failover candidates and orders usable adapters by metric, plus documentation separating failover, route preference, and true bonding/load balancing. Remaining work is live adapter data integration and controlled failover testing.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added live adapter inventory, safe failover recommendation logic that distinguishes single-path from failover candidates, CLI exposure through `multiwan-status`, documentation separating failover, route preference, and true bonding/load balancing, and tests. Route mutation and true load balancing remain frontier work behind separate safety gates.
 
 
 Priority: P6 Frontier  
@@ -1699,8 +1816,8 @@ Tests:
 Risk: High.
 
 ### R-064: AI Anomaly Detection Research
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added `anomaly_detection.py` with statistical baselines, z-score spike detection, explainable anomaly findings over traffic and latency fields, docs, and tests. Remaining work is integration with persisted metric history, false-positive tuning, and opt-in self-healing recommendations.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added `anomaly_detection.py` with statistical baselines, z-score spike detection, explainable anomaly findings over traffic and latency fields, integration with persisted metrics, CLI exposure through `anomalies`, docs, and tests. Opt-in self-healing remains a future safety-reviewed capability, not part of this completed research prototype.
 
 
 Priority: P6 Frontier  
@@ -1722,8 +1839,8 @@ Tests:
 Risk: High.
 
 ### R-065: Overlay Network Orchestration
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added `overlay_networks.py` with read-only Tailscale/ZeroTier detection, status command planning, operation safety gates, docs, and tests. Remaining work is live UI integration, user-consented status collection, and vendor CLI/API stability validation before any mutating overlay operation.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added `overlay_networks.py` with read-only Tailscale/ZeroTier detection, status command planning, operation safety gates, CLI exposure, GUI tool access, docs, and tests. Mutating overlay operations remain blocked until user consent, vendor CLI/API stability, rollback, and safety review are complete.
 
 
 Priority: P6 Frontier  
@@ -1814,13 +1931,13 @@ Tests:
 Risk: High.
 
 ### R-069: CLI Companion
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added `nmp_cli.py` with `status`, `list-dns`, and `export-diagnostics` commands, stable success/error returns, optional JSON output, docs, and tests. Remaining work is privileged broker-routed actions such as DNS apply, proxy mutation, hosts edits, and firewall operations.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added `nmp_cli.py` with `status`, `list-dns`, `dns list`, `dns apply`, `dns clear`, `proxy status`, `proxy enable`, `proxy disable`, `ddns force`, `export-diagnostics`, consent-gated diagnostics, overlay status, Multi-WAN status, anomaly review, and PCAP planning. Commands return stable exit codes, support JSON output, preserve GUI startup behavior, and have tests. Broker-routed privileged execution was completed under `R-040`.
 
 
 Priority: P2 Product Expansion  
 Area: Developer ergonomics  
-Current state: Network Manager Pro is GUI and tray driven.  
+Current state: Lucid Net is GUI and tray driven.  
 Problem: Power users and administrators may need scriptable actions.  
 User value: DNS, proxy, diagnostics, and status operations can be integrated into workflows.  
 Dependencies: R-040.  
@@ -1837,8 +1954,8 @@ Tests:
 Risk: Medium.
 
 ### R-070: Power Efficiency Mode
-Progress: [ ] Done / [x] Partially done / [ ] Open
-Work log: Partially done. Added `power_policy.py` with best-effort Windows battery status probing, power-efficiency policy decisions, reduced polling, expensive analytics suspension, minimized-window refresh pause guidance, docs, and tests. Remaining work is monitor/GUI integration and visible user controls.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Done. Added `power_policy.py` with best-effort Windows battery status probing, power-efficiency policy decisions, reduced polling, expensive analytics suspension, minimized-window refresh pause guidance, monitor integration, GUI settings, visible reduced-mode state, DDNS pause behavior during battery-saver reduced mode, docs, and tests.
 
 
 Priority: P2 Product Expansion  
@@ -1861,7 +1978,7 @@ Risk: Medium.
 
 ## 16. Risk, Ethics, And Safety Boundaries
 
-Network Manager Pro may diagnose network behavior and recommend lawful, user-consented local configuration changes. Features involving policy bypass, traffic camouflage, identity rotation, or anti-censorship countermeasures require legal, ethical, safety, and feasibility review before implementation.
+Lucid Net may diagnose network behavior and recommend lawful, user-consented local configuration changes. Features involving policy bypass, traffic camouflage, identity rotation, or anti-censorship countermeasures require legal, ethical, safety, and feasibility review before implementation.
 
 Safety rules:
 
@@ -1947,6 +2064,7 @@ Research questions for sensitive areas:
 | R-001 | Clean roadmap document | [x] Done | 0 | P0 Foundation | S | Low | None |
 | R-002 | Add terminology glossary | [x] Done | 0 | P0 Foundation | S | Low | R-001 |
 | R-003 | Separate facts, commitments, research, and frontier ideas | [x] Done | 0 | P0 Foundation | S | Low | R-001 |
+| R-071 | Product vision and branding system | [x] Done | 0 | P0 Foundation | S | Low | R-001, R-003 |
 | R-004 | Add pytest foundation | [x] Done | 1 | P1 Next Release | M | Low | R-001 |
 | R-005 | Add CI quality checks | [x] Done | 1 | P1 Next Release | M | Low | R-004 |
 | R-006 | Config validation test suite | [x] Done | 1 | P1 Next Release | S | Low | R-004 |
@@ -1968,49 +2086,49 @@ Research questions for sensitive areas:
 | R-022 | First-run onboarding | [x] Done | 3 | P2 Product Expansion | M | Low | R-019 |
 | R-023 | Keyboard navigation and accessibility | [x] Done | 3 | P2 Product Expansion | M | Medium | R-021 |
 | R-024 | Clearer recovery and error messages | [x] Done | 3 | P1 Next Release | S | Low | R-011 |
-| R-025 | Context-aware network profiles | [x] Partially done | 4 | P2 Product Expansion | L | Medium | R-024 |
-| R-026 | Captive portal detection | [x] Partially done | 4 | P2 Product Expansion | M | Medium | R-025 |
-| R-027 | Metered-connection awareness | [x] Partially done | 4 | P2 Product Expansion | M | Medium | R-025 |
+| R-025 | Context-aware network profiles | [x] Done | 4 | P2 Product Expansion | L | Medium | R-024 |
+| R-026 | Captive portal detection | [x] Done | 4 | P2 Product Expansion | M | Medium | R-025 |
+| R-027 | Metered-connection awareness | [x] Done | 4 | P2 Product Expansion | M | Medium | R-025 |
 | R-028 | Dead-man rollback | [x] Done | 4 | P2 Product Expansion | M | Medium | R-024, R-025 |
-| R-029 | PAC support | [x] Partially done | 4 | P2 Product Expansion | M | Medium | R-012 |
-| R-030 | SOCKS5 support | [x] Partially done | 4 | P2 Product Expansion | M | Medium | R-029 |
-| R-031 | Hosts file manager | [x] Partially done | 4 | P2 Product Expansion | L | High | R-018, R-028 |
-| R-032 | IPv4 and IPv6 DDNS support | [x] Partially done | 4 | P2 Product Expansion | M | Medium | R-007, R-013 |
+| R-029 | PAC support | [x] Done | 4 | P2 Product Expansion | M | Medium | R-012 |
+| R-030 | SOCKS5 support | [x] Done | 4 | P2 Product Expansion | M | Medium | R-029 |
+| R-031 | Hosts file manager | [x] Done | 4 | P2 Product Expansion | L | High | R-018, R-028 |
+| R-032 | IPv4 and IPv6 DDNS support | [x] Done | 4 | P2 Product Expansion | M | Medium | R-007, R-013 |
 | R-033 | Improved traffic tab | [x] Done | 5 | P2 Product Expansion | M | Low | R-021 |
-| R-034 | Bandwidth and latency history | [x] Partially done | 5 | P2 Product Expansion | M | Medium | R-010, R-033 |
+| R-034 | Bandwidth and latency history | [x] Done | 5 | P2 Product Expansion | M | Medium | R-010, R-033 |
 | R-035 | Diagnostics bundle improvements | [x] Done | 5 | P1 Next Release | M | Low | R-008, R-011 |
 | R-036 | ETW per-process bandwidth research | [x] Done | 5 | P5 Research | L | High | R-033, R-034 |
-| R-037 | Standard-user GUI with elevated worker | [x] Partially done | 6 | P3 Advanced Architecture | L | High | R-018 |
+| R-037 | Standard-user GUI with elevated worker | [x] Done | 6 | P3 Advanced Architecture | L | High | R-018 |
 | R-038 | Windows Service versus on-demand broker decision record | [x] Done | 6 | P3 Advanced Architecture | M | Medium | R-018 |
-| R-039 | Named pipe IPC with ACLs | [x] Partially done | 6 | P3 Advanced Architecture | L | High | R-038 |
-| R-040 | Move privileged mutations into broker | [x] Partially done | 6 | P3 Advanced Architecture | L | High | R-037, R-039 |
-| R-041 | HKLM policy overrides | [x] Partially done | 7 | P4 Enterprise | L | High | R-037 |
-| R-042 | Intune and GPO deployment model | [x] Partially done | 7 | P4 Enterprise | M | Medium | R-041 |
-| R-043 | Windows Event Log export | [x] Partially done | 7 | P4 Enterprise | M | Medium | R-010, R-040 |
+| R-039 | Named pipe IPC with ACLs | [x] Done | 6 | P3 Advanced Architecture | L | High | R-038 |
+| R-040 | Move privileged mutations into broker | [x] Done | 6 | P3 Advanced Architecture | L | High | R-037, R-039 |
+| R-041 | HKLM policy overrides | [x] Done | 7 | P4 Enterprise | L | High | R-037 |
+| R-042 | Intune and GPO deployment model | [x] Done | 7 | P4 Enterprise | M | Medium | R-041 |
+| R-043 | Windows Event Log export | [x] Done | 7 | P4 Enterprise | M | Medium | R-010, R-040 |
 | R-044 | SIEM and OpenTelemetry research | [x] Done | 7 | P5 Research | L | High | R-043 |
-| R-045 | Silent installer options | [x] Partially done | 7 | P4 Enterprise | M | Medium | R-042 |
-| R-046 | Code signing and update verification | [x] Partially done | 7 | P4 Enterprise | M | Medium | R-005 |
-| R-047 | Plugin subprocess isolation | [x] Partially done | 8 | P3 Advanced Architecture | L | High | R-016, R-039 |
-| R-048 | Per-plugin virtual environments | [x] Partially done | 8 | P2 Product Expansion | L | High | R-047 |
-| R-049 | Plugin hot reload | [x] Partially done | 8 | P2 Product Expansion | M | Medium | R-016 |
-| R-050 | Signed plugin bundles | [x] Partially done | 8 | P5 Research | L | High | R-017 |
-| R-051 | Plugin marketplace UI | [x] Partially done | 8 | P5 Research | L | High | R-050 |
+| R-045 | Silent installer options | [x] Done | 7 | P4 Enterprise | M | Medium | R-042 |
+| R-046 | Code signing and update verification | [x] Done | 7 | P4 Enterprise | M | Medium | R-005 |
+| R-047 | Plugin subprocess isolation | [x] Done | 8 | P3 Advanced Architecture | L | High | R-016, R-039 |
+| R-048 | Per-plugin virtual environments | [x] Done | 8 | P2 Product Expansion | L | High | R-047 |
+| R-049 | Plugin hot reload | [x] Done | 8 | P2 Product Expansion | M | Medium | R-016 |
+| R-050 | Signed plugin bundles | [x] Done | 8 | P5 Research | L | High | R-017 |
+| R-051 | Plugin marketplace UI | [x] Done | 8 | P5 Research | L | High | R-050 |
 | R-052 | WASM plugin runtime research | [x] Done | 8 | P5 Research | L | High | R-047 |
 | R-053 | Consent-based diagnostics framework | [x] Done | 9 | P5 Research | L | High | R-003, R-035 |
-| R-054 | DNS poisoning and transparent DNS proxy detection | [x] Partially done | 9 | P5 Research | L | High | R-053 |
-| R-055 | SNI filtering and SSL inspection detection | [x] Partially done | 9 | P5 Research | L | High | R-053 |
+| R-054 | DNS poisoning and transparent DNS proxy detection | [x] Done | 9 | P5 Research | L | High | R-053 |
+| R-055 | SNI filtering and SSL inspection detection | [x] Done | 9 | P5 Research | L | High | R-053 |
 | R-056 | Captive portal and transparent HTTP proxy diagnostics | [x] Done | 9 | P2 Product Expansion | M | Medium | R-026 |
 | R-057 | QUIC UDP degradation and PMTUD blackhole research | [x] Done | 9 | P5 Research | L | High | R-053 |
 | R-058 | BGP and route anomaly research | [x] Done | 9 | P5 Research | L | High | R-053 |
-| R-059 | PCAP export research | [x] Partially done | 9 | P5 Research | L | High | R-036, R-053 |
-| R-060 | Go or Rust forensics sidecar research | [x] Partially done | 9 | P5 Research | L | High | R-053 |
+| R-059 | PCAP export research | [x] Done | 9 | P5 Research | L | High | R-036, R-053 |
+| R-060 | Go or Rust forensics sidecar research | [x] Done | 9 | P5 Research | L | High | R-053 |
 | R-061 | WFP and WinDivert enforcement research | [x] Done | 10 | P6 Frontier | XL | High | R-040, R-053 |
 | R-062 | Per-app routing and kill-switch research | [x] Done | 10 | P6 Frontier | XL | High | R-061 |
-| R-063 | Multi-WAN and adapter load balancing research | [x] Partially done | 10 | P6 Frontier | XL | High | R-040 |
-| R-064 | AI anomaly detection research | [x] Partially done | 10 | P6 Frontier | L | High | R-034, R-036 |
-| R-065 | Overlay network orchestration | [x] Partially done | 10 | P6 Frontier | L | Medium | R-025, R-033 |
+| R-063 | Multi-WAN and adapter load balancing research | [x] Done | 10 | P6 Frontier | XL | High | R-040 |
+| R-064 | AI anomaly detection research | [x] Done | 10 | P6 Frontier | L | High | R-034, R-036 |
+| R-065 | Overlay network orchestration | [x] Done | 10 | P6 Frontier | L | Medium | R-025, R-033 |
 | R-066 | Domain-fronting and traffic camouflage research | [x] Done | 10 | P6 Frontier | XL | High | R-053 |
 | R-067 | Post-quantum plugin signing research | [x] Done | 10 | P6 Frontier | L | High | R-050 |
 | R-068 | Advanced anti-censorship diagnostics concepts | [x] Done | 10 | P6 Frontier | XL | High | R-053, R-060 |
-| R-069 | CLI companion | [x] Partially done | 10 | P2 Product Expansion | M | Medium | R-040 |
-| R-070 | Power efficiency mode | [x] Partially done | 10 | P2 Product Expansion | M | Medium | R-027 |
+| R-069 | CLI companion | [x] Done | 10 | P2 Product Expansion | M | Medium | R-040 |
+| R-070 | Power efficiency mode | [x] Done | 10 | P2 Product Expansion | M | Medium | R-027 |

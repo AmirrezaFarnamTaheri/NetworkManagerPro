@@ -1,10 +1,10 @@
 # Quickstart
 
-Use this workflow the first time you launch Network Manager Pro.
+Use this workflow the first time you launch Lucid Net.
 
 ## 1. Launch
 
-Start the app from the installer shortcut or `NetworkManagerPro.exe`. Accept the administrator prompt. A second copy will not start; the existing tray instance remains the active app.
+Start the app from the installer shortcut or `LucidNet.exe`. Accept the administrator prompt. A second copy will not start; the existing tray instance remains the active app.
 
 ## 2. Check Dashboard
 

@@ -1,15 +1,15 @@
 # Install and Build
 
-Network Manager Pro supports 64-bit Windows 10/11.
+Lucid Net supports 64-bit Windows 10/11.
 
 ## Release Shape
 
 The release has two executable artifacts:
 
-- `dist\NetworkManagerPro.exe`: a self-contained PyInstaller onefile app executable.
-- `installer\output\NetworkManagerPro-Setup-2.0.0.exe`: a single Inno Setup installer that installs the app executable.
+- `dist\LucidNet.exe`: a self-contained PyInstaller onefile app executable.
+- `installer\output\LucidNet-Setup-2.0.0.exe`: a single Inno Setup installer that installs the app executable.
 
-The app creates runtime config, logs, history, and user plugin folders under `%LOCALAPPDATA%\NetworkManagerPro`. It does not need loose JSON, docs, assets, or plugin files beside the installed executable.
+The app creates runtime config, logs, history, and user plugin folders under `%LOCALAPPDATA%\LucidNet`. It does not need loose JSON, docs, assets, or plugin files beside the installed executable.
 
 ## Build the Installer
 
@@ -30,9 +30,9 @@ The script:
 2. Creates `.venv-build` if needed.
 3. Installs runtime and PyInstaller dependencies into that isolated build environment.
 4. Regenerates icons.
-5. Verifies that `core.py`, `pyproject.toml`, and `installer\NetworkManagerPro.iss` all use the same version.
-6. Builds `dist\NetworkManagerPro.exe`.
-7. Builds `installer\output\NetworkManagerPro-Setup-2.0.0.exe`.
+5. Verifies that `core.py`, `pyproject.toml`, and `installer\LucidNet.iss` all use the same version.
+6. Builds `dist\LucidNet.exe`.
+7. Builds `installer\output\LucidNet-Setup-2.0.0.exe`.
 8. Fails if either expected executable is missing.
 
 For a development-only onefile executable check without the installer, run:
@@ -46,12 +46,12 @@ scripts\build_release.ps1 -SkipInstaller
 The Inno Setup installer supports standard silent switches:
 
 ```powershell
-NetworkManagerPro-Setup-2.0.0.exe /SILENT /SUPPRESSMSGBOXES /NORESTART
-NetworkManagerPro-Setup-2.0.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
-"%ProgramFiles%\Network Manager Pro\unins000.exe" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+LucidNet-Setup-2.0.0.exe /SILENT /SUPPRESSMSGBOXES /NORESTART
+LucidNet-Setup-2.0.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+"%ProgramFiles%\Lucid Net\unins000.exe" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
 ```
 
-Uninstall preserves `%LOCALAPPDATA%\NetworkManagerPro` by default. Enterprise cleanup of user data must be explicit so config, logs, diagnostics, and history are not removed accidentally.
+Uninstall preserves `%LOCALAPPDATA%\LucidNet` by default. Enterprise cleanup of user data must be explicit so config, logs, diagnostics, and history are not removed accidentally. To remove per-user app data during uninstall, pass `/PURGEUSERDATA` to the uninstaller.
 
 For Intune, GPO, policy keys, and release verification, see `docs\ENTERPRISE_DEPLOYMENT.md`.
 

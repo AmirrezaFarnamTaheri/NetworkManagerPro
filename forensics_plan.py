@@ -7,7 +7,6 @@ import time
 
 import core
 import psutil
-import psutil
 
 
 SCHEMA_VERSION = 1
@@ -28,6 +27,70 @@ def pcap_capture_plan(duration_seconds=30, output_dir=None, interface=""):
             "Only capture traffic you are authorized to inspect."
         ),
         "allowed_outputs": ["pcapng", "json_summary"],
+    }
+
+
+def pcap_export_request(duration_seconds=30, output_dir=None, interface="", include_payloads=False):
+    plan = pcap_capture_plan(duration_seconds, output_dir, interface)
+    return sidecar_request(
+        "pcap_export",
+        {
+            "duration_seconds": plan["duration_seconds"],
+            "output_dir": plan["output_dir"],
+            "interface": plan["interface"],
+            "include_payloads": bool(include_payloads),
+            "allowed_outputs": plan["allowed_outputs"],
+            "warning_ack_required": True,
+        },
+        timeout_seconds=plan["duration_seconds"] + 15,
+    )
+
+
+def validate_pcap_export_request(request):
+    if not isinstance(request, dict):
+        return False, "PCAP request must be an object."
+    if request.get("command") != "pcap_export":
+        return False, "PCAP request command must be pcap_export."
+    args = request.get("args")
+    if not isinstance(args, dict):
+        return False, "PCAP request args must be an object."
+    duration = int(args.get("duration_seconds", 0) or 0)
+    if duration < 5 or duration > 300:
+        return False, "PCAP duration must be between 5 and 300 seconds."
+    if args.get("include_payloads"):
+        return False, "Payload capture is disabled until separate legal and privacy review approves it."
+    if not args.get("warning_ack_required"):
+        return False, "PCAP request must require warning acknowledgement."
+    return True, ""
+
+
+def pcap_export_manifest(request, sidecar_result):
+    ok, msg = validate_pcap_export_request(request)
+    result_ok, result_msg = validate_sidecar_result(sidecar_result)
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "type": "pcap_export_manifest",
+        "request_valid": ok,
+        "request_error": msg,
+        "result_valid": result_ok,
+        "result_error": result_msg,
+        "duration_seconds": ((request or {}).get("args") or {}).get("duration_seconds"),
+        "outputs": [item for item in (sidecar_result or {}).get("findings", []) if isinstance(item, dict)],
+        "redaction_note": "PCAP files are not redacted by default. Share only with trusted support recipients after review.",
+    }
+
+
+def sidecar_language_decision():
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "recommended_language": "rust",
+        "reason": (
+            "Rust is preferred for the optional forensics sidecar because static binaries, strict memory safety, "
+            "and explicit dependency review fit packet/TLS parsing better than extending the elevated GUI process."
+        ),
+        "fallback": "Go remains acceptable if Windows packet-capture library maturity, signing, or build ergonomics prove better.",
+        "first_command": "status",
+        "required_controls": ["signed binary", "bounded runtime", "JSON stdin/stdout", "no payload capture by default"],
     }
 
 
@@ -115,35 +178,17 @@ def adapter_failover_recommendation(adapters):
 
 
 def adapter_inventory(query=None):
-    """Return a sanitized local adapter inventory for failover recommendations."""
+    """Return safe local adapter facts for failover recommendations."""
     if query:
         return [dict(item) for item in query()]
     try:
         stats = psutil.net_if_stats()
+        addrs = psutil.net_if_addrs()
     except OSError:
-        stats = {}
-    adapters = []
-    for name, stat in sorted(stats.items()):
-        gateway = core.get_default_gateway(name) if getattr(stat, "isup", False) else None
-        adapters.append(
-            {
-                "name": name,
-                "up": bool(getattr(stat, "isup", False)),
-                "gateway": gateway or "",
-                "metric": 9999,
-                "speed_mbps": int(getattr(stat, "speed", 0) or 0),
-            }
-        )
-    return adapters
-
-
-def adapter_inventory():
-    """Return safe local adapter facts for failover recommendations."""
-    stats = psutil.net_if_stats()
-    addrs = psutil.net_if_addrs()
+        return []
     gateways = _default_gateways_by_interface()
     adapters = []
-    for name, stat in stats.items():
+    for name, stat in sorted(stats.items()):
         addresses = []
         for addr in addrs.get(name, []):
             family = str(getattr(addr.family, "name", addr.family))

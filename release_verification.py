@@ -5,6 +5,8 @@ import json
 import os
 import subprocess
 
+import branding
+
 
 MANIFEST_SCHEMA_VERSION = 1
 
@@ -74,3 +76,25 @@ def verify_authenticode_signature(path, signtool="signtool"):
         return False, str(exc)
     output = (result.stdout or "") + (result.stderr or "")
     return result.returncode == 0, output.strip()
+
+
+def signing_plan(cert_path="", timestamp_url=""):
+    return {
+        "enabled": bool(cert_path),
+        "cert_path": str(cert_path or ""),
+        "timestamp_url": str(timestamp_url or "http://timestamp.digicert.com"),
+        "required_artifacts": [f"{branding.INSTALLER_BASENAME}.exe", f"{branding.INSTALLER_BASENAME}-Setup.exe"],
+        "post_build_checks": ["sha256_manifest", "authenticode_verify", "timestamp_verify"],
+    }
+
+
+def verify_release_artifacts(manifest_path, require_signature=False, signtool="signtool"):
+    ok, failures = verify_manifest(manifest_path)
+    with open(manifest_path, "r", encoding="utf-8") as f:
+        manifest = json.load(f)
+    if require_signature:
+        for artifact in manifest.get("artifacts", []):
+            signed, output = verify_authenticode_signature(artifact.get("path"), signtool=signtool)
+            if not signed:
+                failures.append(f"Authenticode verification failed for {artifact.get('path')}: {output}")
+    return ok and not failures, failures

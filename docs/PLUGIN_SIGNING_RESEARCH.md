@@ -4,7 +4,7 @@ Status: research recommendation for the v1 trusted-only plugin roadmap.
 
 ## Goal
 
-Signed plugins should let Network Manager Pro verify publisher identity and bundle integrity before installation or update. Signing does not replace sandboxing; it reduces supply-chain risk for trusted plugins.
+Signed plugins should let Lucid Net verify publisher identity and bundle integrity before installation or update. Signing does not replace sandboxing; it reduces supply-chain risk for trusted plugins.
 
 ## Recommended Direction
 

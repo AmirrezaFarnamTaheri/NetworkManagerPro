@@ -13,6 +13,9 @@ COMMANDS = {
     "firewall.apply_rule": {"privileged": True, "required": ["rule"]},
 }
 
+GUI_OWNED_COMMANDS = sorted(command for command, meta in COMMANDS.items() if not meta.get("privileged"))
+BROKER_OWNED_COMMANDS = sorted(command for command, meta in COMMANDS.items() if meta.get("privileged"))
+
 
 def make_request(command, args=None, request_id=None):
     return {
@@ -55,4 +58,11 @@ def validate_request(request):
 
 
 def privileged_commands():
-    return sorted(command for command, meta in COMMANDS.items() if meta.get("privileged"))
+    return list(BROKER_OWNED_COMMANDS)
+
+
+def command_owner(command):
+    meta = COMMANDS.get(str(command or ""))
+    if not meta:
+        return "unsupported"
+    return "broker" if meta.get("privileged") else "gui"

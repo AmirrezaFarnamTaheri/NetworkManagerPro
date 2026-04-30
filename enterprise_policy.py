@@ -8,18 +8,36 @@ except ImportError:  # pragma: no cover - Windows app, import guard for portabil
     winreg = None
 
 import core
+import branding
 
 
-POLICY_ROOT = r"SOFTWARE\Policies\NetworkManagerPro"
+POLICY_ROOT = branding.POLICY_REGISTRY_ROOT
 
 POLICY_DEFINITIONS = {
     "DisablePlugins": {"path": ("plugins", "enabled"), "type": "disable_list"},
     "DisableProxyChanges": {"path": ("settings", "policy_disable_proxy_changes"), "type": "bool"},
     "DisableDiagnosticsExport": {"path": ("settings", "policy_disable_diagnostics_export"), "type": "bool"},
     "DisableAutoUpdates": {"path": ("settings", "policy_disable_auto_updates"), "type": "bool"},
+    "EnableWindowsEventLogExport": {"path": ("settings", "policy_enable_windows_event_log_export"), "type": "bool"},
     "ForceRollbackOnConnectivityLoss": {"path": ("settings", "rollback_on_connectivity_loss"), "type": "bool"},
     "MinimumCheckIntervalSeconds": {"path": ("settings", "check_interval_seconds"), "type": "min_int"},
 }
+
+
+def admx_policy_names():
+    return sorted(POLICY_DEFINITIONS)
+
+
+def managed_ui_state(config):
+    managed = (config or {}).get("_managed_by_policy")
+    managed = managed if isinstance(managed, dict) else {}
+    return {
+        "plugins_locked": "plugins.enabled" in managed,
+        "proxy_locked": bool((config or {}).get("settings", {}).get("policy_disable_proxy_changes")),
+        "diagnostics_export_locked": bool((config or {}).get("settings", {}).get("policy_disable_diagnostics_export")),
+        "auto_updates_locked": bool((config or {}).get("settings", {}).get("policy_disable_auto_updates")),
+        "messages": managed,
+    }
 
 
 def read_hklm_policies(reader=None):

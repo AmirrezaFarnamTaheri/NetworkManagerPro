@@ -50,6 +50,7 @@ class MonitorService:
         self._next_ddns_retry = 0.0
         self._last_snapshot = None
         self._ddns_last_result = "Not run"
+        self._last_auto_profile_key = None
 
     def start(self):
         if self._thread and self._thread.is_alive():
@@ -76,7 +77,7 @@ class MonitorService:
             with self._state_lock:
                 self.config = core.normalize_config(copy.deepcopy(cfg))
 
-    def emit_event(self, event_type, summary, details=None, attribution="NetworkManagerPro"):
+    def emit_event(self, event_type, summary, details=None, attribution=core.APP_NAME):
         if self.event_store:
             try:
                 return self.event_store.append(event_type, summary, details or {}, attribution)
@@ -109,6 +110,7 @@ class MonitorService:
                 with self._state_lock:
                     state.config_mtime = self._state.config_mtime
                 self._detect_settings_changes(state)
+                self._maybe_apply_network_profile(cfg, state)
                 ddns_result = self._maybe_update_ddns(cfg, state.public_ip)
                 with self._state_lock:
                     if ddns_result:
@@ -227,6 +229,45 @@ class MonitorService:
             {"ok": ok, "public_ip": public_ip, "url": core.sanitize_url(normalized_or_error, redact_path=True)},
         )
         return msg
+
+    def _maybe_apply_network_profile(self, cfg, state):
+        context = {
+            "ssid": core.get_current_wifi_ssid(),
+            "bssid": core.get_current_wifi_bssid(),
+            "interface": state.interface or "",
+            "gateway": state.gateway or "",
+        }
+        plan = core.network_profile_apply_plan(cfg, context)
+        profile = plan.get("profile") or {}
+        key = (
+            profile.get("name"),
+            context.get("ssid"),
+            context.get("bssid"),
+            context.get("interface"),
+            context.get("gateway"),
+        )
+        if not plan.get("matched") or not plan.get("auto_apply"):
+            return None
+        if state.captive_portal_status == "captive":
+            self.emit_event(
+                "network_profile.auto_apply_paused",
+                "Context profile auto-apply paused by captive portal",
+                {"profile": profile.get("name"), "context": context, "portal": state.captive_portal_detail},
+            )
+            return None
+        if key == self._last_auto_profile_key:
+            return None
+        result = core.apply_network_profile_plan(cfg, context, captive_status=state.captive_portal_status)
+        if result.get("applied"):
+            self._last_auto_profile_key = key
+        elif result.get("rolled_back"):
+            self._last_auto_profile_key = None
+        self.emit_event(
+            "network_profile.auto_apply",
+            f"Context profile auto-apply {result.get('reason')}",
+            core.redact_value(result),
+        )
+        return result
 
     def _mark_ddns_success(self, public_ip):
         self._last_ddns_success_ip = public_ip

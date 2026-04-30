@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Store runtime config and user plugins under `%LOCALAPPDATA%\NetworkManagerPro`.
+- Store runtime config and user plugins under `%LOCALAPPDATA%\LucidNet`.
 - Create config from built-in defaults instead of requiring a loose example config file.
 - Build a PyInstaller onefile executable and wrap it in one installer executable.
 - Add DNS/proxy profile deletion for user-managed predefined lists.

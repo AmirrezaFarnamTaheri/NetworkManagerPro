@@ -23,11 +23,23 @@ TEST_CATALOG = {
         "data_collected": ["Domain tested", "local resolver answers", "trusted resolver answers", "confidence"],
         "consent": "Compare local DNS answers with a user-approved trusted resolver for a benign domain.",
     },
+    "transparent_dns_proxy": {
+        "category": "external active",
+        "duration_seconds": 10,
+        "data_collected": ["Domain tested", "requested resolver label", "direct resolver answers", "trusted resolver answers"],
+        "consent": "Compare a user-selected resolver path with a trusted resolver to look for DNS interception evidence.",
+    },
     "tls_inspection": {
         "category": "external active",
         "duration_seconds": 10,
         "data_collected": ["Host tested", "certificate issuer", "certificate subject", "validity window"],
         "consent": "Open a TLS connection to a benign endpoint and report certificate issuer evidence.",
+    },
+    "sni_filtering": {
+        "category": "external active",
+        "duration_seconds": 10,
+        "data_collected": ["Host tested", "TLS connection outcome", "certificate issuer evidence", "error class"],
+        "consent": "Open a TLS connection to a benign endpoint and classify SNI/TLS failure evidence without bypass attempts.",
     },
 }
 
@@ -129,6 +141,57 @@ def run_dns_integrity_diagnostic(domain, local_resolver=None, trusted_resolver=N
     )
 
 
+def classify_transparent_dns_proxy(requested_answers, trusted_answers, requested_resolver_label=""):
+    requested_set = {str(item).lower() for item in (requested_answers or []) if item}
+    trusted_set = {str(item).lower() for item in (trusted_answers or []) if item}
+    label = str(requested_resolver_label or "selected resolver")
+    if not requested_set and not trusted_set:
+        return "inconclusive", f"Neither {label} nor the trusted resolver returned an answer.", "low"
+    if requested_set == trusted_set:
+        return "no_proxy_evidence", f"{label} and trusted resolver answers match.", "medium"
+    if requested_set and trusted_set and requested_set.isdisjoint(trusted_set):
+        return "possible_interception", f"{label} and trusted resolver answers differ completely.", "medium"
+    return "mixed_evidence", f"{label} and trusted resolver answers overlap but are not identical.", "low"
+
+
+def run_transparent_dns_proxy_diagnostic(domain, requested_resolver=None, trusted_resolver=None, requested_resolver_label="selected resolver"):
+    domain = _safe_domain(domain)
+    requested_resolver = requested_resolver or _resolve_system
+    trusted_resolver = trusted_resolver or resolve_cloudflare_doh
+    try:
+        requested_answers = requested_resolver(domain)
+        requested_error = ""
+    except Exception as exc:
+        requested_answers = []
+        requested_error = str(exc)
+    try:
+        trusted_answers = trusted_resolver(domain)
+        trusted_error = ""
+    except Exception as exc:
+        trusted_answers = []
+        trusted_error = str(exc)
+    status, explanation, confidence = classify_transparent_dns_proxy(
+        requested_answers,
+        trusted_answers,
+        requested_resolver_label=requested_resolver_label,
+    )
+    return diagnostic_result(
+        "transparent_dns_proxy",
+        status,
+        {
+            "domain": domain,
+            "requested_resolver": requested_resolver_label,
+            "requested_answers": sorted(requested_answers),
+            "trusted_answers": sorted(trusted_answers),
+            "requested_error": requested_error,
+            "trusted_error": trusted_error,
+            "explanation": explanation,
+        },
+        "Use this as DNS path evidence only. It does not identify intent, operator, or authorization.",
+        confidence,
+    )
+
+
 def classify_tls_certificate(cert, expected_issuer_keywords=None):
     expected_issuer_keywords = [item.lower() for item in (expected_issuer_keywords or [])]
     issuer = _name_tuple_to_text((cert or {}).get("issuer", ()))
@@ -138,6 +201,18 @@ def classify_tls_certificate(cert, expected_issuer_keywords=None):
     if expected_issuer_keywords and not any(keyword in issuer.lower() for keyword in expected_issuer_keywords):
         return "possible_inspection", "Certificate issuer did not match expected issuer hints.", "medium"
     return "normal", "Certificate issuer evidence is present and no mismatch rule fired.", "low"
+
+
+def classify_sni_connection(success, cert=None, error=""):
+    if success:
+        issuer = _name_tuple_to_text((cert or {}).get("issuer", ()))
+        return "reachable", f"TLS handshake completed. Issuer evidence: {issuer or 'unavailable'}.", "low"
+    error_text = str(error or "").lower()
+    if any(marker in error_text for marker in ("handshake", "sni", "unrecognized_name", "tlsv1 alert", "certificate")):
+        return "possible_sni_or_tls_filtering", "TLS failed with an SNI, certificate, or handshake-related error.", "medium"
+    if any(marker in error_text for marker in ("timed out", "timeout", "reset", "refused")):
+        return "connectivity_failure", "Connection failed at the transport layer; SNI-specific evidence is inconclusive.", "low"
+    return "unknown", "TLS connection did not complete and the error did not identify a clear class.", "low"
 
 
 def run_tls_inspection_diagnostic(host, expected_issuer_keywords=None, cert_fetcher=None):
@@ -163,6 +238,30 @@ def run_tls_inspection_diagnostic(host, expected_issuer_keywords=None, cert_fetc
         status,
         evidence,
         "Use issuer evidence to explain TLS interception; do not infer intent from this result alone.",
+        confidence,
+    )
+
+
+def run_sni_filtering_diagnostic(host, cert_fetcher=None):
+    host = _safe_domain(host)
+    cert_fetcher = cert_fetcher or _fetch_certificate
+    try:
+        cert = cert_fetcher(host)
+        status, explanation, confidence = classify_sni_connection(True, cert=cert)
+        evidence = {
+            "host": host,
+            "issuer": _name_tuple_to_text(cert.get("issuer", ())),
+            "subject": _name_tuple_to_text(cert.get("subject", ())),
+            "explanation": explanation,
+        }
+    except Exception as exc:
+        status, explanation, confidence = classify_sni_connection(False, error=str(exc))
+        evidence = {"host": host, "error": str(exc), "explanation": explanation}
+    return diagnostic_result(
+        "sni_filtering",
+        status,
+        evidence,
+        "This diagnostic reports SNI/TLS failure evidence only and does not attempt evasion or bypass.",
         confidence,
     )
 

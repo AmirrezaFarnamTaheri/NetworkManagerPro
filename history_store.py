@@ -7,7 +7,9 @@ import uuid
 from contextlib import closing
 from dataclasses import asdict, dataclass, field
 
+import branding
 import core
+import event_log
 
 
 @dataclass
@@ -15,19 +17,21 @@ class Event:
     type: str
     summary: str
     details: dict = field(default_factory=dict)
-    attribution: str = "NetworkManagerPro"
+    attribution: str = branding.TECHNICAL_APP_ID
     timestamp: float = field(default_factory=time.time)
     id: str = field(default_factory=lambda: uuid.uuid4().hex)
 
 
 class EventStore:
-    def __init__(self, path=None):
+    def __init__(self, path=None, mirror_event_log=False, event_writer=None):
         self.path = path or core.history_db_path()
+        self.mirror_event_log = bool(mirror_event_log)
+        self.event_writer = event_writer or event_log.write_event
         self._lock = threading.RLock()
         os.makedirs(os.path.dirname(self.path), exist_ok=True)
         self._init_db()
 
-    def append(self, event_type, summary, details=None, attribution="NetworkManagerPro"):
+    def append(self, event_type, summary, details=None, attribution=branding.TECHNICAL_APP_ID):
         event = Event(event_type, str(summary), core.redact_value(details or {}), str(attribution))
         record = asdict(event)
         details_json = json.dumps(record["details"], ensure_ascii=False, sort_keys=True, default=str)
@@ -48,6 +52,11 @@ class EventStore:
                     ),
                 )
         core.logger().info("event type=%s summary=%s", event_type, summary)
+        if self.mirror_event_log:
+            try:
+                self.event_writer(event.type, event.summary, event.details)
+            except Exception:
+                core.logger().warning("event_log_mirror_failed type=%s", event.type, exc_info=True)
         return record
 
     def recent(self, limit=100, event_type=None):

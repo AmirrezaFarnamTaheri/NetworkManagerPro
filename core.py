@@ -18,6 +18,8 @@ import psutil
 import requests
 from ping3 import ping
 
+import branding
+
 try:
     import keyring
 except Exception:
@@ -33,11 +35,11 @@ _public_ip_cache = {
     "next_retry": 0.0,
 }
 _RUN_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
-_RUN_VALUE_NAME = "NetworkManagerPro"
+_RUN_VALUE_NAME = branding.TECHNICAL_APP_ID
 _DDNS_CREDENTIAL_USER = "ddns_update_url"
-APP_NAME = "NetworkManagerPro"
-APP_DISPLAY_NAME = "Network Manager Pro"
-APP_VERSION = "2.0.0"
+APP_NAME = branding.TECHNICAL_APP_ID
+APP_DISPLAY_NAME = branding.PRODUCT_NAME
+APP_VERSION = branding.PRODUCT_VERSION
 CONFIG_VERSION = 1
 
 DEFAULT_CONFIG = {
@@ -57,6 +59,7 @@ DEFAULT_CONFIG = {
     "plugins": {
         "enabled": [],
         "settings": {},
+        "marketplace_registry": {"schema_version": 1, "plugins": []},
     },
     "dns_profiles": {
         "Cloudflare": ["1.1.1.1", "1.0.0.1"],
@@ -318,6 +321,8 @@ def normalize_config(config):
     plugins["enabled"] = [str(item) for item in enabled] if isinstance(enabled, list) else []
     if not isinstance(plugins.get("settings"), dict):
         plugins["settings"] = {}
+    if not isinstance(plugins.get("marketplace_registry"), dict):
+        plugins["marketplace_registry"] = {"schema_version": 1, "plugins": []}
     merged["plugins"] = plugins
 
     profiles = merged.get("dns_profiles")
@@ -479,6 +484,157 @@ def network_profile_preview(config, context):
         "actions": actions,
         "auto_apply": bool(profile.get("auto_apply", False)),
     }
+
+
+def current_network_context():
+    """Return best-effort local context used by network profile matching."""
+    interface = get_active_interface_alias() or ""
+    return {
+        "ssid": get_current_wifi_ssid() or "",
+        "bssid": get_current_wifi_bssid() or "",
+        "interface": interface,
+        "gateway": get_default_gateway(interface) if interface else "",
+    }
+
+
+def network_profile_apply_plan(config, context=None):
+    """Return an executable-but-nonmutating plan for the matching network profile."""
+    cfg = normalize_config(config)
+    observed = context if isinstance(context, dict) else current_network_context()
+    preview = network_profile_preview(cfg, observed)
+    if not preview.get("matched"):
+        return {"matched": False, "context": observed, "profile": None, "steps": [], "auto_apply": False}
+    steps = []
+    profiles = cfg.get("dns_profiles") or {}
+    for action in preview.get("actions", []):
+        if action.get("type") == "dns":
+            name = action.get("profile")
+            steps.append(
+                {
+                    "type": "dns",
+                    "profile": name,
+                    "servers": list(profiles.get(name, [])) if isinstance(profiles, dict) else [],
+                    "requires_admin": True,
+                }
+            )
+        if action.get("type") == "proxy":
+            steps.append(
+                {
+                    "type": "proxy",
+                    "profile": action.get("profile"),
+                    "requires_admin": False,
+                }
+            )
+    return {
+        "matched": True,
+        "context": observed,
+        "profile": preview.get("profile"),
+        "steps": steps,
+        "auto_apply": bool(preview.get("auto_apply")),
+    }
+
+
+def apply_network_profile_plan(config, context=None, captive_status=None, executor=None, connectivity_checker=None):
+    """Apply an explicitly auto-enabled context profile with rollback protection."""
+    cfg = normalize_config(config)
+    plan = network_profile_apply_plan(cfg, context)
+    if not plan.get("matched"):
+        return {"applied": False, "reason": "no_match", "plan": plan, "results": [], "rolled_back": False}
+    if not plan.get("auto_apply"):
+        return {"applied": False, "reason": "auto_apply_disabled", "plan": plan, "results": [], "rolled_back": False}
+    if str(captive_status or "").lower() == "captive":
+        return {"applied": False, "reason": "captive_portal", "plan": plan, "results": [], "rolled_back": False}
+
+    executor = executor or {}
+    set_dns_fn = executor.get("set_dns", set_dns)
+    set_proxy_fn = executor.get("set_proxy", set_proxy)
+    clear_dns_fn = executor.get("clear_dns", clear_dns)
+    restore_proxy_fn = executor.get("restore_proxy_settings", restore_proxy_settings)
+    dns_restore_fn = executor.get("get_dns_restore_state", get_dns_restore_state)
+    proxy_restore_fn = executor.get("get_proxy_settings", get_proxy_settings)
+    connectivity_checker = connectivity_checker or check_basic_connectivity
+
+    interface = (plan.get("context") or {}).get("interface") or None
+    restore_snapshot = {
+        "dns": dns_restore_fn(interface),
+        "proxy": proxy_restore_fn(),
+    }
+    results = []
+    ok = True
+    for step in plan.get("steps", []):
+        if step.get("type") == "dns":
+            servers = step.get("servers") or []
+            if not servers:
+                result = (False, f"DNS profile has no servers: {step.get('profile')}")
+            else:
+                result = set_dns_fn(servers, interface)
+            results.append({"type": "dns", "ok": bool(result[0]), "message": result[1], "profile": step.get("profile")})
+            ok = ok and bool(result[0])
+        elif step.get("type") == "proxy":
+            result = set_proxy_fn(True, step.get("profile") or "")
+            results.append({"type": "proxy", "ok": bool(result[0]), "message": result[1], "profile": step.get("profile")})
+            ok = ok and bool(result[0])
+
+    if not ok:
+        return {"applied": False, "reason": "apply_failed", "plan": plan, "results": results, "rolled_back": False}
+
+    connectivity_ok, connectivity_msg = connectivity_checker()
+    if should_rollback_after_change(cfg, ok, connectivity_ok):
+        dns_state = restore_snapshot.get("dns") or {}
+        dns_servers = list(dns_state.get("dns_servers_v4") or []) + list(dns_state.get("dns_servers_v6") or [])
+        if dns_servers:
+            dns_restore = set_dns_fn(dns_servers, dns_state.get("interface") or interface)
+        else:
+            dns_restore = clear_dns_fn(dns_state.get("interface") or interface)
+        proxy_restore = restore_proxy_fn(restore_snapshot.get("proxy") or {})
+        return {
+            "applied": False,
+            "reason": "rolled_back",
+            "plan": plan,
+            "results": results,
+            "rolled_back": True,
+            "connectivity": {"ok": connectivity_ok, "message": connectivity_msg},
+            "restore": {"dns": dns_restore, "proxy": proxy_restore},
+        }
+
+    return {
+        "applied": True,
+        "reason": "applied",
+        "plan": plan,
+        "results": results,
+        "rolled_back": False,
+        "connectivity": {"ok": connectivity_ok, "message": connectivity_msg},
+    }
+
+
+def get_current_wifi_ssid(query=None):
+    query = query or _query_netsh_wlan
+    return _wifi_context_from_netsh(query()).get("ssid", "")
+
+
+def get_current_wifi_bssid(query=None):
+    query = query or _query_netsh_wlan
+    return _wifi_context_from_netsh(query()).get("bssid", "")
+
+
+def _query_netsh_wlan():
+    ok, output = run_powershell("netsh wlan show interfaces")
+    return output if ok else ""
+
+
+def _wifi_context_from_netsh(text):
+    context = {"ssid": "", "bssid": ""}
+    for line in str(text or "").splitlines():
+        if ":" not in line:
+            continue
+        key, value = line.split(":", 1)
+        normalized_key = key.strip().lower()
+        value = value.strip()
+        if normalized_key == "ssid":
+            context["ssid"] = value
+        elif normalized_key == "bssid":
+            context["bssid"] = _normalize_bssid(value)
+    return context
 
 
 def detect_captive_portal(fetcher=None, timeout=5):

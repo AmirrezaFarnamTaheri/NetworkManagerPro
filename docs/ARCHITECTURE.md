@@ -1,6 +1,6 @@
 # Architecture
 
-Network Manager Pro is a Windows desktop app packaged as a PyInstaller onefile executable and installed by a single Inno Setup executable. The installed app does not depend on loose repository files.
+Lucid Net is a Windows desktop app packaged as a PyInstaller onefile executable and installed by a single Inno Setup executable. The installed app does not depend on loose repository files.
 
 ## Runtime Layout
 
@@ -12,10 +12,11 @@ Network Manager Pro is a Windows desktop app packaged as a PyInstaller onefile e
 - `diagnostics.py` exports redacted diagnostics bundles.
 - `traffic_collector.py` provides best-effort process connection summaries.
 - `plugin_manager.py` and `plugin_api.py` load trusted plugins from bundled and user plugin folders.
+- `plugin_platform.py` and `plugin_host.py` define the plugin isolation, environment-lock, bundle-integrity, and marketplace-readiness primitives that will become the subprocess plugin boundary.
 
 ## Data Ownership
 
-User-writable data lives under `%LOCALAPPDATA%\NetworkManagerPro`:
+User-writable data lives under `%LOCALAPPDATA%\LucidNet`:
 
 - `config.json`: normalized user configuration.
 - `logs\app.log`: rotating app log.
@@ -23,13 +24,13 @@ User-writable data lives under `%LOCALAPPDATA%\NetworkManagerPro`:
 - `history\traffic_metrics.sqlite3`: aggregate traffic metrics from manual refreshes.
 - `plugins\`: optional user-installed plugins.
 
-Bundled docs, assets, and example plugins are embedded into `NetworkManagerPro.exe` by PyInstaller. They are not required beside the installed executable.
+Bundled docs, assets, and example plugins are embedded into `LucidNet.exe` by PyInstaller. They are not required beside the installed executable.
 
 ## Concurrency Model
 
 The GUI remains the owner of visible UI state. Slow DNS, proxy, DDNS, diagnostics, and traffic operations run in short-lived background threads and report back through Tk's event loop. The monitor service runs one daemon thread and protects snapshots with a re-entrant lock. Config reads and writes use the shared `core.config_lock()` plus atomic file replacement so UI saves, monitor reloads, and plugin reads do not race inside one process.
 
-Plugin periodic tasks are tracked before their worker thread starts, so shutdown can signal every registered task even if a plugin starts while the app is closing.
+Plugin periodic tasks are tracked before their worker thread starts, so shutdown can signal every registered task even if a plugin starts while the app is closing. Plugin reload can now target changed manifests instead of restarting every enabled plugin.
 
 ## Privilege Direction
 
@@ -39,12 +40,12 @@ The broker command surface starts in `broker_contract.py` so request/response va
 
 ## Release Contract
 
-The repository source of truth for the current release is `core.APP_VERSION`; `pyproject.toml` and `installer\NetworkManagerPro.iss` must match it. `scripts\smoke_check.py` verifies this, and `scripts\build_release.ps1` refuses to build if the versions diverge.
+The repository source of truth for the current release is `branding.PRODUCT_VERSION`, exposed as `core.APP_VERSION`; `pyproject.toml` and `installer\LucidNet.iss` must match it. `scripts\smoke_check.py` verifies this, and `scripts\build_release.ps1` refuses to build if the versions diverge.
 
 Release builds are intentionally clean:
 
 1. Remove generated `build`, `dist`, and `installer\output` folders inside the repository.
-2. Build `dist\NetworkManagerPro.exe` as a PyInstaller onefile executable.
-3. Build `installer\output\NetworkManagerPro-Setup-<version>.exe`.
+2. Build `dist\LucidNet.exe` as a PyInstaller onefile executable.
+3. Build `installer\output\LucidNet-Setup-<version>.exe`.
 
 Generated artifacts are ignored by Git and should not be committed.

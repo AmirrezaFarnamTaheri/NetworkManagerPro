@@ -1,13 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
 import os
 
+import branding
 from PyInstaller.utils.hooks import collect_all
 
 ROOT = os.path.abspath(SPECPATH)
 
 datas = []
 binaries = []
-hiddenimports = ["pystray._win32"]
+hiddenimports = ["pystray._win32", "plugin_host"]
 for pkg in ("customtkinter", "plyer", "pystray"):
     try:
         d, b, h = collect_all(pkg)
@@ -55,7 +56,7 @@ exe = EXE(
     a.datas,
     [],
     exclude_binaries=False,
-    name="NetworkManagerPro",
+    name=branding.INSTALLER_BASENAME,
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

@@ -1,6 +1,6 @@
 # Security and Privacy
 
-Network Manager Pro is a local Windows utility. It changes local network settings and stores user data on the current machine.
+Lucid Net is a local Windows utility. It changes local network settings and stores user data on the current machine.
 
 ## Elevation
 
@@ -16,15 +16,18 @@ The app makes these built-in outbound calls:
 
 - Public IP lookup: `https://api.ipify.org?format=json`
 - DDNS update: the URL stored in Windows Credential Manager for DDNS updates.
+- Consent-gated diagnostics: optional user-started DNS-over-HTTPS comparison, TLS certificate checks, transparent DNS proxy evidence checks, and SNI/TLS failure classification for benign or user-owned endpoints.
 
 Python HTTP requests may not automatically follow the Windows proxy setting managed by the app. Some networks may require separate app-level proxy support in a future release.
+
+Advanced diagnostics report evidence and confidence only. Lucid Net may diagnose network behavior and recommend lawful, user-consented local configuration changes. Features involving policy bypass, traffic camouflage, identity rotation, or anti-censorship countermeasures require legal, ethical, safety, and feasibility review before implementation.
 
 ## Local Data
 
 Runtime data lives under:
 
 ```text
-%LOCALAPPDATA%\NetworkManagerPro
+%LOCALAPPDATA%\LucidNet
 ```
 
 This includes config, logs, history, diagnostics bundles, and user plugins.
@@ -53,6 +56,10 @@ Proxy restore snapshots include `ProxyEnable`, `ProxyServer`, `ProxyOverride`, a
 
 ## Plugins
 
-Plugin API permissions are enforced as API gates, and missing permissions raise clear errors. They are not a sandbox. Plugins are still Python modules running in-process with the same OS privileges as Network Manager Pro.
+Plugin API permissions are enforced as API gates, and missing permissions raise clear errors. They are not a sandbox. Plugins are still Python modules running in-process with the same OS privileges as Lucid Net.
 
 Treat the current plugin system as trusted-only. Do not install plugins from unknown publishers, unsigned archives, or copied code you have not reviewed. For untrusted extensions, a future subprocess, signed bundle, WASM runtime, or service boundary would be required.
+
+## Packet Capture
+
+PCAP export remains sidecar-gated research. Packet captures can contain sensitive content, hostnames, addresses, credentials, and browsing metadata. Any future capture flow must be explicitly user-started, time-bounded, disabled for payload capture by default, and backed by a signed optional sidecar binary.

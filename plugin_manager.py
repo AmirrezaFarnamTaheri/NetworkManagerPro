@@ -70,21 +70,27 @@ class PluginManager:
         self.stop_all()
         return self.load_enabled()
 
+    def reload_changed(self):
+        changed = set(self.changed_manifests())
+        if not changed:
+            return []
+        enabled = self._enabled_ids()
+        reloaded = []
+        for manifest_path in sorted(changed):
+            try:
+                manifest = self._load_manifest(manifest_path)
+                if manifest["id"] not in enabled:
+                    continue
+                self._stop_plugin(manifest["id"])
+                reloaded.append(self._load_plugin(manifest_path, manifest))
+            except Exception as exc:
+                core.logger().warning("plugin_reload_failed manifest=%s error=%s", manifest_path, exc, exc_info=True)
+                self._emit("plugin.reload_failed", "Plugin failed to reload", {"manifest": manifest_path, "error": str(exc)})
+        return reloaded
+
     def stop_all(self):
         for item in list(self.plugins):
-            api = item.get("api")
-            module = item.get("module")
-            try:
-                if hasattr(module, "on_stop"):
-                    if len(inspect.signature(module.on_stop).parameters) == 0:
-                        module.on_stop()
-                    else:
-                        module.on_stop(api)
-            except Exception:
-                core.logger().warning("plugin_stop_failed id=%s", item.get("manifest", {}).get("id"), exc_info=True)
-            finally:
-                if api:
-                    api.stop()
+            self._stop_item(item)
         self.plugins.clear()
         self._loaded_ids.clear()
 
@@ -143,7 +149,7 @@ class PluginManager:
             self.ui_host,
             permissions=manifest.get("permissions", []),
         )
-        item = {"manifest": manifest, "module": module, "api": api}
+        item = {"manifest": manifest, "module": module, "api": api, "manifest_path": manifest_path}
         try:
             if hasattr(module, "on_start"):
                 module.on_start(api)
@@ -157,6 +163,32 @@ class PluginManager:
         self._fingerprints[manifest_path] = plugin_platform.manifest_fingerprint(manifest_path)
         self._emit("plugin.loaded", f"Plugin loaded: {manifest['name']}", {"id": manifest["id"], "version": manifest["version"]})
         return item
+
+    def _stop_plugin(self, plugin_id):
+        for item in list(self.plugins):
+            if item.get("manifest", {}).get("id") != plugin_id:
+                continue
+            self._stop_item(item)
+            self.plugins.remove(item)
+            self._loaded_ids.discard(plugin_id)
+            self._emit("plugin.stopped", f"Plugin stopped: {plugin_id}", {"id": plugin_id})
+            return True
+        return False
+
+    def _stop_item(self, item):
+        api = item.get("api")
+        module = item.get("module")
+        try:
+            if hasattr(module, "on_stop"):
+                if len(inspect.signature(module.on_stop).parameters) == 0:
+                    module.on_stop()
+                else:
+                    module.on_stop(api)
+        except Exception:
+            core.logger().warning("plugin_stop_failed id=%s", item.get("manifest", {}).get("id"), exc_info=True)
+        finally:
+            if api:
+                api.stop()
 
     def _emit(self, event_type, summary, details):
         if self.event_store:

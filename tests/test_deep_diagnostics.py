@@ -33,6 +33,21 @@ def test_dns_integrity_classification_and_result_schema():
     assert "recommendation" in result
 
 
+def test_transparent_dns_proxy_diagnostic_reports_interception_evidence():
+    assert deep_diagnostics.classify_transparent_dns_proxy(["203.0.113.10"], ["1.1.1.1"], "router dns")[0] == "possible_interception"
+
+    result = deep_diagnostics.run_transparent_dns_proxy_diagnostic(
+        "example.test",
+        requested_resolver=lambda _domain: ["203.0.113.10"],
+        trusted_resolver=lambda _domain: ["1.1.1.1"],
+        requested_resolver_label="router dns",
+    )
+
+    assert result["test_id"] == "transparent_dns_proxy"
+    assert result["status"] == "possible_interception"
+    assert result["evidence"]["requested_resolver"] == "router dns"
+
+
 def test_captive_portal_diagnostic_reuses_safe_classifier():
     result = deep_diagnostics.run_captive_portal_diagnostic(fetcher=lambda *args, **kwargs: FakeResponse())
 
@@ -59,6 +74,20 @@ def test_tls_certificate_classification_reports_issuer_evidence():
     )
     assert result["status"] == "possible_inspection"
     assert "Example CA" in result["evidence"]["issuer"]
+
+
+def test_sni_filtering_diagnostic_classifies_tls_failures():
+    status, explanation, confidence = deep_diagnostics.classify_sni_connection(False, error="tlsv1 alert unrecognized_name")
+    assert status == "possible_sni_or_tls_filtering"
+    assert confidence == "medium"
+    assert "SNI" in explanation
+
+    result = deep_diagnostics.run_sni_filtering_diagnostic(
+        "example.test",
+        cert_fetcher=lambda _host: (_ for _ in ()).throw(RuntimeError("tlsv1 alert unrecognized_name")),
+    )
+    assert result["test_id"] == "sni_filtering"
+    assert result["status"] == "possible_sni_or_tls_filtering"
 
 
 def test_diagnostics_summary_lists_deep_diagnostic_tests():

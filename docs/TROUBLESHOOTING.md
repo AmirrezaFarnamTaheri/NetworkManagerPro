@@ -2,7 +2,7 @@
 
 ## The App Does Not Start
 
-Check whether another instance is already running in the tray. Network Manager Pro uses a single-instance guard.
+Check whether another instance is already running in the tray. Lucid Net uses a single-instance guard.
 
 If config is unreadable, the app backs it up as `config.json.<timestamp>.invalid` and creates a fresh default config.
 
@@ -20,7 +20,7 @@ Fix:
 1. Relaunch as administrator.
 2. Select the interface manually in DNS.
 3. Apply the profile again.
-4. Check `%LOCALAPPDATA%\NetworkManagerPro\logs\app.log`.
+4. Check `%LOCALAPPDATA%\LucidNet\logs\app.log`.
 
 ## Proxy Does Not Behave as Expected
 
@@ -66,7 +66,7 @@ Run:
 scripts\build_release.ps1
 ```
 
-The script cleans stale artifacts and fails if `dist\NetworkManagerPro.exe` or `installer\output\NetworkManagerPro-Setup-2.0.0.exe` is not produced. Install Inno Setup 6 for release builds. Use `scripts\build_release.ps1 -SkipInstaller` only when you intentionally want a development-only onefile executable.
+The script cleans stale artifacts and fails if `dist\LucidNet.exe` or `installer\output\LucidNet-Setup-2.0.0.exe` is not produced. Install Inno Setup 6 for release builds. Use `scripts\build_release.ps1 -SkipInstaller` only when you intentionally want a development-only onefile executable.
 
 ## Version mismatch during build
 
@@ -74,7 +74,7 @@ Keep these values identical before building:
 
 - `core.APP_VERSION`
 - `pyproject.toml` `project.version`
-- `installer\NetworkManagerPro.iss` `MyAppVersion`
+- `installer\LucidNet.iss` `MyAppVersion`
 
 The smoke check and release build both fail when they diverge, which prevents split release metadata.
 

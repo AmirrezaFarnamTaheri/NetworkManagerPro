@@ -12,6 +12,29 @@ def test_pcap_capture_plan_is_bounded_and_warns(monkeypatch, tmp_path):
     assert plan["interface"] == "Wi-Fi"
 
 
+def test_pcap_export_request_and_manifest_are_bounded(monkeypatch, tmp_path):
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path))
+    request = forensics_plan.pcap_export_request(duration_seconds=20, interface="Ethernet")
+    ok, msg = forensics_plan.validate_pcap_export_request(request)
+    assert ok is True
+    assert msg == ""
+    assert request["command"] == "pcap_export"
+    assert request["args"]["include_payloads"] is False
+
+    unsafe = forensics_plan.pcap_export_request(duration_seconds=20, include_payloads=True)
+    ok, msg = forensics_plan.validate_pcap_export_request(unsafe)
+    assert ok is False
+    assert "Payload capture is disabled" in msg
+
+    manifest = forensics_plan.pcap_export_manifest(
+        request,
+        {"schema_version": 1, "ok": True, "findings": [{"path": "capture.pcapng"}]},
+    )
+    assert manifest["request_valid"] is True
+    assert manifest["result_valid"] is True
+    assert "not redacted" in manifest["redaction_note"]
+
+
 def test_sidecar_request_and_result_validation():
     request = forensics_plan.sidecar_request("version", {"safe": True}, timeout_seconds=999)
     assert request["timeout_seconds"] == 300
@@ -21,6 +44,18 @@ def test_sidecar_request_and_result_validation():
     ok, msg = forensics_plan.validate_sidecar_result({"schema_version": 1, "ok": True})
     assert ok is False
     assert "findings" in msg
+
+
+def test_sidecar_language_decision_prefers_rust_and_scaffold_exists():
+    decision = forensics_plan.sidecar_language_decision()
+    assert decision["recommended_language"] == "rust"
+    assert "signed binary" in decision["required_controls"]
+    assert decision["first_command"] == "status"
+
+    with open("sidecars/forensics-sidecar-rust/src/main.rs", "r", encoding="utf-8") as f:
+        source = f.read()
+    assert '"pcap_export"' in source
+    assert "intentionally disabled" in source
 
 
 def test_enforcement_gate_blocks_frontier_work_without_reviews():

@@ -4,7 +4,7 @@ Status: research and safety note for R-059 through R-064.
 
 ## PCAP Export
 
-Packet capture must be explicit, bounded, and user-started. Captures may contain hostnames, IP addresses, credentials, cookies, and application payloads. The product must warn users before capture and store output under `%LOCALAPPDATA%\NetworkManagerPro\forensics` unless the user chooses another folder.
+Packet capture must be explicit, bounded, and user-started. Captures may contain hostnames, IP addresses, credentials, cookies, and application payloads. The product must warn users before capture and store output under `%LOCALAPPDATA%\LucidNet\forensics` unless the user chooses another folder.
 
 Recommended path:
 
@@ -51,7 +51,7 @@ This work must not become an evasion or policy-bypass feature.
 
 ## Multi-WAN And Adapter Load Balancing
 
-Network Manager Pro can research adapter priority and failover recommendations, but true bonding/load balancing should not be promised until technically proven.
+Lucid Net can research adapter priority and failover recommendations, but true bonding/load balancing should not be promised until technically proven.
 
 Distinctions:
 

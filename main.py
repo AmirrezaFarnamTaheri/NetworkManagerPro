@@ -13,6 +13,7 @@ import pystray
 from plyer import notification
 
 import core
+import enterprise_policy
 import gui
 from history_store import EventStore
 from monitor_service import MonitorService
@@ -55,7 +56,7 @@ def _ensure_config():
         except OSError:
             backup = None
         _show_startup_error(
-            "Network Manager Pro",
+            core.APP_DISPLAY_NAME,
             "config.json could not be read. A fresh default config will be created"
             + (f" and the unreadable file was backed up to:\n{backup}" if backup else ".")
             + "\n\nCheck JSON commas, quotes, and brackets before restoring custom values.",
@@ -67,8 +68,16 @@ def _ensure_config():
         return cfg
     except OSError as exc:
         core.logger().error("config_create_failed path=%s error=%s", path, exc, exc_info=True)
-        _show_startup_error("Network Manager Pro", f"Could not create user config.\n\nPath: {path}\n\n{exc}")
+        _show_startup_error(core.APP_DISPLAY_NAME, f"Could not create user config.\n\nPath: {path}\n\n{exc}")
         return None
+
+
+def _apply_machine_policy(config):
+    policies = enterprise_policy.read_hklm_policies()
+    cfg, managed = enterprise_policy.apply_policy_overrides(config, policies)
+    if managed:
+        core.log_event("info", "policy.applied", managed=managed)
+    return cfg, managed
 
 
 def _elevation_command_line():
@@ -87,7 +96,7 @@ def _request_admin_or_exit():
         core.logger().error("admin_elevation_failed rc=%s", rc)
         _show_startup_error(
             "Administrator rights required",
-            "Network Manager Pro needs administrator rights to change DNS settings. "
+            f"{core.APP_DISPLAY_NAME} needs administrator rights to change DNS settings. "
             "Right-click the app and choose Run as administrator.",
         )
     else:
@@ -177,7 +186,7 @@ def _acquire_single_instance():
         if not single_instance_mutex:
             return True
         if kernel32.GetLastError() == 183:
-            _show_startup_error(core.APP_DISPLAY_NAME, "Network Manager Pro is already running.")
+            _show_startup_error(core.APP_DISPLAY_NAME, f"{core.APP_DISPLAY_NAME} is already running.")
             return False
     except Exception:
         core.logger().warning("single_instance_check_failed", exc_info=True)
@@ -220,9 +229,9 @@ def exit_action(icon=None, item=None):
 def on_gui_close():
     try:
         notification.notify(
-            title="Network Manager Pro",
+            title=core.APP_DISPLAY_NAME,
             message="Still running in the background. Use the tray icon to reopen or exit.",
-            app_name="Network Manager Pro",
+            app_name=core.APP_DISPLAY_NAME,
             timeout=3,
         )
     except Exception:
@@ -243,9 +252,13 @@ def main():
     if not config:
         _release_single_instance()
         return
+    config, managed_policy = _apply_machine_policy(config)
 
-    event_store = EventStore()
+    mirror_event_log = core.parse_bool((config.get("settings") or {}).get("policy_enable_windows_event_log_export"), False)
+    event_store = EventStore(mirror_event_log=mirror_event_log)
     event_store.append("app.start", "Application started", {"version": core.APP_VERSION, "admin": core.is_admin()})
+    if managed_policy:
+        event_store.append("policy.applied", "Machine policy applied", managed_policy)
 
     monitor = MonitorService(config, _config_path(), event_store=event_store)
     monitor.start()
@@ -258,7 +271,7 @@ def main():
         pystray.MenuItem("Export Diagnostics", tray_export_diagnostics),
         pystray.MenuItem("Exit", exit_action),
     )
-    tray_icon = pystray.Icon("netmgr", create_icon_image(), "Network Manager Pro", menu)
+    tray_icon = pystray.Icon("netmgr", create_icon_image(), core.APP_DISPLAY_NAME, menu)
     threading.Thread(target=tray_icon.run, daemon=True).start()
 
     app = gui.NetworkManagerGUI(

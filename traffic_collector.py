@@ -131,15 +131,43 @@ def recent_metrics(db_path, limit=120):
 def summarize_metric_deltas(rows):
     ordered = sorted(rows, key=lambda row: row.get("timestamp", 0))
     if len(ordered) < 2:
-        return {"samples": len(ordered), "bytes_sent_delta": 0, "bytes_recv_delta": 0, "duration_seconds": 0}
+        latency_values = [_latency_value(row) for row in ordered]
+        latency_values = [value for value in latency_values if value is not None]
+        return {
+            "samples": len(ordered),
+            "bytes_sent_delta": 0,
+            "bytes_recv_delta": 0,
+            "duration_seconds": 0,
+            "latency_min_ms": min(latency_values) if latency_values else None,
+            "latency_avg_ms": sum(latency_values) / len(latency_values) if latency_values else None,
+            "latency_max_ms": max(latency_values) if latency_values else None,
+        }
     first = ordered[0]
     last = ordered[-1]
+    latency_values = [_latency_value(row) for row in ordered]
+    latency_values = [value for value in latency_values if value is not None]
     return {
         "samples": len(ordered),
         "bytes_sent_delta": max(0, int(last.get("bytes_sent", 0)) - int(first.get("bytes_sent", 0))),
         "bytes_recv_delta": max(0, int(last.get("bytes_recv", 0)) - int(first.get("bytes_recv", 0))),
         "duration_seconds": max(0, float(last.get("timestamp", 0)) - float(first.get("timestamp", 0))),
+        "latency_min_ms": min(latency_values) if latency_values else None,
+        "latency_avg_ms": sum(latency_values) / len(latency_values) if latency_values else None,
+        "latency_max_ms": max(latency_values) if latency_values else None,
     }
+
+
+def history_summary(db_path, limit=120):
+    rows = recent_metrics(db_path, limit=limit)
+    return {"rows": rows, "summary": summarize_metric_deltas(rows)}
+
+
+def _latency_value(row):
+    try:
+        value = row.get("latency_ms")
+        return None if value is None else float(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def format_bytes(value):

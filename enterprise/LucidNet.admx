@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<policyDefinitions revision="1.0" schemaVersion="1.0">
+  <policyNamespaces>
+    <target prefix="nmp" namespace="LucidNet.Policies" />
+    <using prefix="windows" namespace="Microsoft.Policies.Windows" />
+  </policyNamespaces>
+  <resources minRequiredRevision="1.0" />
+  <categories>
+    <category name="LucidNet" displayName="$(string.LucidNet)" />
+  </categories>
+  <policies>
+    <policy name="DisablePlugins" class="Machine" displayName="$(string.DisablePlugins)" explainText="$(string.DisablePlugins_Help)" key="SOFTWARE\Policies\LucidNet" valueName="DisablePlugins">
+      <parentCategory ref="LucidNet" />
+      <enabledValue><decimal value="1" /></enabledValue>
+      <disabledValue><decimal value="0" /></disabledValue>
+    </policy>
+    <policy name="DisableProxyChanges" class="Machine" displayName="$(string.DisableProxyChanges)" explainText="$(string.DisableProxyChanges_Help)" key="SOFTWARE\Policies\LucidNet" valueName="DisableProxyChanges">
+      <parentCategory ref="LucidNet" />
+      <enabledValue><decimal value="1" /></enabledValue>
+      <disabledValue><decimal value="0" /></disabledValue>
+    </policy>
+    <policy name="DisableDiagnosticsExport" class="Machine" displayName="$(string.DisableDiagnosticsExport)" explainText="$(string.DisableDiagnosticsExport_Help)" key="SOFTWARE\Policies\LucidNet" valueName="DisableDiagnosticsExport">
+      <parentCategory ref="LucidNet" />
+      <enabledValue><decimal value="1" /></enabledValue>
+      <disabledValue><decimal value="0" /></disabledValue>
+    </policy>
+    <policy name="EnableWindowsEventLogExport" class="Machine" displayName="$(string.EnableWindowsEventLogExport)" explainText="$(string.EnableWindowsEventLogExport_Help)" key="SOFTWARE\Policies\LucidNet" valueName="EnableWindowsEventLogExport">
+      <parentCategory ref="LucidNet" />
+      <enabledValue><decimal value="1" /></enabledValue>
+      <disabledValue><decimal value="0" /></disabledValue>
+    </policy>
+    <policy name="ForceRollbackOnConnectivityLoss" class="Machine" displayName="$(string.ForceRollbackOnConnectivityLoss)" explainText="$(string.ForceRollbackOnConnectivityLoss_Help)" key="SOFTWARE\Policies\LucidNet" valueName="ForceRollbackOnConnectivityLoss">
+      <parentCategory ref="LucidNet" />
+      <enabledValue><decimal value="1" /></enabledValue>
+      <disabledValue><decimal value="0" /></disabledValue>
+    </policy>
+  </policies>
+</policyDefinitions>

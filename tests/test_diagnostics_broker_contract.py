@@ -2,6 +2,7 @@ import json
 import zipfile
 
 import broker_contract
+import broker_runtime
 import core
 import diagnostics
 import traffic_collector
@@ -60,3 +61,21 @@ def test_broker_contract_validates_commands_and_required_args():
     response = broker_contract.make_response(request, True, "ok", event={"type": "broker.command"})
     assert response["request_id"] == request["request_id"]
     assert response["ok"] is True
+    assert broker_contract.command_owner("dns.set") == "broker"
+    assert broker_contract.command_owner("status") == "gui"
+
+
+def test_broker_dispatcher_routes_privileged_commands_without_gui_process():
+    calls = []
+    dispatcher = broker_runtime.BrokerDispatcher(
+        dns_setter=lambda servers, interface: calls.append(("set", interface, servers)) or (True, "set"),
+        dns_clearer=lambda interface: calls.append(("clear", interface)) or (True, "clear"),
+    )
+
+    response = dispatcher.dispatch(broker_contract.make_request("dns.set", {"interface": "Wi-Fi", "servers": ["1.1.1.1"]}))
+
+    assert response["ok"] is True
+    assert calls == [("set", "Wi-Fi", ["1.1.1.1"])]
+    policy = broker_runtime.named_pipe_policy("S-1-5-21-test")
+    assert "LucidNet.Broker" in policy["pipe_name"]
+    assert "S-1-5-21-test" in policy["acl"]["allow"]

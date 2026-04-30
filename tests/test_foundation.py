@@ -20,6 +20,7 @@ def test_normalize_config_drops_unknown_keys_and_clamps_interval():
     assert cfg["dns_profiles"] == {"Valid": ["1.1.1.1"]}
     assert cfg["proxy_profiles"] == ["127.0.0.1:8080"]
     assert cfg["plugins"]["enabled"] == ["demo_plugin"]
+    assert cfg["plugins"]["marketplace_registry"]["schema_version"] == 1
     assert "unexpected" not in cfg
 
 

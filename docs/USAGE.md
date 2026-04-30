@@ -20,6 +20,18 @@ Use DNS to choose the target interface, apply predefined profiles, and manage cu
 - Selected profiles can be deleted.
 - IPv4 and IPv6 DNS addresses are accepted and validated.
 
+## Context-Aware Profiles
+
+Network profiles can match SSID, BSSID, interface alias, and gateway. The Tools tab previews the currently matched profile, and the monitor can auto-apply profiles only when the profile has `auto_apply` enabled.
+
+Auto-apply rules:
+
+- Unknown networks do not change settings.
+- Profiles with `auto_apply` disabled only produce previews.
+- Captive portal detection pauses auto-apply while login is required.
+- DNS and proxy changes use restore snapshots and dead-man rollback.
+- Every auto-apply attempt is recorded in local history.
+
 ## Proxy
 
 Use Proxy to manage simple current-user WinINet proxy endpoints.
@@ -29,7 +41,11 @@ Use Proxy to manage simple current-user WinINet proxy endpoints.
 - Credentials, schemes, spaces, semicolons, and per-protocol rules are rejected.
 - Existing proxy bypass and PAC settings are preserved in restore snapshots.
 
-PAC and SOCKS5 support now exists in the core layer for validated profiles and future UI controls. PAC URLs are stored as `pac_profiles`, while SOCKS5 endpoints are stored as `socks5_profiles`. Until the UI controls are completed, keep normal proxy changes in the visible Proxy tab and treat PAC/SOCKS entries as advanced configuration.
+PAC and SOCKS5 controls are available in the Proxy tab:
+
+- PAC URLs are stored as `pac_profiles` and must point to `.pac` or `.dat` files.
+- SOCKS5 endpoints are stored as `socks5_profiles` and accept `host:port`, `socks://host:port`, or `socks5://host:port`.
+- PAC and SOCKS5 apply actions capture restore points and use the same rollback policy as normal proxy changes.
 
 ## DDNS
 
@@ -37,7 +53,7 @@ Use DDNS to save a provider update URL and run manual sync. Auto-DDNS can be ena
 
 The monitor tracks the last successfully synced public IP separately from the last seen public IP. Failed updates are retried with backoff and are not marked complete.
 
-Dual-stack DDNS scaffolding is available through `ddns_update_url_v4` and `ddns_update_url_v6`. The app can detect public IPv4 and IPv6 addresses separately and route each configured update URL to its matching address family. The current visible DDNS tab still uses the single legacy-compatible URL flow.
+Dual-stack DDNS controls are available through `ddns_update_url_v4` and `ddns_update_url_v6`. The app can detect public IPv4 and IPv6 addresses separately and route each configured update URL to its matching address family.
 
 ## Tools
 
@@ -47,9 +63,23 @@ Tools provides:
 - DHCP renew;
 - copy diagnostics;
 - export diagnostics;
-- restore previous settings.
+- restore previous settings;
+- preview context-aware network profile plans;
+- run captive portal, overlay, and power-policy checks;
+- preview, apply, and disable one managed hosts-file group with backup.
 
-Diagnostics are sanitized and exported under `%LOCALAPPDATA%\NetworkManagerPro`.
+Diagnostics are sanitized and exported under `%LOCALAPPDATA%\LucidNet`.
+
+Advanced diagnostic CLI commands are also available:
+
+```powershell
+python nmp_cli.py diagnose transparent-dns --domain example.com --i-consent --json
+python nmp_cli.py diagnose sni --host example.com --i-consent --json
+python nmp_cli.py pcap-plan --duration 30 --interface "Wi-Fi" --request --json
+python nmp_cli.py sidecar-decision --json
+```
+
+These commands report evidence and confidence only. They do not attempt bypass, evasion, identity rotation, or destructive network changes.
 
 ## History
 
@@ -59,17 +89,17 @@ History shows recent app events, settings changes, plugin events, DDNS activity,
 
 Traffic shows system byte totals and a best-effort per-process active connection inventory. It is not a firewall, packet capture, or per-process bandwidth accounting tool.
 
-Each manual traffic refresh stores aggregate system counters in `%LOCALAPPDATA%\NetworkManagerPro\history\traffic_metrics.sqlite3`. The tab summarizes recent upload/download deltas from those saved samples so short-term trends are visible without claiming ETW-level attribution.
+Each manual traffic refresh stores aggregate system counters in `%LOCALAPPDATA%\LucidNet\history\traffic_metrics.sqlite3`. The tab summarizes recent upload/download deltas from those saved samples so short-term trends are visible without claiming ETW-level attribution.
 
 ## Hosts File Safety
 
-Hosts-file management is implemented as a safety-first core module. It previews managed groups, wraps app-owned blocks with `NetworkManagerPro` markers, and creates a backup before writing. Direct UI controls and elevated broker handoff are still roadmap work; do not edit the real Windows hosts file without administrator rights and a backup.
+Hosts-file management is implemented as a safety-first workflow. It previews managed groups, wraps app-owned blocks with `LucidNet` markers, validates entries, and creates a backup before writing. Editing the real Windows hosts file requires administrator rights; future broker routing will move privileged writes out of the GUI process.
 
 ## Plugins
 
 Plugins shows discovered manifests from:
 
-- `%LOCALAPPDATA%\NetworkManagerPro\plugins`;
+- `%LOCALAPPDATA%\LucidNet\plugins`;
 - bundled read-only plugin examples inside the app.
 
 Only IDs listed in `plugins.enabled` load. Manifest permissions gate access to the v1 plugin API.

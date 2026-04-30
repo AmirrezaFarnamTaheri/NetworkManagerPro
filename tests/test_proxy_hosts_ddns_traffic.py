@@ -39,7 +39,7 @@ def test_hosts_manager_previews_and_backs_up_before_apply(tmp_path):
     entries = [hosts_manager.HostsEntry("10.0.0.2", "dev.local", "dev override")]
 
     preview = hosts_manager.preview_apply(hosts_path.read_text(encoding="utf-8"), "dev", entries)
-    assert "# NetworkManagerPro BEGIN dev" in preview
+    assert "# LucidNet BEGIN dev" in preview
     assert "10.0.0.2 dev.local # dev override" in preview
 
     backup = hosts_manager.apply_group(str(hosts_path), "dev", entries, backup_dir=str(tmp_path / "backups"))
@@ -49,6 +49,17 @@ def test_hosts_manager_previews_and_backs_up_before_apply(tmp_path):
 
     disabled = hosts_manager.preview_apply(updated, "dev", entries, enabled=False)
     assert "dev.local" not in disabled
+
+
+def test_hosts_manager_validates_entries():
+    ok, msg, clean = hosts_manager.validate_entries([hosts_manager.HostsEntry("10.0.0.2", "Dev.Local", "ok")])
+    assert ok is True
+    assert clean[0].hostname == "dev.local"
+
+    ok, msg, clean = hosts_manager.validate_entries([hosts_manager.HostsEntry("not-ip", "dev.local")])
+    assert ok is False
+    assert "Invalid hosts IP" in msg
+    assert clean == []
 
 
 def test_public_ip_family_and_ddns_url_selection(monkeypatch):
@@ -89,3 +100,25 @@ def test_traffic_metrics_sqlite_roundtrip(tmp_path):
     assert summary["bytes_sent_delta"] == 60
     assert summary["bytes_recv_delta"] == 60
     assert summary["duration_seconds"] == 2
+
+
+def test_traffic_metrics_summary_includes_latency(tmp_path):
+    db_path = tmp_path / "traffic.sqlite3"
+    traffic_collector.append_metrics(
+        str(db_path),
+        totals={"bytes_sent": 100, "bytes_recv": 200, "packets_sent": 3, "packets_recv": 4},
+        latency_ms=20,
+        timestamp=1,
+    )
+    traffic_collector.append_metrics(
+        str(db_path),
+        totals={"bytes_sent": 200, "bytes_recv": 300, "packets_sent": 4, "packets_recv": 5},
+        latency_ms=40,
+        timestamp=3,
+    )
+
+    payload = traffic_collector.history_summary(str(db_path), limit=10)
+
+    assert payload["summary"]["latency_min_ms"] == 20
+    assert payload["summary"]["latency_avg_ms"] == 30
+    assert payload["summary"]["latency_max_ms"] == 40

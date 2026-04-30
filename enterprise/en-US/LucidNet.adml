@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<policyDefinitionResources revision="1.0" schemaVersion="1.0">
+  <displayName>Lucid Net</displayName>
+  <description>Administrative templates for Lucid Net.</description>
+  <resources>
+    <stringTable>
+      <string id="LucidNet">Lucid Net</string>
+      <string id="DisablePlugins">Disable plugins</string>
+      <string id="DisablePlugins_Help">Clears enabled plugin IDs and prevents plugin startup.</string>
+      <string id="DisableProxyChanges">Disable proxy changes</string>
+      <string id="DisableProxyChanges_Help">Marks proxy mutation controls as managed-disabled.</string>
+      <string id="DisableDiagnosticsExport">Disable diagnostics export</string>
+      <string id="DisableDiagnosticsExport_Help">Prevents diagnostics bundle export in managed environments.</string>
+      <string id="EnableWindowsEventLogExport">Enable Windows Event Log export</string>
+      <string id="EnableWindowsEventLogExport_Help">Mirrors sanitized app events to the Windows Application log.</string>
+      <string id="ForceRollbackOnConnectivityLoss">Force rollback on connectivity loss</string>
+      <string id="ForceRollbackOnConnectivityLoss_Help">Requires dead-man rollback after app-driven DNS or proxy changes.</string>
+    </stringTable>
+  </resources>
+</policyDefinitionResources>

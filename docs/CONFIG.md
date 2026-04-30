@@ -1,9 +1,9 @@
 # Configuration
 
-Network Manager Pro stores user configuration at:
+Lucid Net stores user configuration at:
 
 ```text
-%LOCALAPPDATA%\NetworkManagerPro\config.json
+%LOCALAPPDATA%\LucidNet\config.json
 ```
 
 The file is created automatically from built-in defaults. The installed executable does not require any loose config file.
@@ -23,7 +23,11 @@ The file is created automatically from built-in defaults. The installed executab
   },
   "plugins": {
     "enabled": [],
-    "settings": {}
+    "settings": {},
+    "marketplace_registry": {
+      "schema_version": 1,
+      "plugins": []
+    }
   },
   "dns_profiles": {
     "Cloudflare": ["1.1.1.1", "1.0.0.1"],
@@ -68,13 +72,14 @@ The file is created automatically from built-in defaults. The installed executab
 - `settings.rollback_on_connectivity_loss`: run a post-change connectivity check after DNS/proxy changes and restore the captured snapshot if the check fails.
 - `plugins.enabled`: plugin IDs to load.
 - `plugins.settings`: plugin-owned settings by plugin ID.
+- `plugins.marketplace_registry`: optional read-only marketplace registry data shown in the Plugins tab and CLI marketplace plan. It is for inspection only until signed bundle installation is enforced.
 - `dns_profiles`: named DNS server lists. Users can add, overwrite, and delete profiles in the UI.
 - `proxy_profiles`: saved simple proxy endpoints. Users can add and delete profiles in the UI.
-- `pac_profiles`: validated PAC URLs for future UI selection and current core-level PAC application.
-- `socks5_profiles`: validated SOCKS5 endpoints for future UI selection and current core-level SOCKS5 application.
+- `pac_profiles`: validated PAC URLs available in GUI, CLI, and core-level PAC application.
+- `socks5_profiles`: validated SOCKS5 endpoints available in GUI, CLI, and core-level SOCKS5 application.
 - `ddns_update_url_v4`: optional provider update URL for A-record/IPv4 DDNS updates.
 - `ddns_update_url_v6`: optional provider update URL for AAAA-record/IPv6 DDNS updates.
-- `network_profiles`: context-aware profile rules keyed by SSID, BSSID, interface alias, or default gateway. These rules currently provide normalized matching and preview data for automation; automatic mutation remains gated by explicit consent and future UI controls.
+- `network_profiles`: context-aware profile rules keyed by SSID, BSSID, interface alias, or default gateway. These rules provide normalized matching, preview data, and auto-apply behavior only when `auto_apply` is explicitly enabled for the matched profile.
 
 ## Validation
 
@@ -96,7 +101,7 @@ Use the DNS and Proxy panels to add custom entries. Saving a profile with an exi
 
 ## Automation Safety
 
-Network profile matching is intentionally non-mutating unless `auto_apply` is enabled by a future consent flow. Captive portal detection is diagnostic only: it checks whether a safe connectivity endpoint behaves normally, redirects to a login page, or appears modified. Dead-man rollback applies to app-driven DNS/proxy changes and uses the last captured restore snapshot when the post-change connectivity check fails.
+Network profile matching is non-mutating unless `auto_apply` is enabled on the matched profile. Captive portal detection pauses profile auto-apply while login is required. Dead-man rollback applies to app-driven DNS/proxy changes and restores the captured DNS/proxy snapshot when the post-change connectivity check fails.
 
 ## Privacy
 

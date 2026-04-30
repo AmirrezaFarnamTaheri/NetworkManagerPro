@@ -10,10 +10,14 @@ from tkinter import ttk
 import customtkinter as ctk
 from PIL import Image
 
+import branding
 import core
 import deep_diagnostics
 import diagnostics
+import enterprise_policy
+import hosts_manager
 import overlay_networks
+import plugin_platform
 import power_policy
 import traffic_collector
 
@@ -89,10 +93,11 @@ class NetworkManagerGUI(ctk.CTk):
             ctk.CTkLabel(brand, text="", image=self.logo_image).pack(side="left", padx=(0, 10))
         brand_text = ctk.CTkFrame(brand, fg_color="transparent")
         brand_text.pack(side="left")
-        ctk.CTkLabel(brand_text, text=core.APP_DISPLAY_NAME, font=title_font, anchor="w").pack(anchor="w")
+        identity = branding.product_identity()
+        ctk.CTkLabel(brand_text, text=identity["name"], font=title_font, anchor="w").pack(anchor="w")
         ctk.CTkLabel(
             brand_text,
-            text="DNS, proxy, DDNS, diagnostics, and traffic awareness in one safe control plane",
+            text=identity["tagline"],
             font=small_font,
             text_color=COLORS["muted"],
             anchor="w",
@@ -564,6 +569,8 @@ class NetworkManagerGUI(ctk.CTk):
         ctk.CTkButton(btn_row, text="Delete profile", width=150, command=self.delete_proxy_profile, fg_color="#6B7280").pack(
             side="left", padx=8
         )
+        ctk.CTkButton(btn_row, text="Use PAC", width=120, command=self.enable_pac_proxy).pack(side="left", padx=8)
+        ctk.CTkButton(btn_row, text="Use SOCKS5", width=120, command=self.enable_socks5_proxy).pack(side="left", padx=8)
 
         self.proxy_status = ctk.CTkLabel(page, text="Proxy: ...", font=body_font)
         self.proxy_status.grid(row=3, column=0, sticky="w", pady=(16, 4))
@@ -595,6 +602,26 @@ class NetworkManagerGUI(ctk.CTk):
             row=2, column=1, sticky="e", padx=12, pady=(6, 12)
         )
 
+        advanced = ctk.CTkFrame(page, corner_radius=10)
+        advanced.grid(row=7, column=0, sticky="ew", pady=(12, 0))
+        advanced.grid_columnconfigure(1, weight=1)
+        ctk.CTkLabel(advanced, text="PAC and SOCKS5", font=label_font).grid(
+            row=0, column=0, columnspan=2, sticky="w", padx=12, pady=(12, 6)
+        )
+        self.pac_var = ctk.StringVar(value=(self.config.get("pac_profiles") or [""])[0] if self.config.get("pac_profiles") else "")
+        self.socks5_var = ctk.StringVar(value=(self.config.get("socks5_profiles") or [""])[0] if self.config.get("socks5_profiles") else "")
+        ctk.CTkLabel(advanced, text="PAC URL", font=small_font).grid(row=1, column=0, sticky="w", padx=12, pady=4)
+        ctk.CTkEntry(advanced, textvariable=self.pac_var, placeholder_text="https://proxy.example/wpad.pac").grid(
+            row=1, column=1, sticky="ew", padx=(0, 12), pady=4
+        )
+        ctk.CTkLabel(advanced, text="SOCKS5", font=small_font).grid(row=2, column=0, sticky="w", padx=12, pady=4)
+        ctk.CTkEntry(advanced, textvariable=self.socks5_var, placeholder_text="127.0.0.1:1080").grid(
+            row=2, column=1, sticky="ew", padx=(0, 12), pady=4
+        )
+        ctk.CTkButton(advanced, text="Save PAC/SOCKS5", command=self.save_advanced_proxy_profiles, font=small_font).grid(
+            row=3, column=1, sticky="e", padx=12, pady=(6, 12)
+        )
+
     def _build_ddns_tab(self, parent, label_font, body_font, small_font):
         page = self._page(parent)
         ctk.CTkLabel(page, text="Dynamic DNS", font=label_font).grid(row=0, column=0, sticky="w")
@@ -607,6 +634,23 @@ class NetworkManagerGUI(ctk.CTk):
         self.ddns_url_entry.grid(row=3, column=0, sticky="ew", pady=4)
         ctk.CTkButton(page, text="Save DDNS URL", command=self.save_ddns_url, font=small_font).grid(row=4, column=0, sticky="w", pady=4)
         ctk.CTkButton(page, text="Force sync DDNS", command=self.force_update_ddns).grid(row=5, column=0, sticky="w", pady=10)
+        ctk.CTkLabel(page, text="Dual-stack update URLs", font=label_font).grid(row=7, column=0, sticky="w", pady=(16, 2))
+        self.ddns_url_v4_var = ctk.StringVar(value=self.config.get("ddns_update_url_v4") or "")
+        self.ddns_url_v6_var = ctk.StringVar(value=self.config.get("ddns_update_url_v6") or "")
+        ctk.CTkEntry(page, textvariable=self.ddns_url_v4_var, placeholder_text="IPv4 update URL").grid(
+            row=8, column=0, sticky="ew", pady=4
+        )
+        ctk.CTkEntry(page, textvariable=self.ddns_url_v6_var, placeholder_text="IPv6 update URL").grid(
+            row=9, column=0, sticky="ew", pady=4
+        )
+        dual_row = ctk.CTkFrame(page, fg_color="transparent")
+        dual_row.grid(row=10, column=0, sticky="w", pady=6)
+        ctk.CTkButton(dual_row, text="Save dual-stack URLs", command=self.save_dual_stack_ddns_urls, font=small_font).pack(
+            side="left", padx=(0, 8)
+        )
+        ctk.CTkButton(dual_row, text="Force dual-stack sync", command=self.force_update_dual_stack_ddns, font=small_font).pack(
+            side="left", padx=8
+        )
         ctk.CTkLabel(
             page,
             text="The URL is redacted in logs and diagnostics. Auto-DDNS stays off until a valid URL is saved.",
@@ -614,7 +658,7 @@ class NetworkManagerGUI(ctk.CTk):
             text_color=COLORS["muted"],
             justify="left",
             anchor="w",
-        ).grid(row=6, column=0, sticky="ew", pady=8)
+        ).grid(row=11, column=0, sticky="ew", pady=8)
 
     def _build_tools_tab(self, parent, label_font, small_font):
         page = self._page(parent)
@@ -638,6 +682,29 @@ class NetworkManagerGUI(ctk.CTk):
         ctk.CTkButton(page, text="Check power policy", command=self.check_power_status, width=220).grid(
             row=9, column=0, sticky="w", pady=6
         )
+        ctk.CTkButton(page, text="Preview network profile", command=self.preview_network_profile, width=220).grid(
+            row=10, column=0, sticky="w", pady=6
+        )
+
+        hosts = ctk.CTkFrame(page, corner_radius=10)
+        hosts.grid(row=11, column=0, sticky="ew", pady=(18, 0))
+        hosts.grid_columnconfigure(1, weight=1)
+        ctk.CTkLabel(hosts, text="Hosts manager", font=label_font).grid(
+            row=0, column=0, columnspan=2, sticky="w", padx=12, pady=(12, 6)
+        )
+        self.hosts_group_var = ctk.StringVar(value="lucid-net")
+        self.hosts_entries_var = ctk.StringVar(value="")
+        ctk.CTkLabel(hosts, text="Group", font=small_font).grid(row=1, column=0, sticky="w", padx=12, pady=4)
+        ctk.CTkEntry(hosts, textvariable=self.hosts_group_var).grid(row=1, column=1, sticky="ew", padx=(0, 12), pady=4)
+        ctk.CTkLabel(hosts, text="Entries", font=small_font).grid(row=2, column=0, sticky="w", padx=12, pady=4)
+        ctk.CTkEntry(hosts, textvariable=self.hosts_entries_var, placeholder_text="10.0.0.2 dev.local # optional comment").grid(
+            row=2, column=1, sticky="ew", padx=(0, 12), pady=4
+        )
+        hosts_row = ctk.CTkFrame(hosts, fg_color="transparent")
+        hosts_row.grid(row=3, column=1, sticky="e", padx=12, pady=(6, 12))
+        ctk.CTkButton(hosts_row, text="Preview", command=self.preview_hosts_group, font=small_font).pack(side="left", padx=(0, 8))
+        ctk.CTkButton(hosts_row, text="Apply", command=self.apply_hosts_group, font=small_font).pack(side="left", padx=8)
+        ctk.CTkButton(hosts_row, text="Disable", command=self.disable_hosts_group, font=small_font, fg_color="#6B7280").pack(side="left", padx=8)
 
     def _build_history_tab(self, parent, label_font, body_font, small_font):
         page = self._page(parent)
@@ -691,24 +758,42 @@ class NetworkManagerGUI(ctk.CTk):
         actions = ctk.CTkFrame(page, fg_color="transparent")
         actions.grid(row=2, column=0, sticky="w")
         ctk.CTkButton(actions, text="Refresh plugins", command=lambda: self._refresh_plugins(force=True), font=small_font).pack(side="left", padx=(0, 8))
+        ctk.CTkButton(actions, text="Marketplace plan", command=self._refresh_marketplace_plan, font=small_font).pack(side="left", padx=(0, 8))
         ctk.CTkButton(actions, text="Open plugins folder", command=lambda: self._open_folder(core.plugins_dir()), font=small_font).pack(
             side="left"
         )
         self.plugins_box = ctk.CTkTextbox(page, height=360, font=ctk.CTkFont(family="Consolas", size=12))
         self.plugins_box.grid(row=3, column=0, sticky="nsew", pady=(12, 0))
-        self.plugins_tree = self._create_tree(page, ("id", "enabled", "name", "version", "entrypoint"))
+        self.plugins_tree = self._create_tree(page, ("id", "enabled", "name", "version", "entrypoint", "isolation"))
         for column, title, width in (
             ("id", "ID", 180),
             ("enabled", "Enabled", 80),
             ("name", "Name", 220),
             ("version", "Version", 90),
             ("entrypoint", "Entry", 220),
+            ("isolation", "Isolation", 130),
         ):
             self.plugins_tree.heading(column, text=title, command=lambda c=column: self._sort_tree(self.plugins_tree, c, False))
             self.plugins_tree.column(column, width=width, anchor="w")
         self.plugins_tree.grid(row=4, column=0, sticky="nsew", pady=(12, 0))
+        ctk.CTkLabel(page, text="Marketplace readiness", font=body_font, text_color=COLORS["muted"]).grid(
+            row=5, column=0, sticky="w", pady=(12, 0)
+        )
+        self.marketplace_tree = self._create_tree(page, ("id", "publisher", "version", "action", "signature", "risk"))
+        for column, title, width in (
+            ("id", "ID", 170),
+            ("publisher", "Publisher", 180),
+            ("version", "Version", 90),
+            ("action", "Action", 90),
+            ("signature", "Signature", 110),
+            ("risk", "Risk", 90),
+        ):
+            self.marketplace_tree.heading(column, text=title, command=lambda c=column: self._sort_tree(self.marketplace_tree, c, False))
+            self.marketplace_tree.column(column, width=width, anchor="w")
+        self.marketplace_tree.grid(row=6, column=0, sticky="nsew", pady=(8, 0))
         self.plugins_box.grid_remove()
         self._refresh_plugins()
+        self._refresh_marketplace_plan()
 
     def _build_settings_monitor_tab(self, parent, label_font, body_font, small_font):
         page = self._page(parent)
@@ -722,6 +807,16 @@ class NetworkManagerGUI(ctk.CTk):
             self.config["settings"] = {}
         st = self.config["settings"]
         ctk.CTkLabel(page, text="Startup", font=label_font).grid(row=0, column=0, sticky="w", pady=(0, 4))
+        managed = enterprise_policy.managed_ui_state(self.config)
+        if managed["messages"]:
+            ctk.CTkLabel(
+                page,
+                text="Managed by policy: " + "; ".join(sorted(managed["messages"].keys())),
+                font=small_font,
+                text_color=COLORS["warning"],
+                wraplength=760,
+                justify="left",
+            ).grid(row=10, column=0, sticky="w", pady=(8, 0))
         self.startup_var = ctk.BooleanVar(value=core.get_run_at_startup())
         ctk.CTkSwitch(page, text="Run at Windows logon", variable=self.startup_var, command=self._on_startup_toggle, font=small_font).grid(
             row=1, column=0, sticky="w", pady=6
@@ -796,14 +891,37 @@ class NetworkManagerGUI(ctk.CTk):
 
     def _build_about_tab(self, parent, title_font, small_font):
         page = self._page(parent)
-        ctk.CTkLabel(page, text=f"Version {APP_VERSION}", font=title_font).grid(row=0, column=0, sticky="w", pady=(0, 8))
+        identity = branding.product_identity()
+        ctk.CTkLabel(page, text=f"{identity['name']} {APP_VERSION}", font=title_font).grid(
+            row=0, column=0, sticky="w", pady=(0, 8)
+        )
         ctk.CTkLabel(
             page,
-            text="Windows DNS profiles, system proxy, DDNS updates, monitoring history, diagnostics, and v1 plugins.",
+            text=f"{identity['tagline']}\n{identity['promise']}",
             font=small_font,
             justify="left",
             anchor="w",
+            wraplength=820,
         ).grid(row=1, column=0, sticky="ew", pady=4)
+
+        ctk.CTkLabel(page, text="Product pillars", font=title_font).grid(row=2, column=0, sticky="w", pady=(18, 6))
+        pillar_text = "\n".join(f"- {item['name']}: {item['summary']}" for item in branding.product_pillars())
+        ctk.CTkLabel(page, text=pillar_text, font=small_font, justify="left", anchor="w", wraplength=820).grid(
+            row=3, column=0, sticky="ew"
+        )
+
+        ctk.CTkLabel(page, text="Brand architecture", font=title_font).grid(row=4, column=0, sticky="w", pady=(18, 6))
+        brand_text = "\n".join(
+            f"- {item['name']} ({item['status']}): {item['role']}. {item['usage']}"
+            for item in branding.brand_architecture()
+        )
+        ctk.CTkLabel(page, text=brand_text, font=small_font, justify="left", anchor="w", wraplength=820).grid(
+            row=5, column=0, sticky="ew"
+        )
+
+        ctk.CTkLabel(page, text=branding.SAFETY_BOUNDARY, font=small_font, justify="left", anchor="w", wraplength=820).grid(
+            row=6, column=0, sticky="ew", pady=(18, 0)
+        )
 
     def _refresh_from_monitor(self):
         if not self._alive:
@@ -960,6 +1078,7 @@ class NetworkManagerGUI(ctk.CTk):
                 continue
             plugin_id = str(manifest.get("id", ""))
             status = "yes" if plugin_id in enabled else "no"
+            isolation = plugin_platform.isolation_plan(manifest)
             label = f"{manifest.get('name', 'Unnamed')} {manifest.get('version', '')} -> {manifest.get('entrypoint', '')}"
             rows.append(f"{plugin_id:<26} {status:<7} {label}")
             if hasattr(self, "plugins_tree"):
@@ -972,6 +1091,7 @@ class NetworkManagerGUI(ctk.CTk):
                         manifest.get("name", "Unnamed"),
                         manifest.get("version", ""),
                         manifest.get("entrypoint", ""),
+                        isolation.get("mode", "subprocess"),
                     ),
                 )
         self.plugins_box.configure(state="normal")
@@ -1003,6 +1123,40 @@ class NetworkManagerGUI(ctk.CTk):
                 except (OSError, json.JSONDecodeError) as exc:
                     manifests.append((manifest_path, {}, str(exc)))
         return manifests
+
+    def _refresh_marketplace_plan(self):
+        if not hasattr(self, "marketplace_tree"):
+            return
+        for item in self.marketplace_tree.get_children():
+            self.marketplace_tree.delete(item)
+        plugins_cfg = self.config.get("plugins") if isinstance(self.config, dict) else {}
+        registry = {}
+        if isinstance(plugins_cfg, dict):
+            registry = plugins_cfg.get("marketplace_registry") or {}
+        installed = {}
+        for _manifest_path, manifest, error in self._discover_plugin_manifests():
+            if error:
+                continue
+            plugin_id = str(manifest.get("id") or "")
+            if plugin_id:
+                installed[plugin_id] = str(manifest.get("version") or "")
+        plan = plugin_platform.marketplace_install_plan(registry, installed)
+        if not plan["plugins"]:
+            self.marketplace_tree.insert("", "end", values=("No registry entries", "", "", "", "", ""))
+            return
+        for plugin in plan["plugins"]:
+            self.marketplace_tree.insert(
+                "",
+                "end",
+                values=(
+                    plugin["id"],
+                    plugin.get("publisher", ""),
+                    plugin.get("version", ""),
+                    plugin.get("action", ""),
+                    plugin.get("signature_state", ""),
+                    plugin.get("risk", ""),
+                ),
+            )
 
     def _capture_restore_snapshot(self):
         snapshot = self._current_restore_snapshot(self._selected_interface())
@@ -1062,7 +1216,7 @@ class NetworkManagerGUI(ctk.CTk):
             return success, msg, False, connectivity_msg
         restore_ok, restore_msg = self._restore_snapshot_values(snapshot)
         rollback_msg = (
-            f"{msg} Connectivity check failed after the change, so Network Manager Pro restored the previous "
+            f"{msg} Connectivity check failed after the change, so {core.APP_DISPLAY_NAME} restored the previous "
             f"settings. Check: {connectivity_msg} Restore: {restore_msg}"
         )
         return False, rollback_msg, True, restore_msg
@@ -1093,6 +1247,14 @@ class NetworkManagerGUI(ctk.CTk):
             self.proxy_dropdown.configure(values=proxy_vals)
             if cur_px not in proxy_vals:
                 self.proxy_var.set(proxy_vals[0])
+        if hasattr(self, "pac_var"):
+            pac_profiles = self.config.get("pac_profiles")
+            if isinstance(pac_profiles, list) and pac_profiles and not self.pac_var.get():
+                self.pac_var.set(pac_profiles[0])
+        if hasattr(self, "socks5_var"):
+            socks_profiles = self.config.get("socks5_profiles")
+            if isinstance(socks_profiles, list) and socks_profiles and not self.socks5_var.get():
+                self.socks5_var.set(socks_profiles[0])
 
     def _record_event(self, event_type, summary, details=None):
         if self.event_store:
@@ -1241,6 +1403,49 @@ class NetworkManagerGUI(ctk.CTk):
         except OSError as e:
             self.show_toast("Error", str(e))
 
+    def save_advanced_proxy_profiles(self):
+        pac = (self.pac_var.get() or "").strip()
+        socks = (self.socks5_var.get() or "").strip()
+        pac_value = ""
+        socks_value = ""
+        if pac:
+            valid, normalized_or_error = core.validate_pac_url(pac)
+            if not valid:
+                self.show_toast("Error", normalized_or_error)
+                return
+            pac_value = normalized_or_error
+        if socks:
+            valid, normalized_or_error = core.validate_socks5_proxy(socks)
+            if not valid:
+                self.show_toast("Error", normalized_or_error)
+                return
+            socks_value = normalized_or_error
+        with self._config_lock:
+            if pac_value:
+                profiles = self.config.get("pac_profiles")
+                if not isinstance(profiles, list):
+                    profiles = []
+                    self.config["pac_profiles"] = profiles
+                if pac_value not in profiles:
+                    profiles.append(pac_value)
+            if socks_value:
+                profiles = self.config.get("socks5_profiles")
+                if not isinstance(profiles, list):
+                    profiles = []
+                    self.config["socks5_profiles"] = profiles
+                if socks_value not in profiles:
+                    profiles.append(socks_value)
+            cfg = copy.deepcopy(self.config)
+        try:
+            core.save_config(cfg, self.config_path)
+            if self.monitor:
+                self.monitor.update_config(cfg)
+            self._sync_profile_menus()
+            self.show_toast("Success", "PAC/SOCKS5 profiles saved.")
+            self._record_event("proxy.advanced_profiles_saved", "PAC/SOCKS5 profiles saved", {"pac": bool(pac_value), "socks5": bool(socks_value)})
+        except OSError as e:
+            self.show_toast("Error", str(e))
+
     def delete_proxy_profile(self):
         proxy = self.proxy_var.get()
         with self._config_lock:
@@ -1330,6 +1535,42 @@ class NetworkManagerGUI(ctk.CTk):
 
         self._run_task("Enabling proxy", _work, _done, key="proxy")
 
+    def enable_pac_proxy(self):
+        pac = (self.pac_var.get() or "").strip()
+
+        def _work():
+            snapshot = self._current_restore_snapshot()
+            success, msg = core.set_pac_proxy(pac)
+            success, msg, rolled_back, restore_msg = self._apply_deadman_rollback(snapshot, success, msg)
+            return snapshot, success, msg, rolled_back, restore_msg
+
+        def _done(result):
+            snapshot, success, msg, rolled_back, restore_msg = result
+            self._store_restore_snapshot_if_success(snapshot, success or rolled_back)
+            self.show_toast("Success" if success else "Error", msg)
+            self._record_event("proxy.pac_enable", msg, {"ok": success, "url": core.sanitize_url(pac, redact_path=True), "rolled_back": rolled_back, "restore": restore_msg})
+            self._refresh_proxy_status()
+
+        self._run_task("Enabling PAC", _work, _done, key="proxy")
+
+    def enable_socks5_proxy(self):
+        server = (self.socks5_var.get() or "").strip()
+
+        def _work():
+            snapshot = self._current_restore_snapshot()
+            success, msg = core.set_socks5_proxy(server)
+            success, msg, rolled_back, restore_msg = self._apply_deadman_rollback(snapshot, success, msg)
+            return snapshot, success, msg, rolled_back, restore_msg
+
+        def _done(result):
+            snapshot, success, msg, rolled_back, restore_msg = result
+            self._store_restore_snapshot_if_success(snapshot, success or rolled_back)
+            self.show_toast("Success" if success else "Error", msg)
+            self._record_event("proxy.socks5_enable", msg, {"ok": success, "server": core.sanitize_proxy_server(server), "rolled_back": rolled_back, "restore": restore_msg})
+            self._refresh_proxy_status()
+
+        self._run_task("Enabling SOCKS5", _work, _done, key="proxy")
+
     def disable_proxy(self):
         interface = self._selected_interface()
 
@@ -1382,6 +1623,41 @@ class NetworkManagerGUI(ctk.CTk):
 
         self._run_task("Syncing DDNS", _work, _done, key="ddns")
 
+    def save_dual_stack_ddns_urls(self):
+        values = {
+            "ddns_update_url_v4": (self.ddns_url_v4_var.get() or "").strip(),
+            "ddns_update_url_v6": (self.ddns_url_v6_var.get() or "").strip(),
+        }
+        normalized = {}
+        for key, value in values.items():
+            valid, normalized_or_error = core.validate_http_url(value, required=False)
+            if not valid:
+                self.show_toast("Error", normalized_or_error)
+                return
+            normalized[key] = normalized_or_error
+        with self._config_lock:
+            self.config.update(normalized)
+            cfg = copy.deepcopy(self.config)
+        try:
+            core.save_config(cfg, self.config_path)
+            if self.monitor:
+                self.monitor.update_config(cfg)
+            self.show_toast("Success", "Dual-stack DDNS URLs saved.")
+            self._record_event("ddns.dual_stack_saved", "Dual-stack DDNS URLs saved", core.redact_value(normalized))
+        except OSError as e:
+            self.show_toast("Error", str(e))
+
+    def force_update_dual_stack_ddns(self):
+        def _work():
+            return core.update_ddns_dual_stack(self.config)
+
+        def _done(result):
+            self.show_toast("Success" if result.get("ok") else "Error", result.get("message", "Dual-stack DDNS completed."))
+            self._record_event("ddns.dual_stack_sync", result.get("message", ""), result)
+            self._refresh_history()
+
+        self._run_task("Syncing dual-stack DDNS", _work, _done, key="ddns")
+
     def flush_dns(self):
         def _done(result):
             success, msg = result
@@ -1397,6 +1673,78 @@ class NetworkManagerGUI(ctk.CTk):
             self._record_event("dhcp.renew", msg, {"ok": success})
 
         self._run_task("Renewing DHCP", core.renew_dhcp, _done, key="dhcp")
+
+    def preview_network_profile(self):
+        plan = core.network_profile_apply_plan(self.config)
+        if not plan.get("matched"):
+            self.show_toast("Notice", "No context-aware profile matches the current network.")
+        else:
+            profile = plan.get("profile") or {}
+            self.show_toast("Notice", f"Matched profile: {profile.get('name', 'unnamed')}")
+        self._record_event("network_profile.preview", "Network profile preview", plan)
+
+    def _hosts_path(self):
+        return os.path.join(os.environ.get("SystemRoot", r"C:\Windows"), "System32", "drivers", "etc", "hosts")
+
+    def _hosts_entries_from_ui(self):
+        entries = []
+        for raw in (self.hosts_entries_var.get() or "").splitlines():
+            text = raw.strip()
+            if not text:
+                continue
+            body, _, comment = text.partition("#")
+            parts = body.split()
+            if len(parts) < 2:
+                raise ValueError("Hosts entries must use: IP hostname # optional comment")
+            entries.append(hosts_manager.HostsEntry(parts[0], parts[1], comment.strip()))
+        ok, msg, clean = hosts_manager.validate_entries(entries)
+        if not ok:
+            raise ValueError(msg)
+        return clean
+
+    def preview_hosts_group(self):
+        try:
+            entries = self._hosts_entries_from_ui()
+            path = self._hosts_path()
+            with open(path, "r", encoding="utf-8", errors="replace") as f:
+                current = f.read()
+            preview = hosts_manager.preview_apply(current, self.hosts_group_var.get(), entries)
+            self.show_toast("Notice", "Hosts preview generated in history.")
+            self._record_event("hosts.preview", "Hosts preview generated", {"path": path, "preview": preview})
+        except (OSError, ValueError) as exc:
+            self.show_toast("Error", str(exc))
+
+    def apply_hosts_group(self):
+        try:
+            entries = self._hosts_entries_from_ui()
+        except ValueError as exc:
+            self.show_toast("Error", str(exc))
+            return
+
+        def _work():
+            path = self._hosts_path()
+            backup = hosts_manager.apply_group(path, self.hosts_group_var.get(), entries)
+            return path, backup
+
+        def _done(result):
+            path, backup = result
+            self.show_toast("Success", "Hosts group applied.")
+            self._record_event("hosts.apply", "Hosts group applied", {"path": path, "backup": backup})
+
+        self._run_task("Applying hosts group", _work, _done, key="hosts")
+
+    def disable_hosts_group(self):
+        def _work():
+            path = self._hosts_path()
+            backup = hosts_manager.apply_group(path, self.hosts_group_var.get(), [], enabled=False)
+            return path, backup
+
+        def _done(result):
+            path, backup = result
+            self.show_toast("Success", "Hosts group disabled.")
+            self._record_event("hosts.disable", "Hosts group disabled", {"path": path, "backup": backup})
+
+        self._run_task("Disabling hosts group", _work, _done, key="hosts")
 
     def save_settings(self):
         try:
@@ -1522,7 +1870,7 @@ class NetworkManagerGUI(ctk.CTk):
         text = str(msg or "Something went wrong.")
         lowered = text.lower()
         if "permission" in lowered or "access is denied" in lowered or "administrator" in lowered:
-            return f"{text} Try running Network Manager Pro as administrator, then retry the action."
+            return f"{text} Try running {core.APP_DISPLAY_NAME} as administrator, then retry the action."
         if "timed out" in lowered or "timeout" in lowered:
             return f"{text} Check connectivity, then retry. If this was DDNS, auto-sync will retry with backoff."
         if "registry" in lowered:

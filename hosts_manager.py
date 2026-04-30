@@ -4,10 +4,12 @@ import os
 import shutil
 import time
 from dataclasses import dataclass
+from ipaddress import ip_address
 
+import branding
 
-MANAGED_BEGIN = "# NetworkManagerPro BEGIN"
-MANAGED_END = "# NetworkManagerPro END"
+MANAGED_BEGIN = f"# {branding.HOSTS_MARKER_PREFIX} BEGIN"
+MANAGED_END = f"# {branding.HOSTS_MARKER_PREFIX} END"
 
 
 @dataclass
@@ -40,7 +42,29 @@ def render_group(name, entries):
     return "\n".join(lines) + "\n"
 
 
+def validate_entries(entries):
+    clean = []
+    for entry in entries or []:
+        address = str(getattr(entry, "address", "")).strip()
+        hostname = str(getattr(entry, "hostname", "")).strip()
+        comment = str(getattr(entry, "comment", "")).strip()
+        try:
+            address = str(ip_address(address))
+        except ValueError:
+            return False, f"Invalid hosts IP address: {address}", []
+        if not hostname or any(ch.isspace() for ch in hostname) or "#" in hostname:
+            return False, f"Invalid hosts hostname: {hostname}", []
+        clean.append(HostsEntry(address, hostname.lower(), comment))
+    if not clean:
+        return False, "At least one hosts entry is required.", []
+    return True, "", clean
+
+
 def preview_apply(current_text, group_name, entries, enabled=True):
+    ok, msg, clean_entries = validate_entries(entries)
+    if not ok and enabled:
+        raise ValueError(msg)
+    entries = clean_entries if enabled else []
     unmanaged = remove_managed_group(current_text, group_name)
     if not enabled:
         return unmanaged.rstrip() + "\n"

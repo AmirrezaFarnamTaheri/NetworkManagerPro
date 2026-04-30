@@ -4,20 +4,21 @@ Status: implementation and research note for R-047 through R-052.
 
 ## Current Boundary
 
-The v1 plugin model remains trusted-only. Python plugins still run in-process today, but capability validation is now centralized in `plugin_platform.py` and enforced by `plugin_manager.py`.
+The v1 plugin model remains trusted-only for normal app startup. Capability validation is centralized in `plugin_platform.py` and enforced by `plugin_manager.py`. A first `plugin_host.py` subprocess host now exists for isolated smoke execution, health checks, and future IPC hardening.
 
 ## Subprocess Isolation
 
 The first isolated runtime should use one plugin host subprocess per enabled plugin. The host process receives a narrow request contract, runs with timeouts, and reports sanitized events back to the main app. A plugin crash should terminate only that plugin host, not the GUI.
 
-Current scaffolding:
+Current implementation:
 
 - `plugin_platform.isolation_plan(...)` defines host command, timeout, venv path, and permissions.
+- `plugin_host.py` exposes a JSON-line health command and a `run-once` command that loads one manifest in a separate process boundary.
 - `broker_contract.py` gives the pattern for request IDs, schema versions, and structured responses.
+- CLI command `nmp plugins host-health --json` verifies the host contract.
 
 Remaining work:
 
-- Build `plugin_host.py`.
 - Move PluginAPI calls through IPC.
 - Restart crashed plugin hosts with backoff.
 - Route plugin UI contributions through a safe host-to-GUI registration channel.
@@ -27,22 +28,22 @@ Remaining work:
 Each plugin receives a deterministic environment path under:
 
 ```text
-%LOCALAPPDATA%\NetworkManagerPro\plugin_envs\<plugin_id>
+%LOCALAPPDATA%\LucidNet\plugin_envs\<plugin_id>
 ```
 
-Manifest metadata should later define dependency files or lock files. The host app must never install dependencies into its own runtime environment.
+Manifest metadata can now define `dependencies` and `requirements`. `plugin_platform.environment_spec(...)`, `write_environment_lock(...)`, and `create_plugin_environment(...)` create deterministic per-plugin virtual environments and write `environment-lock.json` metadata. Dependency installation is explicit and failure-contained so the host app never installs plugin dependencies into its own runtime environment.
 
 ## Hot Reload
 
-`PluginManager.changed_manifests()` can now detect manifest or entrypoint fingerprint changes. `PluginManager.reload_enabled()` stops all plugin tasks before reloading enabled plugins.
+`PluginManager.changed_manifests()` detects manifest or entrypoint fingerprint changes. `PluginManager.reload_changed()` stops and reloads only changed enabled plugins; `reload_enabled()` still exists for a full manual reload.
 
-Future subprocess mode should restart only changed plugin hosts.
+Future subprocess mode should restart only changed plugin hosts with crash backoff.
 
 ## Signed Bundles
 
-`plugin_platform.bundle_manifest(...)` creates a file digest manifest for a plugin folder and `verify_bundle_manifest(...)` detects missing, changed, or escaping paths. This is integrity scaffolding, not publisher identity yet.
+`plugin_platform.bundle_manifest(...)` creates a file digest manifest for a plugin folder and `verify_bundle_manifest(...)` detects missing, changed, or escaping paths. `plugin_platform.signed_bundle_metadata(...)`, `verify_signed_bundle(...)`, and `install_plugin_bundle(...)` define the signed bundle enforcement path so the install workflow can reject missing publishers, untrusted publishers, mismatched bundle digests, and research-only signatures before extraction is trusted.
 
-Future signature work must define:
+Remaining signature work must define:
 
 - Bundle archive format.
 - Publisher identity.
@@ -53,7 +54,7 @@ Future signature work must define:
 
 ## Marketplace Registry
 
-`plugin_platform.parse_marketplace_registry(...)` defines the first registry shape:
+`plugin_platform.parse_marketplace_registry(...)` defines the first registry shape, and `marketplace_install_plan(...)` turns registry entries into user-visible install/update/readiness rows:
 
 ```json
 {
@@ -73,7 +74,7 @@ Future signature work must define:
 }
 ```
 
-Marketplace UI must show publisher, permissions, digest/signature state, update status, and risk warnings before install.
+The GUI Plugins tab now includes a Marketplace readiness grid backed by `plugins.marketplace_registry` config. `plugin_platform.marketplace_operation(...)` gates install, update, remove, and inspect actions against signed metadata readiness. The CLI can inspect the same plan with `nmp plugins marketplace-plan --registry registry.json --json`.
 
 ## WASM Research
 

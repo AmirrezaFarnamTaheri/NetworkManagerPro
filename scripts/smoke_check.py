@@ -40,6 +40,7 @@ def _install_import_stubs():
 _install_import_stubs()
 
 import core
+import branding
 import diagnostics
 from history_store import EventStore
 from monitor_service import MonitorService
@@ -163,11 +164,13 @@ def check_monitor_ddns_retry_state():
 def check_release_metadata_consistency():
     with open(os.path.join(ROOT, "pyproject.toml"), "rb") as f:
         project_version = tomllib.load(f)["project"]["version"]
-    with open(os.path.join(ROOT, "installer", "NetworkManagerPro.iss"), "r", encoding="utf-8") as f:
+    with open(os.path.join(ROOT, "installer", "LucidNet.iss"), "r", encoding="utf-8") as f:
         installer_text = f.read()
     match = re.search(r'#define\s+MyAppVersion\s+"([^"]+)"', installer_text)
     assert match, "installer version define is missing"
-    assert core.APP_VERSION == project_version == match.group(1)
+    assert branding.PRODUCT_NAME == core.APP_DISPLAY_NAME
+    assert branding.PRODUCT_VERSION == core.APP_VERSION == project_version == match.group(1)
+    assert branding.product_identity()["tagline"]
 
 
 def main():

@@ -36,7 +36,7 @@ Use a local named pipe with explicit access control as the first IPC target:
 - Return success, user-safe message, sanitized technical detail, and optional event payload.
 - Apply strict timeouts and fail closed if the broker cannot be reached.
 
-The executable command contract is defined in `broker_contract.py`. The first command set is intentionally small:
+The executable command contract is defined in `broker_contract.py`, and the injectable dispatcher is implemented in `broker_runtime.py`. The first command set is intentionally small:
 
 - `status`: broker health check.
 - `dns.set`: privileged DNS server mutation.
@@ -45,6 +45,8 @@ The executable command contract is defined in `broker_contract.py`. The first co
 - `firewall.apply_rule`: reserved future command for broker-only firewall mutation.
 
 The contract includes schema version, request ID, command name, arguments, structured success/failure response, sanitized detail, and event payload support.
+
+`broker_runtime.named_pipe_policy()` records the accepted named-pipe policy for `\\.\pipe\LucidNet.Broker`: Administrators own the pipe, SYSTEM, Administrators, and the current interactive user are allowed, network logon is denied, and requests use newline-delimited JSON with strict timeouts.
 
 ## Service Comparison
 
@@ -65,8 +67,8 @@ A Windows Service should be reconsidered when:
 
 1. Keep the GUI standard-user capable and route only broker-owned commands through IPC.
 2. Add a harmless broker `status` prototype.
-3. Move DNS apply/reset into broker commands.
-4. Move hosts-file writes into broker commands after the GUI hosts workflow exists.
+3. Route DNS apply/reset through broker command handlers.
+4. Route hosts-file writes through broker command handlers after the GUI hosts workflow exists.
 5. Reserve firewall and HKLM policy operations for broker/service ownership only.
 6. Revisit a persistent Windows Service when enterprise policy, telemetry, or fleet management requires it.
 

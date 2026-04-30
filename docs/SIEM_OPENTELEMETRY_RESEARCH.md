@@ -39,7 +39,7 @@ Events must not contain DDNS secrets, proxy credentials, raw plugin settings, pa
 1. Write sanitized test events to Windows Event Log.
 2. Configure Windows Event Forwarding in a lab.
 3. Confirm event payloads appear in the collector.
-4. Document filtering by event source `NetworkManagerPro`.
+4. Document filtering by event source `LucidNet`.
 5. Reassess whether OTLP adds value after local audit events stabilize.
 
 ## Safety Boundary

@@ -3,10 +3,11 @@ from __future__ import annotations
 import json
 import subprocess
 
+import branding
 import core
 
 
-SOURCE = "NetworkManagerPro"
+SOURCE = branding.WINDOWS_EVENT_SOURCE
 LOG_NAME = "Application"
 
 
@@ -29,6 +30,10 @@ def register_event_source_command(source=SOURCE):
         "if (-not [System.Diagnostics.EventLog]::SourceExists('{0}')) "
         "{{ New-EventLog -LogName Application -Source '{0}' }}"
     ).format(safe_source)
+
+
+def installer_registration_command(source=SOURCE):
+    return "powershell -NoProfile -ExecutionPolicy Bypass -Command \"" + register_event_source_command(source).replace('"', '`"') + "\""
 
 
 def write_event(event_type, summary, details=None, event_id=2000, source=SOURCE):

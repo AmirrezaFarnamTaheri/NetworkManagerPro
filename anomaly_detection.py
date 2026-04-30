@@ -5,9 +5,6 @@ import statistics
 import core
 import traffic_collector
 
-import core
-import traffic_collector
-
 
 def metric_baseline(rows, field):
     values = [_to_float(row.get(field)) for row in rows or [] if row.get(field) is not None]
@@ -52,11 +49,6 @@ def explain_anomalies(rows):
         if finding["status"] == "spike":
             findings.append(finding)
     return findings
-
-
-def findings_from_metrics_db(db_path=None, limit=120):
-    rows = traffic_collector.recent_metrics(db_path or core.traffic_metrics_db_path(), limit=limit)
-    return explain_anomalies(list(reversed(rows)))
 
 
 def findings_from_metrics_db(db_path=None, limit=120):

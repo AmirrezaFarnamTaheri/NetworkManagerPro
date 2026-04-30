@@ -1,8 +1,10 @@
-# Network Manager Pro
+# Lucid Net
 
-Network Manager Pro is a Windows 10/11 desktop utility for managing DNS profiles, current-user proxy settings, DDNS updates, diagnostics, event history, and lightweight traffic visibility from one tray-enabled app.
+Lucid Net is a Windows 10/11 desktop utility for managing DNS profiles, current-user proxy settings, DDNS updates, diagnostics, event history, and lightweight traffic visibility from one tray-enabled app.
 
-The release model is intentionally simple: build one self-contained `NetworkManagerPro.exe`, then wrap it in one installer executable. At runtime the app creates and manages its own user data under `%LOCALAPPDATA%\NetworkManagerPro`.
+Tagline: Safe Windows network control, diagnostics, and automation.
+
+The release model is intentionally simple: build one self-contained `LucidNet.exe`, then wrap it in one installer executable. At runtime the app creates and manages its own user data under `%LOCALAPPDATA%\LucidNet`.
 
 Supported build/runtime Python versions for source builds are 3.11 through 3.13. End users run the packaged executable and do not need Python installed.
 
@@ -19,10 +21,10 @@ Supported build/runtime Python versions for source builds are 3.11 through 3.13.
 
 ## Runtime Data
 
-- Config: `%LOCALAPPDATA%\NetworkManagerPro\config.json`
-- Logs: `%LOCALAPPDATA%\NetworkManagerPro\logs\app.log`
-- History: `%LOCALAPPDATA%\NetworkManagerPro\history\events.sqlite3`
-- User plugins: `%LOCALAPPDATA%\NetworkManagerPro\plugins\`
+- Config: `%LOCALAPPDATA%\LucidNet\config.json`
+- Logs: `%LOCALAPPDATA%\LucidNet\logs\app.log`
+- History: `%LOCALAPPDATA%\LucidNet\history\events.sqlite3`
+- User plugins: `%LOCALAPPDATA%\LucidNet\plugins\`
 
 The app creates config from built-in defaults on first launch. There is no required loose config file beside the executable.
 
@@ -34,7 +36,7 @@ python scripts\smoke_check.py
 scripts\build_release.ps1
 ```
 
-`scripts\build_release.ps1` creates an isolated `.venv-build`, cleans stale artifacts, verifies release metadata, builds `dist\NetworkManagerPro.exe`, and then builds `installer\output\NetworkManagerPro-Setup-2.0.0.exe`. Inno Setup 6 is required for release builds; use `scripts\build_release.ps1 -SkipInstaller` only for development-only executable checks.
+`scripts\build_release.ps1` creates an isolated `.venv-build`, cleans stale artifacts, verifies release metadata, builds `dist\LucidNet.exe`, and then builds `installer\output\LucidNet-Setup-2.0.0.exe`. Inno Setup 6 is required for release builds; use `scripts\build_release.ps1 -SkipInstaller` only for development-only executable checks.
 
 ## Documentation
 
@@ -42,6 +44,7 @@ scripts\build_release.ps1
 - `docs/USAGE.md`: UI panels and operations.
 - `docs/CONFIG.md`: config schema and validation.
 - `docs/ARCHITECTURE.md`: code layout, runtime ownership, concurrency, and release contract.
+- `docs/PRODUCT_VISION_AND_BRANDING.md`: product vision, brand architecture, naming rules, and safety boundary.
 - `docs/INSTALL.md`: build, installer, and runtime layout.
 - `docs/PLUGINS.md`: plugin manifest, permissions, and lifecycle.
 - `docs/SECURITY_AND_PRIVACY.md`: local data, elevation, diagnostics, and plugin trust.
@@ -58,3 +61,7 @@ python -m py_compile @files
 python -m pytest
 python scripts\smoke_check.py
 ```
+
+## License
+
+Lucid Net is licensed under the GNU Affero General Public License v3.0 only. See `LICENSE`.
