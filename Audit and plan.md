@@ -5,7 +5,7 @@ Prepared: 2026-04-30
 Scope: Windows 10/11 desktop utility for DNS profiles, proxy settings, DDNS updates, diagnostics, event history, trusted plugins, and lightweight traffic visibility.  
 Status: Living roadmap. Research and frontier items are preserved as ambitions, not committed release promises.
 
-Implementation progress: 12 done, 0 partially done, 58 open.  
+Implementation progress: 24 done, 3 partially done, 43 open.  
 Tracking convention: each roadmap item has one checkbox state line. `[x] Done` means the item is complete; `[x] Partially done` means implementation has started but acceptance criteria are not fully satisfied; `[x] Open` means no implementation work has landed yet.
 
 ## 1. Executive Summary
@@ -450,8 +450,8 @@ Tests:
 Risk: Medium.
 
 ### R-014: Document Current Admin Risk Clearly
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Updated security documentation to state that the GUI, monitoring, DDNS, diagnostics, history, and enabled plugins currently share one elevated process after admin launch, and documented the future elevated broker or Windows Service direction.
 
 
 Priority: P1 Next Release  
@@ -472,8 +472,8 @@ Tests:
 Risk: Low.
 
 ### R-015: Tighten Plugin Permission Enforcement
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added explicit `PermissionError` enforcement for missing PluginAPI permissions, retained warnings for denied access, updated smoke checks, and added pytest coverage for missing and granted permissions across network state, events, UI tabs, and scheduled tasks.
 
 
 Priority: P1 Next Release  
@@ -495,8 +495,8 @@ Tests:
 Risk: Low.
 
 ### R-016: Trusted-Only Plugin Model
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Updated plugin documentation, security documentation, and the plugin center UI copy to clearly state that v1 plugins are trusted-only, permissions are API gates rather than a sandbox, and untrusted plugins require future subprocess, signed bundle, WASM, or service boundaries.
 
 
 Priority: P1 Next Release  
@@ -518,8 +518,8 @@ Tests:
 Risk: Low.
 
 ### R-017: Plugin Signing Research
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added `docs/PLUGIN_SIGNING_RESEARCH.md` with the recommended signed-bundle direction, options considered, open trust-root/key-rotation questions, and prototype acceptance criteria for signed, tampered, unknown, and revoked bundles.
 
 
 Priority: P5 Research  
@@ -541,8 +541,8 @@ Tests:
 Risk: Medium.
 
 ### R-018: Elevated Broker Design Research
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added `docs/ELEVATED_BROKER_DESIGN.md` choosing a staged on-demand elevated broker before a full Windows Service, defining GUI and broker responsibilities, named-pipe IPC direction, service comparison, and prototype acceptance criteria.
 
 
 Priority: P3 Advanced Architecture  
@@ -567,8 +567,8 @@ Risk: High.
 ## 8. Phase 3: UX, Tray, Data Grids, And Workflow Polish
 
 ### R-019: UI State Persistence
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added `ui_state.json` under the runtime data folder, restored saved window geometry, active tab, theme, selected interface, selected DNS profile, selected proxy profile, and onboarding completion state, and saved UI state on close/theme changes with atomic replacement.
 
 
 Priority: P1 Next Release  
@@ -590,8 +590,8 @@ Tests:
 Risk: Low.
 
 ### R-020: Rich Tray Menu
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Expanded the tray menu with DNS profile submenu actions, Disable Proxy, Force DDNS Sync, and Export Diagnostics. Tray actions dispatch safely onto the GUI thread and reuse the existing app workflows instead of duplicating network mutation logic.
 
 
 Priority: P2 Product Expansion  
@@ -613,8 +613,8 @@ Tests:
 Risk: Medium.
 
 ### R-021: Sortable History, Traffic, And Plugin Grids
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. History and Plugins render through sortable `ttk.Treeview` grids, and the Traffic tab now uses a sortable process grid with stable PID, established connection, connection count, process name, and remote endpoint columns plus a system totals label.
 
 
 Priority: P2 Product Expansion  
@@ -636,8 +636,8 @@ Tests:
 Risk: Medium.
 
 ### R-022: First-Run Onboarding
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added a first-run guide panel on the dashboard covering interface/IP confirmation, DNS profile use, DDNS URL setup, and diagnostics export. Users can dismiss it with `Got it`, and completion is persisted in `ui_state.json`.
 
 
 Priority: P2 Product Expansion  
@@ -659,8 +659,8 @@ Tests:
 Risk: Low.
 
 ### R-023: Keyboard Navigation And Accessibility
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added keyboard shortcuts for refreshing the current tab, applying DNS, disabling proxy, exporting diagnostics, and jumping to primary tabs. Documented the shortcuts in `docs/USAGE.md` and kept review-heavy panels in sortable grid controls.
 
 
 Priority: P2 Product Expansion  
@@ -682,8 +682,8 @@ Tests:
 Risk: Medium.
 
 ### R-024: Clearer Recovery And Error Messages
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added a friendly error-message mapper for permission/admin failures, timeouts, registry failures, credential/keyring failures, and invalid DNS input. Error toasts now include actionable recovery hints while preserving the original message.
 
 
 Priority: P1 Next Release  
@@ -707,8 +707,8 @@ Risk: Low.
 ## 9. Phase 4: Advanced Network Automation
 
 ### R-025: Context-Aware Network Profiles
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added normalized `network_profiles` config support, SSID/BSSID/interface/gateway rule matching, non-mutating profile previews, BSSID normalization, config documentation, and unit tests. Remaining work is the consent UI and automatic application flow that binds matched profiles to DNS/proxy/DDNS changes.
 
 
 Priority: P2 Product Expansion  
@@ -730,8 +730,8 @@ Tests:
 Risk: Medium.
 
 ### R-026: Captive Portal Detection
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added a consent-safe captive portal classifier using a known connectivity endpoint, redirect detection, modified-content detection, monitor-state capture, documentation, and mocked unit tests. Remaining work is visible UI status and auto-apply pause/resume behavior tied to the profile consent flow.
 
 
 Priority: P2 Product Expansion  
@@ -753,8 +753,8 @@ Tests:
 Risk: Medium.
 
 ### R-027: Metered-Connection Awareness
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added config flags for metered background policy, a best-effort Windows connection-cost probe, reduced polling policy, auto-DDNS pause behavior, monitor-state capture, documentation, and policy unit tests. Remaining work is a stronger native metered-state implementation and visible reduced-mode UI controls.
 
 
 Priority: P2 Product Expansion  
@@ -776,8 +776,8 @@ Tests:
 Risk: Medium.
 
 ### R-028: Dead-Man Rollback
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. DNS and proxy apply/clear actions now capture pre-change snapshots, run post-change connectivity checks, and automatically restore the previous DNS/proxy state when rollback is enabled and connectivity fails. Rollback results are surfaced in toasts and event history, with unit coverage for the rollback decision policy.
 
 
 Priority: P2 Product Expansion  
@@ -1876,21 +1876,21 @@ Research questions for sensitive areas:
 | R-011 | Structured logging conventions | [x] Done | 1 | P1 Next Release | S | Low | R-001 |
 | R-012 | Crash-safe config migration | [x] Done | 1 | P1 Next Release | M | Medium | R-006 |
 | R-013 | Store DDNS secrets in Windows Credential Manager | [x] Done | 2 | P1 Next Release | M | Medium | R-012 |
-| R-014 | Document current admin risk clearly | [x] Open | 2 | P1 Next Release | S | Low | R-001 |
-| R-015 | Tighten plugin permission enforcement | [x] Open | 2 | P1 Next Release | S | Low | R-009 |
-| R-016 | Trusted-only plugin model | [x] Open | 2 | P1 Next Release | S | Low | R-014, R-015 |
-| R-017 | Plugin signing research | [x] Open | 2 | P5 Research | M | Medium | R-016 |
-| R-018 | Elevated broker design research | [x] Open | 2 | P3 Advanced Architecture | L | High | R-014 |
-| R-019 | UI state persistence | [x] Open | 3 | P1 Next Release | S | Low | R-012 |
-| R-020 | Rich tray menu | [x] Open | 3 | P2 Product Expansion | M | Medium | R-019 |
-| R-021 | Sortable history, traffic, and plugin grids | [x] Open | 3 | P2 Product Expansion | M | Medium | R-010 |
-| R-022 | First-run onboarding | [x] Open | 3 | P2 Product Expansion | M | Low | R-019 |
-| R-023 | Keyboard navigation and accessibility | [x] Open | 3 | P2 Product Expansion | M | Medium | R-021 |
-| R-024 | Clearer recovery and error messages | [x] Open | 3 | P1 Next Release | S | Low | R-011 |
-| R-025 | Context-aware network profiles | [x] Open | 4 | P2 Product Expansion | L | Medium | R-024 |
-| R-026 | Captive portal detection | [x] Open | 4 | P2 Product Expansion | M | Medium | R-025 |
-| R-027 | Metered-connection awareness | [x] Open | 4 | P2 Product Expansion | M | Medium | R-025 |
-| R-028 | Dead-man rollback | [x] Open | 4 | P2 Product Expansion | M | Medium | R-024, R-025 |
+| R-014 | Document current admin risk clearly | [x] Done | 2 | P1 Next Release | S | Low | R-001 |
+| R-015 | Tighten plugin permission enforcement | [x] Done | 2 | P1 Next Release | S | Low | R-009 |
+| R-016 | Trusted-only plugin model | [x] Done | 2 | P1 Next Release | S | Low | R-014, R-015 |
+| R-017 | Plugin signing research | [x] Done | 2 | P5 Research | M | Medium | R-016 |
+| R-018 | Elevated broker design research | [x] Done | 2 | P3 Advanced Architecture | L | High | R-014 |
+| R-019 | UI state persistence | [x] Done | 3 | P1 Next Release | S | Low | R-012 |
+| R-020 | Rich tray menu | [x] Done | 3 | P2 Product Expansion | M | Medium | R-019 |
+| R-021 | Sortable history, traffic, and plugin grids | [x] Done | 3 | P2 Product Expansion | M | Medium | R-010 |
+| R-022 | First-run onboarding | [x] Done | 3 | P2 Product Expansion | M | Low | R-019 |
+| R-023 | Keyboard navigation and accessibility | [x] Done | 3 | P2 Product Expansion | M | Medium | R-021 |
+| R-024 | Clearer recovery and error messages | [x] Done | 3 | P1 Next Release | S | Low | R-011 |
+| R-025 | Context-aware network profiles | [x] Partially done | 4 | P2 Product Expansion | L | Medium | R-024 |
+| R-026 | Captive portal detection | [x] Partially done | 4 | P2 Product Expansion | M | Medium | R-025 |
+| R-027 | Metered-connection awareness | [x] Partially done | 4 | P2 Product Expansion | M | Medium | R-025 |
+| R-028 | Dead-man rollback | [x] Done | 4 | P2 Product Expansion | M | Medium | R-024, R-025 |
 | R-029 | PAC support | [x] Open | 4 | P2 Product Expansion | M | Medium | R-012 |
 | R-030 | SOCKS5 support | [x] Open | 4 | P2 Product Expansion | M | Medium | R-029 |
 | R-031 | Hosts file manager | [x] Open | 4 | P2 Product Expansion | L | High | R-018, R-028 |

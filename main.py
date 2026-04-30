@@ -128,6 +128,47 @@ def show_window(icon=None, item=None):
             core.logger().debug("tray_show_window_dispatch_failed", exc_info=True)
 
 
+def _dispatch_app_action(action):
+    if not app:
+        return
+    try:
+        app.after(0, action)
+    except Exception:
+        core.logger().debug("tray_action_dispatch_failed", exc_info=True)
+
+
+def tray_force_ddns(icon=None, item=None):
+    _dispatch_app_action(app.force_update_ddns)
+
+
+def tray_disable_proxy(icon=None, item=None):
+    _dispatch_app_action(app.disable_proxy)
+
+
+def tray_export_diagnostics(icon=None, item=None):
+    _dispatch_app_action(app.export_diagnostics)
+
+
+def tray_apply_dns_profile(profile):
+    def _apply():
+        if not app:
+            return
+        app.deiconify()
+        if hasattr(app, "dns_var"):
+            app.dns_var.set(profile)
+        app.apply_dns()
+
+    return lambda icon=None, item=None: _dispatch_app_action(_apply)
+
+
+def _tray_dns_menu(config):
+    profiles = config.get("dns_profiles") if isinstance(config, dict) else {}
+    names = list(profiles.keys()) if isinstance(profiles, dict) else []
+    if not names:
+        return pystray.Menu(pystray.MenuItem("No DNS profiles", None, enabled=False))
+    return pystray.Menu(*(pystray.MenuItem(name, tray_apply_dns_profile(name)) for name in names[:10]))
+
+
 def _acquire_single_instance():
     global single_instance_mutex
     try:
@@ -211,6 +252,10 @@ def main():
 
     menu = pystray.Menu(
         pystray.MenuItem("Open Manager", show_window, default=True),
+        pystray.MenuItem("Apply DNS Profile", _tray_dns_menu(config)),
+        pystray.MenuItem("Disable Proxy", tray_disable_proxy),
+        pystray.MenuItem("Force DDNS Sync", tray_force_ddns),
+        pystray.MenuItem("Export Diagnostics", tray_export_diagnostics),
         pystray.MenuItem("Exit", exit_action),
     )
     tray_icon = pystray.Icon("netmgr", create_icon_image(), "Network Manager Pro", menu)

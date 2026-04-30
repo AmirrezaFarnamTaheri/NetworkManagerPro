@@ -47,6 +47,8 @@ DEFAULT_CONFIG = {
         "auto_update_ddns": False,
         "check_interval_seconds": 60,
         "minimize_to_tray_on_close": True,
+        "pause_background_on_metered": True,
+        "rollback_on_connectivity_loss": True,
     },
     "plugins": {
         "enabled": [],
@@ -60,6 +62,9 @@ DEFAULT_CONFIG = {
         "127.0.0.1:8080",
         "127.0.0.1:10809",
     ],
+    "pac_profiles": [],
+    "socks5_profiles": [],
+    "network_profiles": [],
 }
 
 _SENSITIVE_KEY_TOKENS = ("token", "key", "secret", "pass", "auth", "credential")
@@ -259,7 +264,19 @@ def normalize_config(config):
     if not isinstance(config, dict):
         config = {}
     merged = default_config()
-    for key in ("config_version", "ddns_update_url", "settings", "plugins", "dns_profiles", "proxy_profiles"):
+    for key in (
+        "config_version",
+        "ddns_update_url",
+        "ddns_update_url_v4",
+        "ddns_update_url_v6",
+        "settings",
+        "plugins",
+        "dns_profiles",
+        "proxy_profiles",
+        "pac_profiles",
+        "socks5_profiles",
+        "network_profiles",
+    ):
         if key in config:
             merged[key] = config[key]
 
@@ -268,7 +285,12 @@ def normalize_config(config):
         settings = {}
     default_settings = default_config()["settings"]
     default_settings.update(settings)
-    for bool_key in ("auto_update_ddns", "minimize_to_tray_on_close"):
+    for bool_key in (
+        "auto_update_ddns",
+        "minimize_to_tray_on_close",
+        "pause_background_on_metered",
+        "rollback_on_connectivity_loss",
+    ):
         default_settings[bool_key] = parse_bool(default_settings.get(bool_key), DEFAULT_CONFIG["settings"][bool_key])
     try:
         default_settings["check_interval_seconds"] = max(
@@ -312,10 +334,74 @@ def normalize_config(config):
                 logger().warning("config_proxy_profile_invalid value=%r error=%s", proxy, normalized_or_error)
     merged["proxy_profiles"] = clean_proxies or default_config()["proxy_profiles"]
 
+    pac_profiles = merged.get("pac_profiles")
+    clean_pac_profiles = []
+    if isinstance(pac_profiles, list):
+        for pac in pac_profiles:
+            valid, normalized_or_error = validate_pac_url(pac)
+            if valid:
+                clean_pac_profiles.append(normalized_or_error)
+            elif str(pac or "").strip():
+                logger().warning("config_pac_profile_invalid value=%r error=%s", pac, normalized_or_error)
+    merged["pac_profiles"] = clean_pac_profiles
+
+    socks_profiles = merged.get("socks5_profiles")
+    clean_socks_profiles = []
+    if isinstance(socks_profiles, list):
+        for socks in socks_profiles:
+            valid, normalized_or_error = validate_socks5_proxy(socks)
+            if valid:
+                clean_socks_profiles.append(normalized_or_error)
+            elif str(socks or "").strip():
+                logger().warning("config_socks5_profile_invalid value=%r error=%s", socks, normalized_or_error)
+    merged["socks5_profiles"] = clean_socks_profiles
+
+    merged["network_profiles"] = _normalize_network_profiles(merged.get("network_profiles"))
+
     if merged.get("ddns_update_url") is not None:
         merged["ddns_update_url"] = str(merged["ddns_update_url"]).strip()
+    for key in ("ddns_update_url_v4", "ddns_update_url_v6"):
+        if merged.get(key) is not None:
+            valid, normalized_or_error = validate_http_url(merged.get(key), required=False)
+            merged[key] = normalized_or_error if valid else ""
     merged["config_version"] = CONFIG_VERSION
     return merged
+
+
+def _normalize_network_profiles(profiles):
+    clean_profiles = []
+    if not isinstance(profiles, list):
+        return clean_profiles
+    for raw in profiles:
+        if not isinstance(raw, dict):
+            continue
+        name = str(raw.get("name") or "").strip()
+        if not name:
+            continue
+        rule = {
+            "name": name,
+            "enabled": parse_bool(raw.get("enabled", True), True),
+            "ssid": str(raw.get("ssid") or "").strip(),
+            "bssid": _normalize_bssid(raw.get("bssid")),
+            "interface": str(raw.get("interface") or "").strip(),
+            "gateway": str(raw.get("gateway") or "").strip(),
+            "dns_profile": str(raw.get("dns_profile") or "").strip(),
+            "proxy_profile": str(raw.get("proxy_profile") or "").strip(),
+            "auto_apply": parse_bool(raw.get("auto_apply", False), False),
+        }
+        if any(rule.get(key) for key in ("ssid", "bssid", "interface", "gateway")):
+            clean_profiles.append(rule)
+    return clean_profiles
+
+
+def _normalize_bssid(value):
+    text = str(value or "").strip().lower().replace("-", ":")
+    if not text:
+        return ""
+    parts = [part.zfill(2) for part in text.split(":")]
+    if len(parts) != 6 or any(not re.fullmatch(r"[0-9a-f]{2}", part) for part in parts):
+        return ""
+    return ":".join(parts)
 
 
 def parse_bool(value, default=False):
@@ -331,6 +417,152 @@ def parse_bool(value, default=False):
         if normalized in ("0", "false", "no", "off"):
             return False
     return bool(default)
+
+
+def match_network_profile(config, context):
+    """Return the first enabled context profile matching the observed network context."""
+    cfg = normalize_config(config)
+    context = context if isinstance(context, dict) else {}
+    normalized_context = {
+        "ssid": str(context.get("ssid") or "").strip(),
+        "bssid": _normalize_bssid(context.get("bssid")),
+        "interface": str(context.get("interface") or "").strip(),
+        "gateway": str(context.get("gateway") or "").strip(),
+    }
+    for profile in cfg.get("network_profiles") or []:
+        if not profile.get("enabled", True):
+            continue
+        requirements = {
+            key: str(profile.get(key) or "").strip()
+            for key in ("ssid", "bssid", "interface", "gateway")
+            if str(profile.get(key) or "").strip()
+        }
+        if not requirements:
+            continue
+        matched = True
+        for key, expected in requirements.items():
+            actual = normalized_context.get(key, "")
+            if key in ("ssid", "interface"):
+                matched = actual.casefold() == expected.casefold()
+            else:
+                matched = actual == expected
+            if not matched:
+                break
+        if matched:
+            return copy.deepcopy(profile)
+    return None
+
+
+def network_profile_preview(config, context):
+    """Return a non-mutating preview of the profile actions for the current context."""
+    profile = match_network_profile(config, context)
+    if not profile:
+        return {"matched": False, "profile": None, "actions": [], "auto_apply": False}
+    actions = []
+    if profile.get("dns_profile"):
+        actions.append({"type": "dns", "profile": profile["dns_profile"]})
+    if profile.get("proxy_profile"):
+        actions.append({"type": "proxy", "profile": profile["proxy_profile"]})
+    return {
+        "matched": True,
+        "profile": profile,
+        "actions": actions,
+        "auto_apply": bool(profile.get("auto_apply", False)),
+    }
+
+
+def detect_captive_portal(fetcher=None, timeout=5):
+    """Classify basic HTTP connectivity without performing any bypass action."""
+    endpoint = "http://www.msftconnecttest.com/connecttest.txt"
+    expected = "Microsoft Connect Test"
+    fetcher = fetcher or _http_session.get
+    try:
+        response = fetcher(endpoint, timeout=timeout, allow_redirects=False)
+        status_code = int(getattr(response, "status_code", 0) or 0)
+        location = getattr(response, "headers", {}).get("Location", "") if hasattr(response, "headers") else ""
+        body = str(getattr(response, "text", "") or "").strip()
+        if 300 <= status_code < 400 or location:
+            return {"status": "captive", "detail": "HTTP redirect suggests a captive portal login is required."}
+        if status_code == 200 and body == expected:
+            return {"status": "open", "detail": "Connectivity endpoint returned the expected response."}
+        if status_code == 200:
+            return {"status": "captive", "detail": "Connectivity endpoint content was modified."}
+        return {"status": "unknown", "detail": f"Connectivity endpoint returned HTTP {status_code}."}
+    except requests.RequestException as exc:
+        return {"status": "unknown", "detail": f"Connectivity check failed: {exc}"}
+    except Exception as exc:
+        return {"status": "unknown", "detail": f"Connectivity check could not run: {exc}"}
+
+
+def get_metered_connection_status(query=None):
+    """Best-effort Windows connection-cost probe; unknown is handled conservatively by policy."""
+    query = query or _query_windows_connection_cost
+    try:
+        result = query()
+    except Exception as exc:
+        return {"metered": None, "source": "error", "detail": str(exc)}
+    if isinstance(result, dict):
+        value = result.get("metered")
+        return {
+            "metered": value if isinstance(value, bool) else None,
+            "source": str(result.get("source") or "windows"),
+            "detail": str(result.get("detail") or ""),
+        }
+    if isinstance(result, bool):
+        return {"metered": result, "source": "windows", "detail": ""}
+    return {"metered": None, "source": "unknown", "detail": "Windows did not report connection cost."}
+
+
+def _query_windows_connection_cost():
+    script = (
+        "$p = Get-NetConnectionProfile | Select-Object -First 1 -Property Name,InterfaceAlias;"
+        "if ($null -eq $p) { Write-Output '{\"metered\":null,\"detail\":\"No active profile\"}' } "
+        "else { $detail = ($p.Name + ' / ' + $p.InterfaceAlias); "
+        "Write-Output ('{\"metered\":null,\"detail\":\"' + $detail.Replace('\"','') + '\"}') }"
+    )
+    ok, out = run_powershell(script)
+    if not ok:
+        return {"metered": None, "source": "powershell", "detail": out}
+    try:
+        parsed = json.loads(out)
+    except (TypeError, ValueError):
+        parsed = {"metered": None, "detail": out}
+    parsed["source"] = "powershell"
+    return parsed
+
+
+def background_work_policy(config, metered_status=None):
+    """Return monitor/DDNS behavior for the current network cost state."""
+    cfg = normalize_config(config)
+    settings = cfg.get("settings") or {}
+    interval = int(settings.get("check_interval_seconds", 60))
+    pause_on_metered = parse_bool(settings.get("pause_background_on_metered", True), True)
+    metered = None
+    if isinstance(metered_status, dict):
+        metered = metered_status.get("metered")
+    elif isinstance(metered_status, bool):
+        metered = metered_status
+    reduced = pause_on_metered and metered is True
+    return {
+        "reduced_mode": reduced,
+        "poll_interval_seconds": max(interval, 300) if reduced else interval,
+        "pause_ddns": reduced,
+        "reason": "metered connection" if reduced else "normal",
+    }
+
+
+def check_basic_connectivity(fetcher=None, timeout=5):
+    """Return a simple post-change connectivity verdict used by dead-man rollback."""
+    result = detect_captive_portal(fetcher=fetcher, timeout=timeout)
+    if result.get("status") in ("open", "captive"):
+        return True, result.get("detail") or "Connectivity check completed."
+    return False, result.get("detail") or "Connectivity check failed."
+
+
+def should_rollback_after_change(config, change_ok, connectivity_ok):
+    settings = normalize_config(config).get("settings") or {}
+    rollback_enabled = parse_bool(settings.get("rollback_on_connectivity_loss", True), True)
+    return bool(change_ok and rollback_enabled and connectivity_ok is False)
 
 
 def validate_dns_servers(dns_list):
@@ -412,6 +644,27 @@ def validate_proxy_server(proxy_server):
     if port_number < 1 or port_number > 65535:
         return False, "Proxy port must be between 1 and 65535."
     return True, f"{normalized_host}:{port_number}"
+
+
+def validate_pac_url(url):
+    """Validate a PAC file URL for WinINet AutoConfigURL."""
+    valid, normalized_or_error = validate_http_url(url, required=True)
+    if not valid:
+        return False, normalized_or_error
+    path = urlsplit(normalized_or_error).path.lower()
+    if path and not path.endswith((".pac", ".dat")):
+        return False, "PAC URL should point to a .pac or .dat file."
+    return True, normalized_or_error
+
+
+def validate_socks5_proxy(proxy_server):
+    """Validate a SOCKS5 endpoint and return normalized host:port."""
+    value = str(proxy_server or "").strip()
+    if value.lower().startswith("socks5://"):
+        value = value[9:]
+    if value.lower().startswith("socks://"):
+        value = value[8:]
+    return validate_proxy_server(value)
 
 
 def sanitize_proxy_server(proxy_server):
@@ -857,6 +1110,57 @@ def set_proxy(enable, proxy_server="", bypass_local=True):
         return False, f"Registry error: {e}"
 
 
+def set_pac_proxy(pac_url):
+    """Enable WinINet PAC mode with a validated AutoConfigURL."""
+    valid, normalized_or_error = validate_pac_url(pac_url)
+    if not valid:
+        return False, normalized_or_error
+    internet_settings = None
+    try:
+        internet_settings = _internet_settings_key(winreg.KEY_ALL_ACCESS)
+        try:
+            winreg.SetValueEx(internet_settings, "ProxyEnable", 0, winreg.REG_DWORD, 0)
+            winreg.SetValueEx(internet_settings, "AutoConfigURL", 0, winreg.REG_SZ, normalized_or_error)
+        finally:
+            if internet_settings:
+                winreg.CloseKey(internet_settings)
+        refresh_ok, failures = _notify_proxy_settings_changed()
+        if not refresh_ok:
+            return False, f"PAC URL saved, but Windows refresh notification failed: {failures}"
+        logger().info("pac_proxy_set ok=True url=%s", sanitize_url(normalized_or_error, redact_path=True))
+        return True, "PAC proxy updated successfully."
+    except OSError as e:
+        logger().warning("pac_proxy_set_failed error=%s", e)
+        return False, f"Registry error: {e}"
+
+
+def set_socks5_proxy(proxy_server):
+    """Enable a SOCKS5-only WinINet proxy profile."""
+    valid, normalized_or_error = validate_socks5_proxy(proxy_server)
+    if not valid:
+        return False, normalized_or_error
+    internet_settings = None
+    try:
+        internet_settings = _internet_settings_key(winreg.KEY_ALL_ACCESS)
+        try:
+            winreg.SetValueEx(internet_settings, "ProxyEnable", 0, winreg.REG_DWORD, 1)
+            winreg.SetValueEx(internet_settings, "ProxyServer", 0, winreg.REG_SZ, f"socks={normalized_or_error}")
+            override = _query_registry_value(internet_settings, "ProxyOverride")
+            if not override["exists"]:
+                winreg.SetValueEx(internet_settings, "ProxyOverride", 0, winreg.REG_SZ, "<local>;*.local")
+        finally:
+            if internet_settings:
+                winreg.CloseKey(internet_settings)
+        refresh_ok, failures = _notify_proxy_settings_changed()
+        if not refresh_ok:
+            return False, f"SOCKS5 proxy saved, but Windows refresh notification failed: {failures}"
+        logger().info("socks5_proxy_set ok=True server=%s", sanitize_proxy_server(normalized_or_error))
+        return True, "SOCKS5 proxy updated successfully."
+    except OSError as e:
+        logger().warning("socks5_proxy_set_failed error=%s", e)
+        return False, f"Registry error: {e}"
+
+
 def get_proxy_settings():
     """Return full WinINet proxy settings needed for a faithful restore point."""
     internet_settings = None
@@ -938,6 +1242,62 @@ def get_public_ip():
             _public_ip_cache.update({"failures": failures, "next_retry": now + backoff})
         logger().warning("public_ip_fetch_failed failures=%s next_retry_seconds=%s", failures, backoff, exc_info=True)
         return None
+
+
+def get_public_ip_family(family="ipv4", fetcher=None):
+    """Fetch a public IP for a specific address family."""
+    normalized_family = str(family or "ipv4").lower()
+    if normalized_family not in ("ipv4", "ipv6"):
+        return None
+    url = "https://api64.ipify.org?format=json" if normalized_family == "ipv6" else "https://api.ipify.org?format=json"
+    fetcher = fetcher or _http_session.get
+    try:
+        response = fetcher(url, timeout=8)
+        response.raise_for_status()
+        ip = str(ip_address(str(response.json().get("ip", "")).strip()))
+        if (normalized_family == "ipv4" and ":" in ip) or (normalized_family == "ipv6" and ":" not in ip):
+            return None
+        return ip
+    except (requests.RequestException, ValueError, KeyError, AttributeError):
+        logger().warning("public_ip_family_fetch_failed family=%s", normalized_family, exc_info=True)
+        return None
+
+
+def ddns_update_urls(config):
+    """Return normalized DDNS update URLs by address family."""
+    cfg = normalize_config(config)
+    urls = {}
+    legacy = get_ddns_update_url(cfg)
+    if legacy:
+        urls["legacy"] = legacy
+    for family, key in (("ipv4", "ddns_update_url_v4"), ("ipv6", "ddns_update_url_v6")):
+        value = str(cfg.get(key) or "").strip()
+        if value:
+            urls[family] = value
+    return urls
+
+
+def update_ddns_dual_stack(config, fetcher=None):
+    """Run provider-agnostic DDNS updates for configured IPv4 and IPv6 URLs."""
+    urls = ddns_update_urls(config)
+    if not urls:
+        return {"ok": False, "results": [], "message": "No DDNS update URL is configured."}
+    results = []
+    for family in ("ipv4", "ipv6"):
+        url = urls.get(family)
+        if not url:
+            continue
+        detected_ip = get_public_ip_family(family, fetcher=fetcher)
+        if not detected_ip:
+            results.append({"family": family, "ok": False, "ip": None, "message": f"No public {family.upper()} address detected."})
+            continue
+        ok, msg = update_ddns(url)
+        results.append({"family": family, "ok": ok, "ip": detected_ip, "message": msg})
+    if not results and urls.get("legacy"):
+        ok, msg = update_ddns(urls["legacy"])
+        results.append({"family": "legacy", "ok": ok, "ip": get_public_ip(), "message": msg})
+    overall = bool(results) and all(item.get("ok") for item in results)
+    return {"ok": overall, "results": results, "message": "; ".join(item["message"] for item in results)}
 
 
 def update_ddns(url):

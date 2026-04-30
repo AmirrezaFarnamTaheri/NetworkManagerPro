@@ -19,6 +19,10 @@ class NetworkState:
     proxy_server: str | None = None
     public_ip: str | None = None
     latency: str = "n/a"
+    captive_portal_status: str = "unknown"
+    captive_portal_detail: str = ""
+    metered: bool | None = None
+    background_reduced_mode: bool = False
     ddns_last_result: str = "Not run"
     config_mtime: float = 0.0
     monitor_error: str | None = None
@@ -143,6 +147,9 @@ class MonitorService:
         gateway = self._safe_call(core.get_default_gateway, interface)
         proxy_enabled, proxy_server = self._safe_call(core.get_proxy_state, default=(False, None))
         public_ip = self._safe_call(core.get_public_ip)
+        captive = self._safe_call(core.detect_captive_portal, default={"status": "unknown", "detail": ""})
+        metered = self._safe_call(core.get_metered_connection_status, default={"metered": None})
+        policy = core.background_work_policy(cfg, metered)
         profile = self._selected_profile(cfg)
         primary = profile[0] if profile else None
         latency = self._safe_call(core.measure_latency, primary, default="n/a") if primary else "n/a"
@@ -154,6 +161,10 @@ class MonitorService:
             proxy_server=proxy_server,
             public_ip=public_ip,
             latency=latency,
+            captive_portal_status=str((captive or {}).get("status") or "unknown"),
+            captive_portal_detail=str((captive or {}).get("detail") or ""),
+            metered=(metered or {}).get("metered") if isinstance(metered, dict) else None,
+            background_reduced_mode=bool(policy.get("reduced_mode", False)),
         )
 
     def _detect_settings_changes(self, state):
@@ -172,6 +183,11 @@ class MonitorService:
         auto_update = core.parse_bool(settings.get("auto_update_ddns", False), False)
         if public_ip:
             self._last_seen_public_ip = public_ip
+        policy = core.background_work_policy(cfg, core.get_metered_connection_status())
+        if policy.get("pause_ddns"):
+            msg = "Auto-DDNS paused while the current connection is metered."
+            self._set_ddns_result(msg)
+            return msg
         if not public_ip or not auto_update or public_ip == self._last_ddns_success_ip:
             return None
         now = time.monotonic()
@@ -224,9 +240,11 @@ class MonitorService:
     def _interval(self, cfg):
         settings = cfg.get("settings") or {}
         try:
-            return max(15, min(86400, int(settings.get("check_interval_seconds", 60))))
+            interval = max(15, min(86400, int(settings.get("check_interval_seconds", 60))))
         except (TypeError, ValueError):
-            return 60
+            interval = 60
+        policy = core.background_work_policy(cfg, core.get_metered_connection_status())
+        return int(policy.get("poll_interval_seconds") or interval)
 
     def _safe_call(self, func, *args, default=None):
         try:

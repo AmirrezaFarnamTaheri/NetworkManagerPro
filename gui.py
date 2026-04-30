@@ -5,6 +5,7 @@ import subprocess
 import threading
 import time
 import tkinter as tk
+from tkinter import ttk
 
 import customtkinter as ctk
 from PIL import Image
@@ -43,14 +44,18 @@ class NetworkManagerGUI(ctk.CTk):
         self._busy_count = 0
         self._running_task_keys = set()
         self._last_plugins_refresh = 0.0
+        self._ui_state_path = os.path.join(core.app_data_dir(), "ui_state.json")
+        self._ui_state = self._load_ui_state()
 
         self.title(core.APP_DISPLAY_NAME)
-        self.geometry("1080x760")
+        geometry = self._ui_state.get("window_geometry") if isinstance(self._ui_state, dict) else None
+        self.geometry(geometry if self._valid_geometry(geometry) else "1080x760")
         self.minsize(840, 620)
         self._set_icon()
 
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.setup_ui()
+        self._bind_keyboard_shortcuts()
         self.after(1000, self._refresh_from_monitor)
 
     def _set_icon(self):
@@ -154,8 +159,63 @@ class NetworkManagerGUI(ctk.CTk):
         self._build_help_tab(self.tabs.tab("Help"), label_font, body_font, small_font)
         self._build_about_tab(self.tabs.tab("About"), title_font, small_font)
 
+        self._restore_ui_state_after_build()
         self._refresh_proxy_status()
         self._refresh_history()
+
+    def _load_ui_state(self):
+        try:
+            with open(self._ui_state_path, "r", encoding="utf-8") as f:
+                state = json.load(f)
+            return state if isinstance(state, dict) else {}
+        except (OSError, json.JSONDecodeError):
+            return {}
+
+    def _save_ui_state(self):
+        state = {
+            "window_geometry": self.geometry(),
+            "active_tab": self.tabs.get() if hasattr(self, "tabs") else self._ui_state.get("active_tab", "Dashboard"),
+            "theme": self.theme_var.get() if hasattr(self, "theme_var") else self._ui_state.get("theme", "System"),
+            "selected_interface": self.interface_var.get() if hasattr(self, "interface_var") else self._ui_state.get("selected_interface", ""),
+            "selected_dns_profile": self.dns_var.get() if hasattr(self, "dns_var") else self._ui_state.get("selected_dns_profile", ""),
+            "selected_proxy_profile": self.proxy_var.get() if hasattr(self, "proxy_var") else self._ui_state.get("selected_proxy_profile", ""),
+            "onboarding_complete": bool(self._ui_state.get("onboarding_complete", False)),
+        }
+        try:
+            os.makedirs(os.path.dirname(self._ui_state_path), exist_ok=True)
+            tmp_path = self._ui_state_path + ".tmp"
+            with open(tmp_path, "w", encoding="utf-8", newline="\n") as f:
+                json.dump(state, f, indent=2, ensure_ascii=False)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp_path, self._ui_state_path)
+            self._ui_state = state
+        except OSError:
+            core.logger().debug("ui_state_save_failed path=%s", self._ui_state_path, exc_info=True)
+
+    def _valid_geometry(self, geometry):
+        return isinstance(geometry, str) and bool(geometry) and len(geometry) < 80 and "x" in geometry
+
+    def _restore_ui_state_after_build(self):
+        theme = self._ui_state.get("theme")
+        if theme in ("System", "Dark", "Light"):
+            self.theme_var.set(theme)
+            ctk.set_appearance_mode(theme)
+        active_tab = self._ui_state.get("active_tab")
+        if isinstance(active_tab, str):
+            try:
+                self.tabs.set(active_tab)
+            except Exception:
+                pass
+        selected_interface = self._ui_state.get("selected_interface")
+        if hasattr(self, "interface_var") and selected_interface in self._interface_values():
+            self.interface_var.set(selected_interface)
+        selected_dns = self._ui_state.get("selected_dns_profile")
+        if hasattr(self, "dns_var") and selected_dns in self._dns_profile_names():
+            self.dns_var.set(selected_dns)
+        selected_proxy = self._ui_state.get("selected_proxy_profile")
+        if hasattr(self, "proxy_var") and selected_proxy in (self.config.get("proxy_profiles") or []):
+            self.proxy_var.set(selected_proxy)
 
     def register_plugin_tab(self, plugin_id, title, builder):
         def _register():
@@ -213,6 +273,8 @@ class NetworkManagerGUI(ctk.CTk):
 
     def _on_theme_change(self, mode):
         ctk.set_appearance_mode(mode)
+        self._ui_state["theme"] = mode
+        self._save_ui_state()
 
     def _on_dns_profile_write(self, *_args):
         self._status_dns_profile = self.dns_var.get()
@@ -222,6 +284,52 @@ class NetworkManagerGUI(ctk.CTk):
         frame.pack(fill="both", expand=True, padx=SPACING["page"], pady=SPACING["page"])
         frame.grid_columnconfigure(0, weight=1)
         return frame
+
+    def _create_tree(self, parent, columns):
+        tree = ttk.Treeview(parent, columns=columns, show="headings", height=14)
+        tree.configure(selectmode="browse")
+        return tree
+
+    def _sort_tree(self, tree, column, numeric=False):
+        rows = [(tree.set(item, column), item) for item in tree.get_children("")]
+        if numeric:
+            def key(row):
+                try:
+                    return float(row[0])
+                except (TypeError, ValueError):
+                    return 0.0
+        else:
+            def key(row):
+                return str(row[0]).lower()
+        rows.sort(key=key)
+        for index, (_value, item) in enumerate(rows):
+            tree.move(item, "", index)
+
+    def _bind_keyboard_shortcuts(self):
+        self.bind_all("<Control-r>", lambda _event: self._refresh_current_tab())
+        self.bind_all("<Control-d>", lambda _event: self.apply_dns())
+        self.bind_all("<Control-p>", lambda _event: self.disable_proxy())
+        self.bind_all("<Control-e>", lambda _event: self.export_diagnostics())
+        self.bind_all("<Alt-Key-1>", lambda _event: self.tabs.set("Dashboard"))
+        self.bind_all("<Alt-Key-2>", lambda _event: self.tabs.set("DNS"))
+        self.bind_all("<Alt-Key-3>", lambda _event: self.tabs.set("Proxy"))
+        self.bind_all("<Alt-Key-4>", lambda _event: self.tabs.set("DDNS"))
+        self.bind_all("<Alt-Key-5>", lambda _event: self.tabs.set("History"))
+
+    def _refresh_current_tab(self):
+        if not hasattr(self, "tabs"):
+            return
+        current = self.tabs.get()
+        if current == "History":
+            self._refresh_history()
+        elif current == "Traffic":
+            self._refresh_traffic()
+        elif current == "Plugins":
+            self._refresh_plugins(force=True)
+        elif current == "Proxy":
+            self._refresh_proxy_status()
+        else:
+            self._refresh_from_monitor()
 
     def _status_card(self, parent, title, value="Loading..."):
         card = ctk.CTkFrame(parent, corner_radius=8)
@@ -281,15 +389,38 @@ class NetworkManagerGUI(ctk.CTk):
             side="left", padx=8
         )
 
+        if not self._ui_state.get("onboarding_complete", False):
+            self.onboarding_frame = ctk.CTkFrame(page, corner_radius=8, border_width=1)
+            self.onboarding_frame.grid(row=4, column=0, sticky="ew", pady=(18, 0))
+            self.onboarding_frame.grid_columnconfigure(0, weight=1)
+            ctk.CTkLabel(self.onboarding_frame, text="First-run guide", font=label_font).grid(
+                row=0, column=0, sticky="w", padx=12, pady=(10, 4)
+            )
+            ctk.CTkLabel(
+                self.onboarding_frame,
+                text=(
+                    "1. Confirm the active interface and public IP.\n"
+                    "2. Apply a DNS profile or leave DNS on Auto.\n"
+                    "3. Save a DDNS URL only if you use a provider update endpoint.\n"
+                    "4. Export diagnostics before sharing support details."
+                ),
+                font=body_font,
+                justify="left",
+                anchor="w",
+            ).grid(row=1, column=0, sticky="ew", padx=12, pady=(0, 8))
+            ctk.CTkButton(self.onboarding_frame, text="Got it", command=self._complete_onboarding, font=small_font).grid(
+                row=2, column=0, sticky="w", padx=12, pady=(0, 12)
+            )
+
         checklist = ctk.CTkFrame(page, corner_radius=8)
-        checklist.grid(row=4, column=0, sticky="ew", pady=(18, 0))
+        checklist.grid(row=5, column=0, sticky="ew", pady=(18, 0))
         checklist.grid_columnconfigure(0, weight=1)
         ctk.CTkLabel(checklist, text="First-run checklist", font=label_font).grid(row=0, column=0, sticky="w", padx=12, pady=(10, 6))
         self.checklist_label = ctk.CTkLabel(checklist, text="", font=body_font, justify="left", anchor="w")
         self.checklist_label.grid(row=1, column=0, sticky="ew", padx=12, pady=(0, 12))
 
         insights = ctk.CTkFrame(page, corner_radius=8)
-        insights.grid(row=5, column=0, sticky="ew", pady=(12, 0))
+        insights.grid(row=6, column=0, sticky="ew", pady=(12, 0))
         insights.grid_columnconfigure(0, weight=1)
         ctk.CTkLabel(insights, text="Network insights", font=label_font).grid(
             row=0, column=0, sticky="w", padx=12, pady=(10, 6)
@@ -303,6 +434,13 @@ class NetworkManagerGUI(ctk.CTk):
             wraplength=880,
         )
         self.insights_label.grid(row=1, column=0, sticky="ew", padx=12, pady=(0, 12))
+
+    def _complete_onboarding(self):
+        self._ui_state["onboarding_complete"] = True
+        self._save_ui_state()
+        if hasattr(self, "onboarding_frame") and self.onboarding_frame.winfo_exists():
+            self.onboarding_frame.destroy()
+        self.show_toast("Success", "First-run guide dismissed.")
 
     def _build_dns_tab(self, parent, label_font, small_font):
         page = self._page(parent)
@@ -494,16 +632,33 @@ class NetworkManagerGUI(ctk.CTk):
         toolbar.grid(row=0, column=0, sticky="ew")
         ctk.CTkLabel(toolbar, text="Event history", font=label_font).pack(side="left")
         ctk.CTkButton(toolbar, text="Refresh", command=self._refresh_history, font=small_font, width=90).pack(side="right")
-        self.history_box = ctk.CTkTextbox(page, height=420, font=ctk.CTkFont(family="Consolas", size=12))
-        self.history_box.grid(row=1, column=0, sticky="nsew", pady=(10, 0))
+        self.history_tree = self._create_tree(page, ("timestamp", "type", "summary"))
+        self.history_tree.heading("timestamp", text="Time", command=lambda: self._sort_tree(self.history_tree, "timestamp", True))
+        self.history_tree.heading("type", text="Type", command=lambda: self._sort_tree(self.history_tree, "type", False))
+        self.history_tree.heading("summary", text="Summary", command=lambda: self._sort_tree(self.history_tree, "summary", False))
+        self.history_tree.column("timestamp", width=120, anchor="w")
+        self.history_tree.column("type", width=220, anchor="w")
+        self.history_tree.column("summary", width=520, anchor="w")
+        self.history_tree.grid(row=1, column=0, sticky="nsew", pady=(10, 0))
 
     def _build_traffic_tab(self, parent, label_font, body_font, small_font):
         page = self._page(parent)
         ctk.CTkLabel(page, text="Traffic manager", font=label_font).grid(row=0, column=0, sticky="w")
-        self.traffic_box = ctk.CTkTextbox(page, height=420, font=ctk.CTkFont(family="Consolas", size=12))
-        self.traffic_box.grid(row=1, column=0, sticky="nsew", pady=(10, 0))
+        self.traffic_totals_label = ctk.CTkLabel(page, text="Waiting for traffic data...", font=body_font, justify="left", anchor="w")
+        self.traffic_totals_label.grid(row=1, column=0, sticky="ew", pady=(8, 0))
+        self.traffic_tree = self._create_tree(page, ("pid", "established", "connections", "name", "remotes"))
+        for column, title, width, numeric in (
+            ("pid", "PID", 90, True),
+            ("established", "EST", 80, True),
+            ("connections", "Connections", 110, True),
+            ("name", "Name", 180, False),
+            ("remotes", "Remotes", 420, False),
+        ):
+            self.traffic_tree.heading(column, text=title, command=lambda c=column, n=numeric: self._sort_tree(self.traffic_tree, c, n))
+            self.traffic_tree.column(column, width=width, anchor="w")
+        self.traffic_tree.grid(row=2, column=0, sticky="nsew", pady=(10, 0))
         ctk.CTkButton(page, text="Refresh processes", command=self._refresh_traffic, font=small_font).grid(
-            row=2, column=0, sticky="w", pady=10
+            row=3, column=0, sticky="w", pady=10
         )
         self._refresh_traffic()
 
@@ -528,6 +683,18 @@ class NetworkManagerGUI(ctk.CTk):
         )
         self.plugins_box = ctk.CTkTextbox(page, height=360, font=ctk.CTkFont(family="Consolas", size=12))
         self.plugins_box.grid(row=3, column=0, sticky="nsew", pady=(12, 0))
+        self.plugins_tree = self._create_tree(page, ("id", "enabled", "name", "version", "entrypoint"))
+        for column, title, width in (
+            ("id", "ID", 180),
+            ("enabled", "Enabled", 80),
+            ("name", "Name", 220),
+            ("version", "Version", 90),
+            ("entrypoint", "Entry", 220),
+        ):
+            self.plugins_tree.heading(column, text=title, command=lambda c=column: self._sort_tree(self.plugins_tree, c, False))
+            self.plugins_tree.column(column, width=width, anchor="w")
+        self.plugins_tree.grid(row=4, column=0, sticky="nsew", pady=(12, 0))
+        self.plugins_box.grid_remove()
         self._refresh_plugins()
 
     def _build_settings_monitor_tab(self, parent, label_font, body_font, small_font):
@@ -689,45 +856,44 @@ class NetworkManagerGUI(ctk.CTk):
             self.proxy_status.configure(text=text)
 
     def _refresh_history(self):
-        if not hasattr(self, "history_box"):
+        if not hasattr(self, "history_tree"):
             return
         events = self.event_store.recent(120) if self.event_store else []
-        text = ""
+        for item in self.history_tree.get_children():
+            self.history_tree.delete(item)
         for event in events:
             try:
                 stamp = f"{float(event.get('timestamp', 0)):.0f}"
             except (TypeError, ValueError):
                 stamp = ""
-            text += f"{stamp}  {event.get('type', ''):<24} {event.get('summary', '')}\n"
-        self.history_box.configure(state="normal")
-        self.history_box.delete("1.0", "end")
-        self.history_box.insert("1.0", text or "No events yet.")
-        self.history_box.configure(state="disabled")
+            self.history_tree.insert("", "end", values=(stamp, event.get("type", ""), event.get("summary", "")))
 
     def _refresh_traffic(self):
-        if not hasattr(self, "traffic_box"):
+        if not hasattr(self, "traffic_tree"):
             return
 
         def _work():
             totals = traffic_collector.system_totals()
-            rows = [
-                "System totals",
-                f"  down: {traffic_collector.format_bytes(totals['bytes_recv'])}    up: {traffic_collector.format_bytes(totals['bytes_sent'])}",
-                f"  packets down: {totals['packets_recv']:,}    packets up: {totals['packets_sent']:,}",
-                "",
-                "Top processes by active connections",
-                "   PID  EST  CONN  Name                 Remotes",
-            ]
-            for proc in traffic_collector.collect_connections():
-                remotes = ", ".join(proc.remotes)
-                rows.append(f"{proc.pid:>6}  {proc.established:>3}  {proc.connections:>4}  {proc.name[:20]:<20} {remotes}")
-            return "\n".join(rows)
+            processes = traffic_collector.collect_connections()
+            return totals, processes
 
-        def _done(text):
-            self.traffic_box.configure(state="normal")
-            self.traffic_box.delete("1.0", "end")
-            self.traffic_box.insert("1.0", text)
-            self.traffic_box.configure(state="disabled")
+        def _done(result):
+            totals, processes = result
+            self.traffic_totals_label.configure(
+                text=(
+                    f"System totals: down {traffic_collector.format_bytes(totals['bytes_recv'])}, "
+                    f"up {traffic_collector.format_bytes(totals['bytes_sent'])}; "
+                    f"packets down {totals['packets_recv']:,}, packets up {totals['packets_sent']:,}"
+                )
+            )
+            for item in self.traffic_tree.get_children():
+                self.traffic_tree.delete(item)
+            for proc in processes:
+                self.traffic_tree.insert(
+                    "",
+                    "end",
+                    values=(proc.pid, proc.established, proc.connections, proc.name, ", ".join(proc.remotes)),
+                )
 
         self._run_task("Refreshing traffic", _work, _done, key="traffic")
 
@@ -743,12 +909,10 @@ class NetworkManagerGUI(ctk.CTk):
         if isinstance(plugins_cfg, dict) and isinstance(plugins_cfg.get("enabled"), list):
             enabled = {str(item) for item in plugins_cfg.get("enabled")}
 
-        rows = [
-            f"User plugins folder: {core.plugins_dir()}",
-            f"Bundled plugins folder: {core.bundled_plugins_dir()}",
-            "",
-            "ID                         Enabled  Name / Version / Entry",
-        ]
+        rows = [f"User plugins folder: {core.plugins_dir()}", f"Bundled plugins folder: {core.bundled_plugins_dir()}"]
+        if hasattr(self, "plugins_tree"):
+            for item in self.plugins_tree.get_children():
+                self.plugins_tree.delete(item)
         manifests = self._discover_plugin_manifests()
         if not manifests:
             rows.append("(No plugin manifests found.)")
@@ -760,6 +924,18 @@ class NetworkManagerGUI(ctk.CTk):
             status = "yes" if plugin_id in enabled else "no"
             label = f"{manifest.get('name', 'Unnamed')} {manifest.get('version', '')} -> {manifest.get('entrypoint', '')}"
             rows.append(f"{plugin_id:<26} {status:<7} {label}")
+            if hasattr(self, "plugins_tree"):
+                self.plugins_tree.insert(
+                    "",
+                    "end",
+                    values=(
+                        plugin_id,
+                        status,
+                        manifest.get("name", "Unnamed"),
+                        manifest.get("version", ""),
+                        manifest.get("entrypoint", ""),
+                    ),
+                )
         self.plugins_box.configure(state="normal")
         self.plugins_box.delete("1.0", "end")
         self.plugins_box.insert("1.0", "\n".join(rows))
@@ -823,6 +999,35 @@ class NetworkManagerGUI(ctk.CTk):
                 "Restore point not updated because operation failed",
                 {"snapshot": snapshot},
             )
+
+    def _restore_snapshot_values(self, snapshot):
+        dns_servers = []
+        if "dns_servers_v4" in snapshot or "dns_servers_v6" in snapshot:
+            dns_servers = list(snapshot.get("dns_servers_v4") or []) + list(snapshot.get("dns_servers_v6") or [])
+        else:
+            dns_servers = snapshot.get("dns_servers") or []
+        interface = snapshot.get("interface")
+        if dns_servers:
+            dns_ok, dns_msg = core.set_dns(dns_servers, interface)
+        else:
+            dns_ok, dns_msg = core.clear_dns(interface)
+        proxy_ok, proxy_msg = core.restore_proxy_settings(snapshot.get("proxy_settings") or snapshot)
+        ok = dns_ok and proxy_ok
+        msg = "Previous DNS/proxy settings restored." if ok else f"Restore had issues. DNS: {dns_msg}; Proxy: {proxy_msg}"
+        return ok, msg
+
+    def _apply_deadman_rollback(self, snapshot, success, msg):
+        if not success:
+            return success, msg, False, ""
+        connectivity_ok, connectivity_msg = core.check_basic_connectivity(timeout=4)
+        if not core.should_rollback_after_change(self.config, success, connectivity_ok):
+            return success, msg, False, connectivity_msg
+        restore_ok, restore_msg = self._restore_snapshot_values(snapshot)
+        rollback_msg = (
+            f"{msg} Connectivity check failed after the change, so Network Manager Pro restored the previous "
+            f"settings. Check: {connectivity_msg} Restore: {restore_msg}"
+        )
+        return False, rollback_msg, True, restore_msg
 
     def _sync_profile_menus(self):
         with self._config_lock:
@@ -959,13 +1164,18 @@ class NetworkManagerGUI(ctk.CTk):
         def _work():
             snapshot = self._current_restore_snapshot(interface)
             success, msg = core.set_dns(normalized_or_error, interface)
-            return snapshot, success, msg
+            success, msg, rolled_back, restore_msg = self._apply_deadman_rollback(snapshot, success, msg)
+            return snapshot, success, msg, rolled_back, restore_msg
 
         def _done(result):
-            snapshot, success, msg = result
-            self._store_restore_snapshot_if_success(snapshot, success)
+            snapshot, success, msg, rolled_back, restore_msg = result
+            self._store_restore_snapshot_if_success(snapshot, success or rolled_back)
             self.show_toast("Success" if success else "Error", msg)
-            self._record_event("dns.apply_custom", msg, {"ok": success, "servers": normalized_or_error})
+            self._record_event(
+                "dns.apply_custom",
+                msg,
+                {"ok": success, "servers": normalized_or_error, "rolled_back": rolled_back, "restore": restore_msg},
+            )
 
         self._run_task("Applying custom DNS", _work, _done, key="dns")
 
@@ -1031,13 +1241,14 @@ class NetworkManagerGUI(ctk.CTk):
         def _work():
             snapshot = self._current_restore_snapshot(interface)
             success, msg = core.set_dns(servers, interface)
-            return snapshot, success, msg
+            success, msg, rolled_back, restore_msg = self._apply_deadman_rollback(snapshot, success, msg)
+            return snapshot, success, msg, rolled_back, restore_msg
 
         def _done(result):
-            snapshot, success, msg = result
-            self._store_restore_snapshot_if_success(snapshot, success)
+            snapshot, success, msg, rolled_back, restore_msg = result
+            self._store_restore_snapshot_if_success(snapshot, success or rolled_back)
             self.show_toast("Success" if success else "Error", msg)
-            self._record_event("dns.apply", msg, {"ok": success, "profile": profile})
+            self._record_event("dns.apply", msg, {"ok": success, "profile": profile, "rolled_back": rolled_back, "restore": restore_msg})
 
         self._run_task(f"Applying {profile}", _work, _done, key="dns")
 
@@ -1047,13 +1258,14 @@ class NetworkManagerGUI(ctk.CTk):
         def _work():
             snapshot = self._current_restore_snapshot(interface)
             success, msg = core.clear_dns(interface)
-            return snapshot, success, msg
+            success, msg, rolled_back, restore_msg = self._apply_deadman_rollback(snapshot, success, msg)
+            return snapshot, success, msg, rolled_back, restore_msg
 
         def _done(result):
-            snapshot, success, msg = result
-            self._store_restore_snapshot_if_success(snapshot, success)
+            snapshot, success, msg, rolled_back, restore_msg = result
+            self._store_restore_snapshot_if_success(snapshot, success or rolled_back)
             self.show_toast("Success" if success else "Error", msg)
-            self._record_event("dns.clear", msg, {"ok": success})
+            self._record_event("dns.clear", msg, {"ok": success, "rolled_back": rolled_back, "restore": restore_msg})
 
         self._run_task("Resetting DNS", _work, _done, key="dns")
 
@@ -1064,13 +1276,18 @@ class NetworkManagerGUI(ctk.CTk):
         def _work():
             snapshot = self._current_restore_snapshot(interface)
             success, msg = core.set_proxy(True, proxy)
-            return snapshot, success, msg
+            success, msg, rolled_back, restore_msg = self._apply_deadman_rollback(snapshot, success, msg)
+            return snapshot, success, msg, rolled_back, restore_msg
 
         def _done(result):
-            snapshot, success, msg = result
-            self._store_restore_snapshot_if_success(snapshot, success)
+            snapshot, success, msg, rolled_back, restore_msg = result
+            self._store_restore_snapshot_if_success(snapshot, success or rolled_back)
             self.show_toast("Success" if success else "Error", msg)
-            self._record_event("proxy.enable", msg, {"ok": success, "server": core.sanitize_proxy_server(proxy)})
+            self._record_event(
+                "proxy.enable",
+                msg,
+                {"ok": success, "server": core.sanitize_proxy_server(proxy), "rolled_back": rolled_back, "restore": restore_msg},
+            )
             self._refresh_proxy_status()
 
         self._run_task("Enabling proxy", _work, _done, key="proxy")
@@ -1081,13 +1298,14 @@ class NetworkManagerGUI(ctk.CTk):
         def _work():
             snapshot = self._current_restore_snapshot(interface)
             success, msg = core.set_proxy(False)
-            return snapshot, success, msg
+            success, msg, rolled_back, restore_msg = self._apply_deadman_rollback(snapshot, success, msg)
+            return snapshot, success, msg, rolled_back, restore_msg
 
         def _done(result):
-            snapshot, success, msg = result
-            self._store_restore_snapshot_if_success(snapshot, success)
+            snapshot, success, msg, rolled_back, restore_msg = result
+            self._store_restore_snapshot_if_success(snapshot, success or rolled_back)
             self.show_toast("Success" if success else "Error", msg)
-            self._record_event("proxy.disable", msg, {"ok": success})
+            self._record_event("proxy.disable", msg, {"ok": success, "rolled_back": rolled_back, "restore": restore_msg})
             self._refresh_proxy_status()
 
         self._run_task("Disabling proxy", _work, _done, key="proxy")
@@ -1099,20 +1317,7 @@ class NetworkManagerGUI(ctk.CTk):
             return
 
         def _work():
-            dns_servers = []
-            if "dns_servers_v4" in snapshot or "dns_servers_v6" in snapshot:
-                dns_servers = list(snapshot.get("dns_servers_v4") or []) + list(snapshot.get("dns_servers_v6") or [])
-            else:
-                dns_servers = snapshot.get("dns_servers") or []
-            interface = snapshot.get("interface")
-            if dns_servers:
-                dns_ok, dns_msg = core.set_dns(dns_servers, interface)
-            else:
-                dns_ok, dns_msg = core.clear_dns(interface)
-            proxy_ok, proxy_msg = core.restore_proxy_settings(snapshot.get("proxy_settings") or snapshot)
-            ok = dns_ok and proxy_ok
-            msg = "Previous DNS/proxy settings restored." if ok else f"Restore had issues. DNS: {dns_msg}; Proxy: {proxy_msg}"
-            return ok, msg
+            return self._restore_snapshot_values(snapshot)
 
         def _done(result):
             ok, msg = result
@@ -1215,6 +1420,7 @@ class NetworkManagerGUI(ctk.CTk):
             self.show_toast("Error", str(exc))
 
     def show_toast(self, title, msg):
+        msg = self._friendly_error_message(msg) if title == "Error" else str(msg)
         color = COLORS["success"] if title == "Success" else COLORS["warning"] if title == "Notice" else COLORS["error"]
         toast = ctk.CTkFrame(self.toast_frame, fg_color=color, corner_radius=8)
         toast.pack(side="top", anchor="e", pady=2)
@@ -1229,6 +1435,21 @@ class NetworkManagerGUI(ctk.CTk):
                 pass
 
         self.after(4500, _destroy_toast)
+
+    def _friendly_error_message(self, msg):
+        text = str(msg or "Something went wrong.")
+        lowered = text.lower()
+        if "permission" in lowered or "access is denied" in lowered or "administrator" in lowered:
+            return f"{text} Try running Network Manager Pro as administrator, then retry the action."
+        if "timed out" in lowered or "timeout" in lowered:
+            return f"{text} Check connectivity, then retry. If this was DDNS, auto-sync will retry with backoff."
+        if "registry" in lowered:
+            return f"{text} Close other network tools and retry. Export diagnostics if the registry error repeats."
+        if "credential" in lowered or "keyring" in lowered:
+            return f"{text} Check Windows Credential Manager access, then save the DDNS URL again."
+        if "dns" in lowered and ("invalid" in lowered or "server" in lowered):
+            return f"{text} Use valid IPv4 or IPv6 DNS server addresses separated by commas."
+        return text
 
     def _run_task(self, label, work, on_done=None, key=None):
         task_key = key or label
@@ -1280,6 +1501,7 @@ class NetworkManagerGUI(ctk.CTk):
             self.activity_label.configure(text="Ready")
 
     def on_closing(self):
+        self._save_ui_state()
         with self._config_lock:
             minimize = core.parse_bool((self.config.get("settings") or {}).get("minimize_to_tray_on_close", True), True)
         if minimize:

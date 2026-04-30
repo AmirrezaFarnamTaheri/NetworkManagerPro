@@ -82,3 +82,13 @@ Auto-DDNS is automatically disabled if no DDNS URL is configured.
 ## Help and About
 
 Help links to bundled documentation and opens runtime folders. About shows the app version and runtime paths.
+
+## Keyboard Access
+
+- `Ctrl+R`: refresh the current tab or monitor state.
+- `Ctrl+D`: apply the selected DNS profile.
+- `Ctrl+P`: disable the proxy.
+- `Ctrl+E`: export diagnostics.
+- `Alt+1` through `Alt+5`: jump to Dashboard, DNS, Proxy, DDNS, and History.
+
+History, Traffic, and Plugins use sortable grids. Activate a column header to sort rows for faster keyboard and mouse review.
