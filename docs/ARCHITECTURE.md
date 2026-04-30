@@ -20,6 +20,7 @@ User-writable data lives under `%LOCALAPPDATA%\NetworkManagerPro`:
 - `config.json`: normalized user configuration.
 - `logs\app.log`: rotating app log.
 - `history\events.sqlite3`: local event history.
+- `history\traffic_metrics.sqlite3`: aggregate traffic metrics from manual refreshes.
 - `plugins\`: optional user-installed plugins.
 
 Bundled docs, assets, and example plugins are embedded into `NetworkManagerPro.exe` by PyInstaller. They are not required beside the installed executable.
@@ -29,6 +30,12 @@ Bundled docs, assets, and example plugins are embedded into `NetworkManagerPro.e
 The GUI remains the owner of visible UI state. Slow DNS, proxy, DDNS, diagnostics, and traffic operations run in short-lived background threads and report back through Tk's event loop. The monitor service runs one daemon thread and protects snapshots with a re-entrant lock. Config reads and writes use the shared `core.config_lock()` plus atomic file replacement so UI saves, monitor reloads, and plugin reads do not race inside one process.
 
 Plugin periodic tasks are tracked before their worker thread starts, so shutdown can signal every registered task even if a plugin starts while the app is closing.
+
+## Privilege Direction
+
+The current packaged app can still perform privileged operations from the main process, but the accepted architecture path is a standard-user GUI plus an on-demand elevated broker. The GUI owns presentation, validation, config editing, diagnostics, trusted plugin discovery, and read-only status. The broker will own privileged mutations such as DNS changes, hosts-file writes, future firewall operations, and future HKLM policy setup.
+
+The broker command surface starts in `broker_contract.py` so request/response validation can be tested before a live named-pipe server exists. The initial IPC target is an ACL-secured local named pipe with request IDs, schema versioning, timeouts, audit events, and sanitized errors. The Windows Service option is deferred until enterprise and persistent-management requirements justify the installer and attack-surface cost.
 
 ## Release Contract
 

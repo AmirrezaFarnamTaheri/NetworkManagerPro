@@ -5,7 +5,7 @@ Prepared: 2026-04-30
 Scope: Windows 10/11 desktop utility for DNS profiles, proxy settings, DDNS updates, diagnostics, event history, trusted plugins, and lightweight traffic visibility.  
 Status: Living roadmap. Research and frontier items are preserved as ambitions, not committed release promises.
 
-Implementation progress: 24 done, 3 partially done, 43 open.  
+Implementation progress: 28 done, 11 partially done, 31 open.  
 Tracking convention: each roadmap item has one checkbox state line. `[x] Done` means the item is complete; `[x] Partially done` means implementation has started but acceptance criteria are not fully satisfied; `[x] Open` means no implementation work has landed yet.
 
 ## 1. Executive Summary
@@ -799,8 +799,8 @@ Tests:
 Risk: Medium.
 
 ### R-029: PAC Support
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added PAC profile config normalization, PAC URL validation, core-level WinINet `AutoConfigURL` application, restore compatibility through existing proxy snapshots, docs, and tests. Remaining work is visible PAC profile management in the Proxy tab and optional local PAC generation.
 
 
 Priority: P2 Product Expansion  
@@ -823,8 +823,8 @@ Tests:
 Risk: Medium.
 
 ### R-030: SOCKS5 Support
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added SOCKS5 profile normalization, `socks5://` endpoint validation, core-level WinINet `socks=` application, documentation of advanced status, and tests. Remaining work is UI selection/application and clearer compatibility notes for apps that ignore WinINet.
 
 
 Priority: P2 Product Expansion  
@@ -846,8 +846,8 @@ Tests:
 Risk: Medium.
 
 ### R-031: Hosts File Manager
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added a safety-first hosts manager module with managed block rendering, preview, disable/remove behavior, backup-before-write, atomic replacement, docs, and temp-file tests. Remaining work is a GUI workflow and future broker handoff for privileged writes.
 
 
 Priority: P2 Product Expansion  
@@ -869,8 +869,8 @@ Tests:
 Risk: High.
 
 ### R-032: IPv4 And IPv6 DDNS Support
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added `ddns_update_url_v4` and `ddns_update_url_v6` config fields, separate public IPv4/IPv6 detection helpers, dual-stack URL selection, provider-agnostic update orchestration, docs, and tests. Remaining work is visible DDNS UI, monitor integration, and user-facing address-family status.
 
 
 Priority: P2 Product Expansion  
@@ -894,8 +894,8 @@ Risk: Medium.
 ## 10. Phase 5: Traffic Analytics And Local Observability
 
 ### R-033: Improved Traffic Tab
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. The Traffic tab uses a sortable grid for PID, process name, connection counts, established connections, and remote endpoints. Refresh output now includes truthful best-effort wording and recent aggregate trend data without claiming per-process bandwidth accuracy.
 
 
 Priority: P2 Product Expansion  
@@ -917,8 +917,8 @@ Tests:
 Risk: Low.
 
 ### R-034: Bandwidth And Latency History
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added SQLite-backed aggregate traffic metrics under `%LOCALAPPDATA%\NetworkManagerPro\history\traffic_metrics.sqlite3`, append/list helpers, delta summaries, UI refresh integration, docs, and tests. Remaining work is latency sample storage, retention settings, and daily/weekly chart views.
 
 
 Priority: P2 Product Expansion  
@@ -940,8 +940,8 @@ Tests:
 Risk: Medium.
 
 ### R-035: Diagnostics Bundle Improvements
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Diagnostics bundles now include a versioned `manifest.json`, structured `summary.json`, sanitized environment metadata, runtime paths, config schema version, enabled plugin IDs, redacted event history, and aggregate traffic metrics when present. Tests verify manifest contents and redaction.
 
 
 Priority: P1 Next Release  
@@ -963,8 +963,8 @@ Tests:
 Risk: Low.
 
 ### R-036: ETW Per-Process Bandwidth Research
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Added `docs/ETW_PER_PROCESS_BANDWIDTH_RESEARCH.md` with provider candidates, implementation options, prototype acceptance path, overhead checks, packaging considerations, and a clear observability-only safety boundary. The note recommends ETW before packet drivers, WFP, or WinDivert.
 
 
 Priority: P5 Research  
@@ -988,8 +988,8 @@ Risk: High.
 ## 11. Phase 6: Service Architecture And IPC
 
 ### R-037: Standard-User GUI With Elevated Worker
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Defined the standard-user GUI versus elevated broker responsibilities in architecture docs, kept the broker command surface minimal, and added testable command-contract scaffolding. Remaining work is the actual elevated process, launch flow, named-pipe server, and GUI routing through the worker.
 
 
 Priority: P3 Advanced Architecture  
@@ -1012,8 +1012,8 @@ Tests:
 Risk: High.
 
 ### R-038: Windows Service Versus On-Demand Broker Decision Record
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [x] Done / [ ] Partially done / [ ] Open
+Work log: Completed. Converted the broker note into accepted ADR-001, choosing a staged on-demand elevated broker first and deferring a Windows Service until enterprise or persistent-management needs justify it. The ADR now includes command scope, service comparison, migration plan, failure behavior, and prototype acceptance criteria.
 
 
 Priority: P3 Advanced Architecture  
@@ -1035,8 +1035,8 @@ Tests:
 Risk: Medium.
 
 ### R-039: Named Pipe IPC With ACLs
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Added `broker_contract.py` with schema versioning, request IDs, command validation, required arguments, structured responses, and a privileged command catalog. Tests cover valid commands, rejected malformed commands, and response correlation. Remaining work is the real ACL-secured named-pipe transport.
 
 
 Priority: P3 Advanced Architecture  
@@ -1058,8 +1058,8 @@ Tests:
 Risk: High.
 
 ### R-040: Move Privileged Mutations Into Broker
-Progress: [ ] Done / [ ] Partially done / [x] Open
-Work log: Not started. Implementation work remains open and must be completed according to this item's steps, acceptance criteria, and tests.
+Progress: [ ] Done / [x] Partially done / [ ] Open
+Work log: Partially done. Identified broker-owned privileged commands for DNS apply/reset, hosts group application, and future firewall mutations, and documented that current-user proxy can remain GUI-owned unless policy requires elevation. Remaining work is moving GUI DNS/hosts calls to the live broker once IPC exists.
 
 
 Priority: P3 Advanced Architecture  
@@ -1891,18 +1891,18 @@ Research questions for sensitive areas:
 | R-026 | Captive portal detection | [x] Partially done | 4 | P2 Product Expansion | M | Medium | R-025 |
 | R-027 | Metered-connection awareness | [x] Partially done | 4 | P2 Product Expansion | M | Medium | R-025 |
 | R-028 | Dead-man rollback | [x] Done | 4 | P2 Product Expansion | M | Medium | R-024, R-025 |
-| R-029 | PAC support | [x] Open | 4 | P2 Product Expansion | M | Medium | R-012 |
-| R-030 | SOCKS5 support | [x] Open | 4 | P2 Product Expansion | M | Medium | R-029 |
-| R-031 | Hosts file manager | [x] Open | 4 | P2 Product Expansion | L | High | R-018, R-028 |
-| R-032 | IPv4 and IPv6 DDNS support | [x] Open | 4 | P2 Product Expansion | M | Medium | R-007, R-013 |
-| R-033 | Improved traffic tab | [x] Open | 5 | P2 Product Expansion | M | Low | R-021 |
-| R-034 | Bandwidth and latency history | [x] Open | 5 | P2 Product Expansion | M | Medium | R-010, R-033 |
-| R-035 | Diagnostics bundle improvements | [x] Open | 5 | P1 Next Release | M | Low | R-008, R-011 |
-| R-036 | ETW per-process bandwidth research | [x] Open | 5 | P5 Research | L | High | R-033, R-034 |
-| R-037 | Standard-user GUI with elevated worker | [x] Open | 6 | P3 Advanced Architecture | L | High | R-018 |
-| R-038 | Windows Service versus on-demand broker decision record | [x] Open | 6 | P3 Advanced Architecture | M | Medium | R-018 |
-| R-039 | Named pipe IPC with ACLs | [x] Open | 6 | P3 Advanced Architecture | L | High | R-038 |
-| R-040 | Move privileged mutations into broker | [x] Open | 6 | P3 Advanced Architecture | L | High | R-037, R-039 |
+| R-029 | PAC support | [x] Partially done | 4 | P2 Product Expansion | M | Medium | R-012 |
+| R-030 | SOCKS5 support | [x] Partially done | 4 | P2 Product Expansion | M | Medium | R-029 |
+| R-031 | Hosts file manager | [x] Partially done | 4 | P2 Product Expansion | L | High | R-018, R-028 |
+| R-032 | IPv4 and IPv6 DDNS support | [x] Partially done | 4 | P2 Product Expansion | M | Medium | R-007, R-013 |
+| R-033 | Improved traffic tab | [x] Done | 5 | P2 Product Expansion | M | Low | R-021 |
+| R-034 | Bandwidth and latency history | [x] Partially done | 5 | P2 Product Expansion | M | Medium | R-010, R-033 |
+| R-035 | Diagnostics bundle improvements | [x] Done | 5 | P1 Next Release | M | Low | R-008, R-011 |
+| R-036 | ETW per-process bandwidth research | [x] Done | 5 | P5 Research | L | High | R-033, R-034 |
+| R-037 | Standard-user GUI with elevated worker | [x] Partially done | 6 | P3 Advanced Architecture | L | High | R-018 |
+| R-038 | Windows Service versus on-demand broker decision record | [x] Done | 6 | P3 Advanced Architecture | M | Medium | R-018 |
+| R-039 | Named pipe IPC with ACLs | [x] Partially done | 6 | P3 Advanced Architecture | L | High | R-038 |
+| R-040 | Move privileged mutations into broker | [x] Partially done | 6 | P3 Advanced Architecture | L | High | R-037, R-039 |
 | R-041 | HKLM policy overrides | [x] Open | 7 | P4 Enterprise | L | High | R-037 |
 | R-042 | Intune and GPO deployment model | [x] Open | 7 | P4 Enterprise | M | Medium | R-041 |
 | R-043 | Windows Event Log export | [x] Open | 7 | P4 Enterprise | M | Medium | R-010, R-040 |

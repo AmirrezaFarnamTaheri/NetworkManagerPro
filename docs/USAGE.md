@@ -29,11 +29,15 @@ Use Proxy to manage simple current-user WinINet proxy endpoints.
 - Credentials, schemes, spaces, semicolons, and per-protocol rules are rejected.
 - Existing proxy bypass and PAC settings are preserved in restore snapshots.
 
+PAC and SOCKS5 support now exists in the core layer for validated profiles and future UI controls. PAC URLs are stored as `pac_profiles`, while SOCKS5 endpoints are stored as `socks5_profiles`. Until the UI controls are completed, keep normal proxy changes in the visible Proxy tab and treat PAC/SOCKS entries as advanced configuration.
+
 ## DDNS
 
 Use DDNS to save a provider update URL and run manual sync. Auto-DDNS can be enabled in Settings after a URL is saved.
 
 The monitor tracks the last successfully synced public IP separately from the last seen public IP. Failed updates are retried with backoff and are not marked complete.
+
+Dual-stack DDNS scaffolding is available through `ddns_update_url_v4` and `ddns_update_url_v6`. The app can detect public IPv4 and IPv6 addresses separately and route each configured update URL to its matching address family. The current visible DDNS tab still uses the single legacy-compatible URL flow.
 
 ## Tools
 
@@ -54,6 +58,12 @@ History shows recent app events, settings changes, plugin events, DDNS activity,
 ## Traffic
 
 Traffic shows system byte totals and a best-effort per-process active connection inventory. It is not a firewall, packet capture, or per-process bandwidth accounting tool.
+
+Each manual traffic refresh stores aggregate system counters in `%LOCALAPPDATA%\NetworkManagerPro\history\traffic_metrics.sqlite3`. The tab summarizes recent upload/download deltas from those saved samples so short-term trends are visible without claiming ETW-level attribution.
+
+## Hosts File Safety
+
+Hosts-file management is implemented as a safety-first core module. It previews managed groups, wraps app-owned blocks with `NetworkManagerPro` markers, and creates a backup before writing. Direct UI controls and elevated broker handoff are still roadmap work; do not edit the real Windows hosts file without administrator rights and a backup.
 
 ## Plugins
 

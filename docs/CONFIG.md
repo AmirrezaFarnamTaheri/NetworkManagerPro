@@ -33,6 +33,14 @@ The file is created automatically from built-in defaults. The installed executab
     "127.0.0.1:8080",
     "127.0.0.1:10809"
   ],
+  "pac_profiles": [
+    "https://proxy.example/wpad.pac"
+  ],
+  "socks5_profiles": [
+    "127.0.0.1:1080"
+  ],
+  "ddns_update_url_v4": "",
+  "ddns_update_url_v6": "",
   "network_profiles": [
     {
       "name": "Office",
@@ -62,6 +70,10 @@ The file is created automatically from built-in defaults. The installed executab
 - `plugins.settings`: plugin-owned settings by plugin ID.
 - `dns_profiles`: named DNS server lists. Users can add, overwrite, and delete profiles in the UI.
 - `proxy_profiles`: saved simple proxy endpoints. Users can add and delete profiles in the UI.
+- `pac_profiles`: validated PAC URLs for future UI selection and current core-level PAC application.
+- `socks5_profiles`: validated SOCKS5 endpoints for future UI selection and current core-level SOCKS5 application.
+- `ddns_update_url_v4`: optional provider update URL for A-record/IPv4 DDNS updates.
+- `ddns_update_url_v6`: optional provider update URL for AAAA-record/IPv6 DDNS updates.
 - `network_profiles`: context-aware profile rules keyed by SSID, BSSID, interface alias, or default gateway. These rules currently provide normalized matching and preview data for automation; automatic mutation remains gated by explicit consent and future UI controls.
 
 ## Validation
@@ -70,6 +82,8 @@ The file is created automatically from built-in defaults. The installed executab
 - Proxy profiles must be simple `host:port` values.
 - IPv6 proxy hosts must use `[address]:port`.
 - Proxy profiles cannot contain URL schemes, credentials, whitespace, semicolons, or per-protocol WinINet rules.
+- PAC profile URLs must be HTTP or HTTPS and should point to `.pac` or `.dat` files.
+- SOCKS5 profile values may use `host:port` or `socks5://host:port`; credentials are not accepted.
 - DDNS URLs must use `http://` or `https://`, include a valid host, and have a valid port if one is specified.
 - Placeholder `example.com` DDNS URLs are rejected.
 - Network profile rules must include a name and at least one context matcher: `ssid`, `bssid`, `interface`, or `gateway`.

@@ -875,15 +875,21 @@ class NetworkManagerGUI(ctk.CTk):
         def _work():
             totals = traffic_collector.system_totals()
             processes = traffic_collector.collect_connections()
-            return totals, processes
+            traffic_collector.append_metrics(core.traffic_metrics_db_path(), totals=totals)
+            recent = traffic_collector.recent_metrics(core.traffic_metrics_db_path(), limit=24)
+            summary = traffic_collector.summarize_metric_deltas(recent)
+            return totals, processes, summary
 
         def _done(result):
-            totals, processes = result
+            totals, processes, summary = result
             self.traffic_totals_label.configure(
                 text=(
                     f"System totals: down {traffic_collector.format_bytes(totals['bytes_recv'])}, "
                     f"up {traffic_collector.format_bytes(totals['bytes_sent'])}; "
-                    f"packets down {totals['packets_recv']:,}, packets up {totals['packets_sent']:,}"
+                    f"packets down {totals['packets_recv']:,}, packets up {totals['packets_sent']:,}\n"
+                    f"Recent trend: down {traffic_collector.format_bytes(summary['bytes_recv_delta'])}, "
+                    f"up {traffic_collector.format_bytes(summary['bytes_sent_delta'])} across "
+                    f"{summary['samples']} saved samples. Process rows are connection inventory only, not ETW bandwidth."
                 )
             )
             for item in self.traffic_tree.get_children():

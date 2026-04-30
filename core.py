@@ -43,6 +43,8 @@ CONFIG_VERSION = 1
 DEFAULT_CONFIG = {
     "config_version": CONFIG_VERSION,
     "ddns_update_url": "",
+    "ddns_update_url_v4": "",
+    "ddns_update_url_v6": "",
     "settings": {
         "auto_update_ddns": False,
         "check_interval_seconds": 60,
@@ -118,6 +120,10 @@ def history_dir():
 
 def history_db_path():
     return os.path.join(history_dir(), "events.sqlite3")
+
+
+def traffic_metrics_db_path():
+    return os.path.join(history_dir(), "traffic_metrics.sqlite3")
 
 
 def plugins_dir():
