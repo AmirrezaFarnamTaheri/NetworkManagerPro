@@ -117,64 +117,18 @@ Completed the final 11 partially done items: `R-037`, `R-039`, `R-040`, `R-041`,
 - Added official AGPL-3.0 license text in `LICENSE`, set `license = "AGPL-3.0-only"` and `license-files = ["LICENSE"]` in `pyproject.toml`, and documented the license in `README.md` and `SECURITY.md`.
 - Rewrote text files as UTF-8 without BOM after the rename pass so `pyproject.toml`, tests, docs, and scripts parse correctly.
 
-**Validation Plan For Completed Research And Frontier Work**
+**Implementation Update: 2026-05-01 Frontier Governance And Consolidated Backlog**
 
-All roadmap items now have completed implementation, research, documentation, or safety-gated scaffolding in the repository. The next elevation phase should focus on manual Windows lab validation, signed release infrastructure, and real-world QA rather than adding new unchecked roadmap scope. Sensitive frontier concepts remain diagnostics-only unless legal, ethical, safety, and feasibility review explicitly approves more.
+All roadmap items now have completed implementation, research, documentation, or safety-gated scaffolding in the repository. The final frontier pass made the remaining research surface explicit, queryable, and consolidated.
 
-Track A: Broker And Privilege Separation
+- Added `frontier_policy.py` as the executable catalog and gate for ETW, plugin sandboxing, plugin marketplace, Windows Service architecture, DoH/DoT, PCAP, forensics sidecar, WFP, WinDivert, per-app routing, Multi-WAN, AI anomaly detection, overlay orchestration, domain-fronting research, traffic-camouflage research, advanced anti-censorship concepts, post-quantum plugin signing, SIEM/OpenTelemetry export, transport/route diagnostics, and WASM plugin runtime research.
+- Added CLI parity through `python nmp_cli.py frontier catalog --json`, `frontier status --json`, and `frontier gate ...`.
+- Added GUI parity through the Tools action `Review frontier gates`, which records the current frontier catalog summary in local history.
+- Added diagnostics export visibility for frontier-policy counts and the safety boundary.
+- Consolidated unimplemented research/frontier work into `docs/RESEARCH_AND_FRONTIER_BACKLOG.md` and removed the old fragmented one-topic research notes.
+- Kept operational bypass/evasion, traffic camouflage, hidden policy circumvention, provider-specific target lists, and automatic identity-rotation workflows out of the implemented product surface. Those ideas remain documented only as non-operational research questions with legal, ethical, safety, feasibility, provider-policy, and abuse-risk review requirements.
 
-- Complete `R-037`, `R-039`, and `R-040` first.
-- Build the on-demand elevated broker executable.
-- Implement ACL-secured named-pipe transport using the existing request/response schema.
-- Add a harmless `status` command, then migrate DNS apply/reset into broker commands.
-- Move hosts-file writes into broker commands after the hosts UI exists.
-- Add command IDs, audit events, timeouts, and dead-man rollback integration.
-- Success measure: the GUI launches as standard user, privileged mutations fail closed without the broker, and all broker commands have tests plus manual Windows validation.
-
-Track B: Product Automation And Recovery
-
-- Complete `R-025`, `R-026`, `R-029`, `R-030`, `R-031`, `R-032`, and `R-034`. `R-027` and `R-070` are now complete and provide the reduced-background foundation for this track.
-- Add UI for context-aware network profiles with preview, consent, and automatic apply rules.
-- Surface captive portal and metered/power reduced-mode state in Dashboard and Settings.
-- Add PAC and SOCKS5 profile controls in the Proxy tab.
-- Add a hosts manager UI with preview, backup, apply, disable, and restore.
-- Add dual-stack DDNS controls and address-family status.
-- Add retention settings and simple history charts for bandwidth and latency.
-- Success measure: user-visible workflows exist, all risky changes preview before apply, rollback remains available, and docs match UI.
-
-Track C: Enterprise Readiness
-
-- Complete `R-041`, `R-042`, `R-043`, `R-045`, and `R-046`.
-- Wire HKLM policy overrides into app startup and UI managed-state locks.
-- Build ADMX/ADML templates after policy names stabilize.
-- Register Windows Event Log source from installer or broker setup.
-- Route key sanitized events to Windows Event Log when policy enables it.
-- Add release signing, timestamping, signature verification, and SHA256 release manifest generation to the build pipeline.
-- Validate Intune and GPO deployment in a lab.
-- Success measure: silent install/uninstall is tested, policies apply predictably, audit events appear in Event Viewer, and release artifacts are verifiable.
-
-Track D: Plugin Platform Hardening
-
-- Complete `R-047`, `R-048`, `R-050`, and `R-051`; `R-049` is now complete for the current architecture.
-- Expand `plugin_host.py` from run-once isolation into the default enabled-plugin execution path.
-- Route PluginAPI calls through an IPC boundary with permissions enforced on both sides.
-- Create real per-plugin virtual environments from the new dependency lock metadata.
-- Add subprocess restart with backoff.
-- Define signed bundle archive format and enforce digest/signature checks before install.
-- Convert the read-only Marketplace readiness grid into install/update/remove UI only after bundle verification is enforced.
-- Success measure: plugin crashes do not crash the app, permissions remain enforced, signed bundles reject tampering, and marketplace install is inspectable before trust is granted.
-
-Track E: Advanced Diagnostics And Forensics
-
-`R-054`, `R-055`, `R-059`, `R-060`, and `R-064` are now complete for evidence-only diagnostics, bounded sidecar planning, and explainable persisted-metric anomaly detection. Future self-healing remains opt-in and separately gated. The next step is manual lab validation with benign or owned endpoints and, later, a signed sidecar build pipeline.
-
-Track F: Frontier Networking Review
-
-- `R-063` and `R-065` are now complete for safe read-only recommendations/status. Keep `R-061`, `R-062`, `R-066`, `R-067`, and `R-068` governed by review gates even though their research notes are complete.
-- Keep live adapter data limited to safe failover recommendations before any route changes.
-- Keep overlay network integration read-only for Tailscale and ZeroTier until mutating operations pass consent, vendor, and safety review.
-- Keep WFP, WinDivert, per-app routing, traffic camouflage, domain-fronting, and advanced anti-censorship concepts behind explicit review gates.
-- Success measure: frontier features are either read-only diagnostics or reviewed prototypes with rollback, auditability, signing feasibility, and legal/safety approval.
+Manual Windows lab validation, signing credentials, enterprise deployment exercises, and real-world QA remain release-validation work rather than open roadmap implementation items.
 
 ## 1. Executive Summary
 
