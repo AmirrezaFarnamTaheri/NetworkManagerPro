@@ -115,12 +115,15 @@ def create_icon_image():
                 core.logger().debug("tray_icon_load_failed path=%s", p, exc_info=True)
     image = Image.new("RGBA", (64, 64), color=(0, 0, 0, 0))
     dc = ImageDraw.Draw(image)
-    dc.rounded_rectangle((4, 4, 60, 60), radius=14, fill=(15, 118, 110, 255))
-    dc.rounded_rectangle((6, 32, 58, 60), radius=12, fill=(11, 18, 32, 150))
-    dc.line((16, 42, 16, 22, 24, 22, 24, 36, 38, 36), fill=(248, 250, 252, 255), width=5)
-    dc.line((27, 43, 27, 24, 43, 41, 43, 22), fill=(94, 234, 212, 255), width=5)
-    for x, y in ((16, 22), (24, 36), (43, 22), (43, 41)):
-        dc.ellipse((x - 3, y - 3, x + 3, y + 3), fill=(224, 242, 254, 255))
+    dc.rounded_rectangle((4, 4, 60, 60), radius=10, fill=(19, 78, 74, 255))
+    dc.rounded_rectangle((5, 24, 59, 60), radius=10, fill=(2, 6, 23, 190))
+    hex_points = [(32, 11), (49, 21), (49, 43), (32, 53), (15, 43), (15, 21)]
+    dc.line(hex_points + [hex_points[0]], fill=(30, 41, 59, 255), width=5)
+    dc.line((15, 21, 32, 32, 49, 21), fill=(103, 232, 249, 255), width=4)
+    dc.line((32, 32, 32, 53), fill=(59, 130, 246, 255), width=4)
+    for x, y, color in ((32, 32, "#ffffff"), (32, 11, "#a7f3d0"), (49, 43, "#7dd3fc"), (15, 43, "#6ee7b7")):
+        r = 3 if (x, y) == (32, 32) else 2
+        dc.ellipse((x - r, y - r, x + r, y + r), fill=color)
     return image
 
 

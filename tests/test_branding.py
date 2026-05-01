@@ -86,7 +86,9 @@ def test_logo_assets_match_lucid_net_branding():
     tray_48 = open("assets/tray_48.png", "rb").read()
     tray_64 = open("assets/tray_64.png", "rb").read()
 
-    assert 'aria-label="Lucid Net"' in logo
+    assert 'aria-label="Lucid Net - Omni-Hex"' in logo
+    assert 'id="bg-hex"' in logo
+    assert 'id="route-path"' in logo
     assert "Network " + "Manager Pro" not in logo
     assert ">" + "NM" + "P<" not in logo
     assert len(icon) > 3000
