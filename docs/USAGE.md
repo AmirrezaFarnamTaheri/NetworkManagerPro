@@ -4,6 +4,8 @@
 
 Dashboard is the operational landing page. It shows monitor state and exposes quick actions:
 
+![Lucid Net dashboard](../assets/screenshots/01-dashboard.png)
+
 - Apply DNS: applies the DNS profile selected in the DNS panel.
 - DNS Auto: resets DNS on the selected/active interface.
 - Disable Proxy: turns off the current-user Windows proxy.
@@ -13,6 +15,8 @@ Dashboard is the operational landing page. It shows monitor state and exposes qu
 ## DNS
 
 Use DNS to choose the target interface, apply predefined profiles, and manage custom profiles.
+
+![DNS profile management](../assets/screenshots/02-dns.png)
 
 - Predefined profiles ship from built-in defaults.
 - Custom profiles can be added by name.
@@ -36,6 +40,8 @@ Auto-apply rules:
 
 Use Proxy to manage simple current-user WinINet proxy endpoints.
 
+![Proxy, PAC, and SOCKS5 controls](../assets/screenshots/03-proxy.png)
+
 - Profiles must be `host:port`.
 - IPv6 proxy hosts must be `[address]:port`.
 - Credentials, schemes, spaces, semicolons, and per-protocol rules are rejected.
@@ -51,6 +57,8 @@ PAC and SOCKS5 controls are available in the Proxy tab:
 
 Use DDNS to save a provider update URL and run manual sync. Auto-DDNS can be enabled in Settings after a URL is saved.
 
+![Dynamic DNS configuration](../assets/screenshots/04-ddns.png)
+
 The monitor tracks the last successfully synced public IP separately from the last seen public IP. Failed updates are retried with backoff and are not marked complete.
 
 Dual-stack DDNS controls are available through `ddns_update_url_v4` and `ddns_update_url_v6`. The app can detect public IPv4 and IPv6 addresses separately and route each configured update URL to its matching address family.
@@ -58,6 +66,8 @@ Dual-stack DDNS controls are available through `ddns_update_url_v4` and `ddns_up
 ## Tools
 
 Tools provides:
+
+![Maintenance and diagnostics tools](../assets/screenshots/05-tools.png)
 
 - DNS cache flush;
 - DHCP renew;
@@ -89,9 +99,13 @@ Unimplemented research and frontier work is tracked in `docs/RESEARCH_AND_FRONTI
 
 History shows recent app events, settings changes, plugin events, DDNS activity, diagnostics exports, startup, and shutdown. Event details are recursively redacted before storage.
 
+![SQLite-backed event history](../assets/screenshots/06-history.png)
+
 ## Traffic
 
 Traffic shows system byte totals and a best-effort per-process active connection inventory. It is not a firewall, packet capture, or per-process bandwidth accounting tool.
+
+![Traffic manager with process connection inventory](../assets/screenshots/07-traffic.png)
 
 Each manual traffic refresh stores aggregate system counters in `%LOCALAPPDATA%\LucidNet\history\traffic_metrics.sqlite3`. The tab summarizes recent upload/download deltas from those saved samples so short-term trends are visible without claiming ETW-level attribution.
 
@@ -116,6 +130,8 @@ Settings Monitor shows effective DNS and proxy state and records detected change
 
 Settings controls:
 
+![Settings and background work controls](../assets/screenshots/08-settings.png)
+
 - Run at Windows logon;
 - Minimize to tray on close;
 - Auto-update DDNS;
@@ -126,6 +142,8 @@ Auto-DDNS is automatically disabled if no DDNS URL is configured.
 ## Help and About
 
 Help links to bundled documentation and opens runtime folders. About shows the app version and runtime paths.
+
+![Quick help and runtime paths](../assets/screenshots/09-help.png)
 
 ## Keyboard Access
 

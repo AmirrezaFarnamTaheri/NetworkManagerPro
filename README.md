@@ -10,6 +10,22 @@ Lucid Net is a local-first Windows 10/11 desktop utility for DNS profiles, curre
 
 Current release: `v1.0.0`
 
+## Screenshots
+
+![Lucid Net dashboard](assets/screenshots/01-dashboard.png)
+
+| DNS | Proxy |
+|---|---|
+| ![DNS profile management](assets/screenshots/02-dns.png) | ![Proxy, PAC, and SOCKS5 controls](assets/screenshots/03-proxy.png) |
+
+| DDNS | Tools |
+|---|---|
+| ![Dynamic DNS configuration](assets/screenshots/04-ddns.png) | ![Maintenance and diagnostics tools](assets/screenshots/05-tools.png) |
+
+| History | Traffic |
+|---|---|
+| ![SQLite-backed event history](assets/screenshots/06-history.png) | ![Traffic manager with process connection inventory](assets/screenshots/07-traffic.png) |
+
 ## What Lucid Net Does
 
 - Applies, resets, adds, overwrites, and deletes DNS profiles for selected Windows interfaces.

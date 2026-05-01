@@ -10,6 +10,8 @@ Start the app from the installer shortcut or `LucidNet.exe`. Accept the administ
 
 Open Dashboard and confirm:
 
+![Lucid Net dashboard](../assets/screenshots/01-dashboard.png)
+
 - active interface;
 - current DNS servers;
 - gateway;
@@ -24,6 +26,8 @@ Dashboard quick actions use the currently selected DNS profile from the DNS pane
 
 Open DNS.
 
+![DNS profile management](../assets/screenshots/02-dns.png)
+
 1. Leave Interface on Auto unless you need a specific adapter.
 2. Select a DNS profile.
 3. Click Apply DNS.
@@ -35,6 +39,8 @@ To add your own DNS profile, enter a name and comma-separated IPv4/IPv6 addresse
 
 Open Proxy.
 
+![Proxy, PAC, and SOCKS5 controls](../assets/screenshots/03-proxy.png)
+
 1. Select a saved `host:port` proxy profile.
 2. Enable or disable the current user's Windows proxy setting.
 3. Add or delete proxy profiles as needed.
@@ -44,6 +50,8 @@ The app preserves existing proxy bypass and PAC values in restore snapshots.
 ## 5. Configure DDNS
 
 Open DDNS.
+
+![Dynamic DNS configuration](../assets/screenshots/04-ddns.png)
 
 1. Paste your provider's update URL.
 2. Save it.
@@ -57,5 +65,7 @@ Clearing the URL disables Auto-DDNS. Failed automatic updates are retried with b
 If a DNS or proxy change breaks connectivity, use Dashboard -> Restore. Restore points are updated only after successful app-driven changes, so a failed operation does not destroy the previous usable restore point.
 
 ## 7. Support Bundle
+
+![Maintenance and diagnostics tools](../assets/screenshots/05-tools.png)
 
 Use Tools -> Copy diagnostics or Export diagnostics before asking for help. Diagnostics redact DDNS paths/query values, common secret fields, proxy credentials, and plugin event details where possible.
