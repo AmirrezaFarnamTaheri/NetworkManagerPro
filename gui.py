@@ -15,6 +15,7 @@ import core
 import deep_diagnostics
 import diagnostics
 import enterprise_policy
+import frontier_policy
 import hosts_manager
 import overlay_networks
 import plugin_platform
@@ -685,9 +686,12 @@ class NetworkManagerGUI(ctk.CTk):
         ctk.CTkButton(page, text="Preview network profile", command=self.preview_network_profile, width=220).grid(
             row=10, column=0, sticky="w", pady=6
         )
+        ctk.CTkButton(page, text="Review frontier gates", command=self.review_frontier_gates, width=220).grid(
+            row=11, column=0, sticky="w", pady=6
+        )
 
         hosts = ctk.CTkFrame(page, corner_radius=10)
-        hosts.grid(row=11, column=0, sticky="ew", pady=(18, 0))
+        hosts.grid(row=12, column=0, sticky="ew", pady=(18, 0))
         hosts.grid_columnconfigure(1, weight=1)
         ctk.CTkLabel(hosts, text="Hosts manager", font=label_font).grid(
             row=0, column=0, columnspan=2, sticky="w", padx=12, pady=(12, 6)
@@ -1816,6 +1820,20 @@ class NetworkManagerGUI(ctk.CTk):
             self._record_event("diagnostic.power_status", msg, result)
 
         self._run_task("Checking power", _work, _done, key="diagnostic_power")
+
+    def review_frontier_gates(self):
+        def _work():
+            return frontier_policy.frontier_status_summary()
+
+        def _done(result):
+            msg = (
+                f"Frontier catalog: {result.get('capability_count', 0)} capabilities, "
+                f"{result.get('blocked_or_review_gated_count', 0)} gated."
+            )
+            self.show_toast("Notice", msg)
+            self._record_event("frontier.gates_reviewed", msg, result)
+
+        self._run_task("Reviewing frontier gates", _work, _done, key="frontier_gates")
 
     def copy_diagnostics(self):
         text = diagnostics.copyable_diagnostics(self.config, self.monitor.snapshot() if self.monitor else None)

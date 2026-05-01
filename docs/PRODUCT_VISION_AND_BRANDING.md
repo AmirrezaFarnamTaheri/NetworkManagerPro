@@ -76,6 +76,8 @@ These labels are reserved capability names, not current replacement tab names. C
 
 Lucid Net may diagnose network behavior and recommend lawful, user-consented local configuration changes. Features involving policy bypass, traffic camouflage, identity rotation, or anti-censorship countermeasures require legal, ethical, safety, and feasibility review before implementation.
 
+Unimplemented research and frontier work is tracked in `docs/RESEARCH_AND_FRONTIER_BACKLOG.md`.
+
 ## Implementation Contract
 
 - `branding.py` is the executable source of truth for product name, version, tagline, promise, product pillars, vision, brand architecture, panel branding, and safety boundary.

@@ -19,6 +19,8 @@ Plugins run in-process with the same OS privileges as the app. Manifest permissi
 
 Diagnostics redact configured DDNS URL paths/query values, common secret fields, proxy credentials, and plugin-provided event details where possible. Review bundles before sharing them outside your machine.
 
+Unimplemented research and frontier capabilities are consolidated in `docs/RESEARCH_AND_FRONTIER_BACKLOG.md`.
+
 ## License
 
 Lucid Net is distributed under AGPL-3.0-only. Security reports should still be sent privately before public disclosure.

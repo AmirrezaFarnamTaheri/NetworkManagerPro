@@ -17,6 +17,7 @@ Supported build/runtime Python versions for source builds are 3.11 through 3.13.
 - Export sanitized diagnostics bundles for support.
 - Track recent actions and detected setting changes in local history.
 - Discover trusted plugins from user and bundled plugin folders.
+- Review research/frontier capability gates for ETW, WFP, WinDivert, overlays, forensics, AI, and plugin marketplace work.
 - Run as a tray app with a single-instance guard.
 
 ## Runtime Data
@@ -45,6 +46,7 @@ scripts\build_release.ps1
 - `docs/CONFIG.md`: config schema and validation.
 - `docs/ARCHITECTURE.md`: code layout, runtime ownership, concurrency, and release contract.
 - `docs/PRODUCT_VISION_AND_BRANDING.md`: product vision, brand architecture, naming rules, and safety boundary.
+- `docs/RESEARCH_AND_FRONTIER_BACKLOG.md`: consolidated backlog for unimplemented research/frontier capabilities and safety gates.
 - `docs/INSTALL.md`: build, installer, and runtime layout.
 - `docs/PLUGINS.md`: plugin manifest, permissions, and lifecycle.
 - `docs/SECURITY_AND_PRIVACY.md`: local data, elevation, diagnostics, and plugin trust.

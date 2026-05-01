@@ -22,6 +22,8 @@ Python HTTP requests may not automatically follow the Windows proxy setting mana
 
 Advanced diagnostics report evidence and confidence only. Lucid Net may diagnose network behavior and recommend lawful, user-consented local configuration changes. Features involving policy bypass, traffic camouflage, identity rotation, or anti-censorship countermeasures require legal, ethical, safety, and feasibility review before implementation.
 
+Unimplemented research and frontier capabilities are consolidated in `docs/RESEARCH_AND_FRONTIER_BACKLOG.md`.
+
 ## Local Data
 
 Runtime data lives under:

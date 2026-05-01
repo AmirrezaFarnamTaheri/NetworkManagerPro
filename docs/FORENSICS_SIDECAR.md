@@ -16,6 +16,8 @@ sidecars\forensics-sidecar-rust
 
 The first supported command is `status`. The `pcap_export` command is intentionally disabled in the scaffold until packet capture, signing, privacy review, and manual validation are complete.
 
+Unimplemented sidecar, PCAP, ETW, WFP, and WinDivert research is tracked in `docs/RESEARCH_AND_FRONTIER_BACKLOG.md`.
+
 ## PCAP Safety Rules
 
 - Captures must be explicitly user-started.

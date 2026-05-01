@@ -14,3 +14,4 @@
 - Enforce v1 plugin API permissions and stop plugin tasks on partial load failure.
 - Redact diagnostics/history more aggressively.
 - Clean and verify release build output.
+- Add a consolidated research/frontier backlog and queryable frontier capability gates for CLI, GUI, and diagnostics.

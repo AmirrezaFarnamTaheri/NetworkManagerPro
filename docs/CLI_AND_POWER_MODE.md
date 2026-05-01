@@ -38,6 +38,9 @@ python nmp_cli.py multiwan-status --json
 python nmp_cli.py anomalies --json
 python nmp_cli.py traffic-history --limit 24 --json
 python nmp_cli.py pcap-plan --duration 30 --interface "Wi-Fi" --json
+python nmp_cli.py frontier catalog --json
+python nmp_cli.py frontier status --json
+python nmp_cli.py frontier gate --capability wfp_enforcement --operation prototype --i-consent --lab-mode --review legal --review ethical --review safety --review feasibility --review driver_signing --review rollback --review performance --json
 ```
 
 The current CLI is support-focused and now covers the same high-value operator actions exposed through the GUI: product identity, product vision, brand architecture, status, context-aware profile preview, DNS profile listing and application, DNS reset, proxy status and mutation, PAC/SOCKS5 proxy modes, forced legacy and dual-stack DDNS sync, hosts preview/apply, diagnostics export, consent-gated active diagnostics, overlay status, multi-adapter recommendations, anomaly review, traffic history, and PCAP capture planning.
@@ -52,8 +55,11 @@ CLI rules:
 - No GUI initialization for CLI-only commands.
 - Active diagnostics require explicit `--i-consent`.
 - Frontier commands are read-only or plan-only until reviewed implementation exists.
+- Operational bypass, traffic camouflage, identity rotation, and evasion operations are blocked by the frontier policy gate even when warnings are present.
 - Mutation commands should preserve the same validation, redaction, and rollback behavior as the GUI.
 - CLI and GUI capabilities should remain on-par unless a feature is inherently visual.
+
+Unimplemented research and frontier work is tracked in `docs/RESEARCH_AND_FRONTIER_BACKLOG.md`. The CLI `frontier` commands expose the same capability catalog and gate decisions used by diagnostics and the GUI Tools action.
 
 ## Power Efficiency
 

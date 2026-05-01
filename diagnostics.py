@@ -8,6 +8,7 @@ from datetime import UTC, datetime
 
 import core
 import deep_diagnostics
+import frontier_policy
 from history_store import EventStore
 
 DIAGNOSTICS_SCHEMA_VERSION = 2
@@ -41,6 +42,12 @@ def diagnostics_summary(config=None, monitor_state=None):
         "deep_diagnostics": {
             "schema_version": deep_diagnostics.SCHEMA_VERSION,
             "available_tests": sorted(deep_diagnostics.TEST_CATALOG.keys()),
+        },
+        "frontier_policy": {
+            "schema_version": frontier_policy.SCHEMA_VERSION,
+            "safety_boundary": frontier_policy.safety_boundary()["boundary"],
+            "capability_count": len(frontier_policy.capability_catalog()),
+            "research_or_frontier_count": frontier_policy.frontier_status_summary()["research_or_frontier_count"],
         },
     }
 

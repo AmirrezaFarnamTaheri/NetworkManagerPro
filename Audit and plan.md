@@ -717,7 +717,7 @@ Risk: Low.
 
 ### R-017: Plugin Signing Research
 Progress: [x] Done / [ ] Partially done / [ ] Open
-Work log: Completed. Added `docs/PLUGIN_SIGNING_RESEARCH.md` with the recommended signed-bundle direction, options considered, open trust-root/key-rotation questions, and prototype acceptance criteria for signed, tampered, unknown, and revoked bundles.
+Work log: Completed. Consolidated plugin signing research into `docs/RESEARCH_AND_FRONTIER_BACKLOG.md` with the recommended signed-bundle direction, trust-root/key-rotation questions, and prototype acceptance criteria for signed, tampered, unknown, and revoked bundles.
 
 
 Priority: P5 Research  
@@ -1162,7 +1162,7 @@ Risk: Low.
 
 ### R-036: ETW Per-Process Bandwidth Research
 Progress: [x] Done / [ ] Partially done / [ ] Open
-Work log: Completed. Added `docs/ETW_PER_PROCESS_BANDWIDTH_RESEARCH.md` with provider candidates, implementation options, prototype acceptance path, overhead checks, packaging considerations, and a clear observability-only safety boundary. The note recommends ETW before packet drivers, WFP, or WinDivert.
+Work log: Completed. Consolidated ETW per-process bandwidth research into `docs/RESEARCH_AND_FRONTIER_BACKLOG.md` with provider candidates, implementation options, prototype acceptance path, overhead checks, packaging considerations, and a clear observability-only safety boundary. The backlog recommends ETW before packet drivers, WFP, or WinDivert.
 
 
 Priority: P5 Research  
@@ -1351,7 +1351,7 @@ Risk: Medium.
 
 ### R-044: SIEM And OpenTelemetry Research
 Progress: [x] Done / [ ] Partially done / [ ] Open
-Work log: Completed. Added `docs/SIEM_OPENTELEMETRY_RESEARCH.md` comparing Windows Event Forwarding, OpenTelemetry, Syslog, Splunk HEC, Datadog, and Microsoft Sentinel. The research recommends Windows Event Log plus Windows Event Forwarding first, with OTLP and vendor exporters deferred until local audit events stabilize.
+Work log: Completed. Consolidated SIEM/OpenTelemetry research into `docs/RESEARCH_AND_FRONTIER_BACKLOG.md`, comparing Windows Event Forwarding, OpenTelemetry, Syslog, Splunk HEC, Datadog, and Microsoft Sentinel. The research recommends Windows Event Log plus Windows Event Forwarding first, with OTLP and vendor exporters deferred until local audit events stabilize.
 
 
 Priority: P5 Research  
@@ -1537,7 +1537,7 @@ Risk: High.
 
 ### R-052: WASM Plugin Runtime Research
 Progress: [x] Done / [ ] Partially done / [ ] Open
-Work log: Completed. Added `docs/WASM_PLUGIN_RUNTIME_RESEARCH.md`, recommending subprocess Python isolation first and keeping WASM as a later specialized runtime if `wasmtime-py`, WASI capability limits, packaging, and developer experience prove acceptable. The decision gate and prototype criteria are documented.
+Work log: Completed. Consolidated WASM plugin runtime research into `docs/RESEARCH_AND_FRONTIER_BACKLOG.md`, recommending subprocess Python isolation first and keeping WASM as a later specialized runtime if WASI capability limits, packaging, and developer experience prove acceptable. The decision gate and prototype criteria are documented.
 
 
 Priority: P5 Research  
@@ -1654,7 +1654,7 @@ Risk: Medium.
 
 ### R-057: QUIC UDP Degradation And PMTUD Blackhole Research
 Progress: [x] Done / [ ] Partially done / [ ] Open
-Work log: Completed. Added `docs/TRANSPORT_AND_ROUTE_DIAGNOSTICS_RESEARCH.md` with safe UDP/QUIC comparison boundaries, PMTUD research limits, prototype constraints, cancellation requirements, and sidecar direction for any raw-socket or platform-specific work.
+Work log: Completed. Consolidated transport and route diagnostics research into `docs/RESEARCH_AND_FRONTIER_BACKLOG.md` with safe UDP/QUIC comparison boundaries, PMTUD research limits, prototype constraints, cancellation requirements, and sidecar direction for any raw-socket or platform-specific work.
 
 
 Priority: P5 Research  
@@ -1748,7 +1748,7 @@ Risk: High.
 
 ### R-061: WFP And WinDivert Enforcement Research
 Progress: [x] Done / [ ] Partially done / [ ] Open
-Work log: Completed. Added `docs/FRONTIER_FORENSICS_AND_ENFORCEMENT_RESEARCH.md` and an enforcement research gate requiring legal/ethical/safety review, driver/signing feasibility, rollback design, performance testing, and audit visibility before any WFP or WinDivert prototype can leave lab-only research.
+Work log: Completed. Consolidated frontier forensics and enforcement research into `docs/RESEARCH_AND_FRONTIER_BACKLOG.md` and added an enforcement research gate requiring legal/ethical/safety review, driver/signing feasibility, rollback design, performance testing, and audit visibility before any WFP or WinDivert prototype can leave lab-only research.
 
 
 Priority: P6 Frontier  
@@ -1863,7 +1863,7 @@ Risk: Medium.
 
 ### R-066: Domain-Fronting And Traffic Camouflage Research
 Progress: [x] Done / [ ] Partially done / [ ] Open
-Work log: Completed. Added `docs/OVERLAY_AND_FRONTIER_RESEARCH.md` preserving domain-fronting and traffic-camouflage ideas as research questions only, with explicit bans on operational bypass steps, target lists, provider-specific evasion instructions, or hidden policy circumvention.
+Work log: Completed. Consolidated overlay and frontier restriction research into `docs/RESEARCH_AND_FRONTIER_BACKLOG.md`, preserving domain-fronting and traffic-camouflage ideas as research questions only, with explicit bans on operational bypass steps, target lists, provider-specific evasion instructions, or hidden policy circumvention.
 
 
 Priority: P6 Frontier  

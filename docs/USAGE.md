@@ -77,9 +77,13 @@ python nmp_cli.py diagnose transparent-dns --domain example.com --i-consent --js
 python nmp_cli.py diagnose sni --host example.com --i-consent --json
 python nmp_cli.py pcap-plan --duration 30 --interface "Wi-Fi" --request --json
 python nmp_cli.py sidecar-decision --json
+python nmp_cli.py frontier status --json
+python nmp_cli.py frontier gate --capability advanced_anti_censorship --operation diagnose --i-consent --json
 ```
 
 These commands report evidence and confidence only. They do not attempt bypass, evasion, identity rotation, or destructive network changes.
+
+Unimplemented research and frontier work is tracked in `docs/RESEARCH_AND_FRONTIER_BACKLOG.md`.
 
 ## History
 

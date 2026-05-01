@@ -79,3 +79,5 @@ The GUI Plugins tab now includes a Marketplace readiness grid backed by `plugins
 ## WASM Research
 
 WASM is not the first implementation path. Subprocess isolation is more compatible with the current Python plugin ecosystem. WASM remains a research option for future untrusted extensions if packaging, WASI capability limits, and developer experience prove acceptable.
+
+Unimplemented marketplace, signing, and WASM research is tracked in `docs/RESEARCH_AND_FRONTIER_BACKLOG.md`.

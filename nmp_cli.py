@@ -11,6 +11,7 @@ import core
 import deep_diagnostics
 import diagnostics
 import forensics_plan
+import frontier_policy
 import hosts_manager
 import overlay_networks
 import plugin_host
@@ -111,6 +112,16 @@ def build_parser():
     pcap.add_argument("--interface", default="")
     pcap.add_argument("--request", action="store_true")
     sub.add_parser("sidecar-decision")
+    frontier = sub.add_parser("frontier")
+    frontier_sub = frontier.add_subparsers(dest="frontier_command", required=True)
+    frontier_sub.add_parser("catalog")
+    frontier_sub.add_parser("status")
+    gate = frontier_sub.add_parser("gate")
+    gate.add_argument("--capability", required=True)
+    gate.add_argument("--operation", default="inspect")
+    gate.add_argument("--i-consent", action="store_true")
+    gate.add_argument("--review", action="append", default=[])
+    gate.add_argument("--lab-mode", action="store_true")
     return parser
 
 
@@ -287,6 +298,26 @@ def run(argv=None):
             return _emit(payload, args.json)
         if args.command == "sidecar-decision":
             return _emit(forensics_plan.sidecar_language_decision(), args.json)
+        if args.command == "frontier":
+            if args.frontier_command == "catalog":
+                return _emit(
+                    {
+                        "safety_boundary": frontier_policy.safety_boundary(),
+                        "capabilities": frontier_policy.capability_catalog(),
+                    },
+                    args.json,
+                )
+            if args.frontier_command == "status":
+                return _emit(frontier_policy.frontier_status_summary(), args.json)
+            if args.frontier_command == "gate":
+                result = frontier_policy.evaluate_capability(
+                    args.capability,
+                    operation=args.operation,
+                    consent=args.i_consent,
+                    reviews=args.review,
+                    lab_mode=args.lab_mode,
+                )
+                return _emit(result, args.json) if result.get("allowed") else _emit_blocked(result, args.json, code=2)
     except Exception as exc:
         return _error(str(exc), args.json, code=1)
     parser.error("Unknown command")
@@ -309,6 +340,17 @@ def _error(message, as_json, code=1):
         print(json.dumps(payload, sort_keys=True))
     else:
         print(f"Error: {message}", file=sys.stderr)
+    return code
+
+
+def _emit_blocked(payload, as_json, code=2):
+    payload = {"ok": False, **payload}
+    if as_json:
+        print(json.dumps(payload, sort_keys=True, default=str))
+    else:
+        print(f"Blocked: {payload.get('decision')}", file=sys.stderr)
+        for blocker in payload.get("blockers", []):
+            print(f"- {blocker}", file=sys.stderr)
     return code
 
 
