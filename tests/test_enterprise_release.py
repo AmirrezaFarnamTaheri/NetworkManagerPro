@@ -76,8 +76,8 @@ def test_release_manifest_roundtrip_and_mismatch_detection(tmp_path):
     artifact.write_bytes(b"release artifact")
     manifest_path = tmp_path / "release.json"
 
-    manifest = release_verification.write_release_manifest([str(artifact)], "2.0.0", str(manifest_path))
-    assert manifest["version"] == "2.0.0"
+    manifest = release_verification.write_release_manifest([str(artifact)], "1.0.0", str(manifest_path))
+    assert manifest["version"] == "1.0.0"
     ok, failures = release_verification.verify_manifest(str(manifest_path))
     assert ok is True
     assert failures == []
@@ -98,7 +98,8 @@ def test_installer_supports_explicit_user_data_purge_switch():
     text = open("installer/LucidNet.iss", "r", encoding="utf-8").read()
 
     assert "/PURGEUSERDATA" in text
-    assert "[UninstallDelete]" in text
+    assert "CurUninstallStepChanged" in text
+    assert "DelTree(ExpandConstant('{localappdata}\\LucidNet')" in text
     assert "{localappdata}\\LucidNet" in text
     assert "New-EventLog" in text
 
@@ -110,6 +111,7 @@ def test_build_script_reads_version_from_runtime_constant_and_writes_manifest():
     assert "release-manifest.json" in text
     assert "write_release_manifest" in text
     assert "Invoke-SignArtifact" in text
+    assert "$env:LOCALAPPDATA\\Programs\\Inno Setup 6\\ISCC.exe" in text
     assert "signtool.exe" in text
 
 
@@ -117,7 +119,7 @@ def test_release_signing_plan_and_optional_signature_verification(tmp_path):
     artifact = tmp_path / "LucidNet.exe"
     artifact.write_bytes(b"release artifact")
     manifest_path = tmp_path / "release.json"
-    release_verification.write_release_manifest([str(artifact)], "2.0.0", str(manifest_path))
+    release_verification.write_release_manifest([str(artifact)], "1.0.0", str(manifest_path))
 
     plan = release_verification.signing_plan("cert.pfx")
     assert plan["enabled"] is True

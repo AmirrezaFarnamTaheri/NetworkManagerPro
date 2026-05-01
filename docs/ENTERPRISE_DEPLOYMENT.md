@@ -44,7 +44,7 @@ Recommended Intune packaging path:
 3. Install command:
 
 ```powershell
-LucidNet-Setup-2.0.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+LucidNet-Setup-1.0.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
 ```
 
 4. Uninstall command:
@@ -76,8 +76,8 @@ GPO deployment can also import the included ADMX/ADML templates into the Central
 Inno Setup already supports silent mode. Supported commands:
 
 ```powershell
-LucidNet-Setup-2.0.0.exe /SILENT /SUPPRESSMSGBOXES /NORESTART
-LucidNet-Setup-2.0.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+LucidNet-Setup-1.0.0.exe /SILENT /SUPPRESSMSGBOXES /NORESTART
+LucidNet-Setup-1.0.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
 "%ProgramFiles%\Lucid Net\unins000.exe" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
 ```
 

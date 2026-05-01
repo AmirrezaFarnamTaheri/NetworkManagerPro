@@ -66,7 +66,7 @@ Run:
 scripts\build_release.ps1
 ```
 
-The script cleans stale artifacts and fails if `dist\LucidNet.exe` or `installer\output\LucidNet-Setup-2.0.0.exe` is not produced. Install Inno Setup 6 for release builds. Use `scripts\build_release.ps1 -SkipInstaller` only when you intentionally want a development-only onefile executable.
+The script cleans stale artifacts and fails if `dist\LucidNet.exe` or `installer\output\LucidNet-Setup-1.0.0.exe` is not produced. Install Inno Setup 6 for release builds. Use `scripts\build_release.ps1 -SkipInstaller` only when you intentionally want a development-only onefile executable.
 
 ## Version mismatch during build
 

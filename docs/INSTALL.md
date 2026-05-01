@@ -7,7 +7,7 @@ Lucid Net supports 64-bit Windows 10/11.
 The release has two executable artifacts:
 
 - `dist\LucidNet.exe`: a self-contained PyInstaller onefile app executable.
-- `installer\output\LucidNet-Setup-2.0.0.exe`: a single Inno Setup installer that installs the app executable.
+- `installer\output\LucidNet-Setup-1.0.0.exe`: a single Inno Setup installer that installs the app executable.
 
 The app creates runtime config, logs, history, and user plugin folders under `%LOCALAPPDATA%\LucidNet`. It does not need loose JSON, docs, assets, or plugin files beside the installed executable.
 
@@ -32,7 +32,7 @@ The script:
 4. Regenerates icons.
 5. Verifies that `core.py`, `pyproject.toml`, and `installer\LucidNet.iss` all use the same version.
 6. Builds `dist\LucidNet.exe`.
-7. Builds `installer\output\LucidNet-Setup-2.0.0.exe`.
+7. Builds `installer\output\LucidNet-Setup-1.0.0.exe`.
 8. Fails if either expected executable is missing.
 
 For a development-only onefile executable check without the installer, run:
@@ -46,8 +46,8 @@ scripts\build_release.ps1 -SkipInstaller
 The Inno Setup installer supports standard silent switches:
 
 ```powershell
-LucidNet-Setup-2.0.0.exe /SILENT /SUPPRESSMSGBOXES /NORESTART
-LucidNet-Setup-2.0.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+LucidNet-Setup-1.0.0.exe /SILENT /SUPPRESSMSGBOXES /NORESTART
+LucidNet-Setup-1.0.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
 "%ProgramFiles%\Lucid Net\unins000.exe" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
 ```
 

@@ -1,6 +1,6 @@
 [project]
 name = "lucid-net"
-version = "2.0.0"
+version = "1.0.0"
 description = "Windows desktop utility for DNS profiles, proxy toggles, DDNS updates, diagnostics, and monitoring."
 requires-python = ">=3.11,<3.14"
 license = "AGPL-3.0-only"

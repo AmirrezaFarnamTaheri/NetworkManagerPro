@@ -71,8 +71,10 @@ def test_packaging_and_enterprise_files_match_branding_source():
     assert f'#define MyAppVersion "{branding.PRODUCT_VERSION}"' in installer
     assert f'#define MyAppPublisher "{branding.TECHNICAL_APP_ID}"' in installer
     assert f'#define MyAppExeName "{branding.INSTALLER_BASENAME}.exe"' in installer
+    assert '#define DistExe SourcePath + "..\\dist\\" + MyAppExeName' in installer
     assert branding.INSTALLER_APP_ID in installer
     assert "SetupIconFile=..\\assets\\app.ico" in installer
+    assert 'Source: "{#DistExe}"' in installer
     assert "branding.INSTALLER_BASENAME" in build_script
     assert "name=branding.INSTALLER_BASENAME" in spec
     assert 'icon=icon_arg' in spec

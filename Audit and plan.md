@@ -1,12 +1,12 @@
-﻿# Lucid Net: Complete Audit, Roadmap, And Vision
+# Lucid Net: Complete Audit, Roadmap, And Vision
 
-Version: 2.0.0  
-Prepared: 2026-04-30  
-Scope: Windows 10/11 desktop utility for DNS profiles, proxy settings, DDNS updates, diagnostics, event history, trusted plugins, and lightweight traffic visibility.  
+Version: 1.0.0
+Prepared: 2026-04-30
+Scope: Windows 10/11 desktop utility for DNS profiles, proxy settings, DDNS updates, diagnostics, event history, trusted plugins, and lightweight traffic visibility.
 Status: Living roadmap. Research and frontier items are preserved as ambitions, not committed release promises.
 License: AGPL-3.0-only.
 
-Implementation progress: 71 done, 0 partially done, 0 open.  
+Implementation progress: 71 done, 0 partially done, 0 open.
 Tracking convention: each roadmap item has one checkbox state line. `[x] Done` means the item is complete; `[x] Partially done` means implementation has started but acceptance criteria are not fully satisfied; `[x] Open` means no implementation work has landed yet.
 
 **Investigation Snapshot: 2026-05-01**
@@ -223,14 +223,14 @@ Roadmap item template:
 ```md
 ### R-000: Item Name
 
-Progress: [ ] Done / [ ] Partially done / [ ] Open  
+Progress: [ ] Done / [ ] Partially done / [ ] Open
 Work log: Not started.
-Priority: P0 Foundation | P1 Next Release | P2 Product Expansion | P3 Advanced Architecture | P4 Enterprise | P5 Research | P6 Frontier  
-Area: Short category  
-Current state: What exists today.  
-Problem: What gap this solves.  
-User value: Why it matters.  
-Dependencies: Required earlier work.  
+Priority: P0 Foundation | P1 Next Release | P2 Product Expansion | P3 Advanced Architecture | P4 Enterprise | P5 Research | P6 Frontier
+Area: Short category
+Current state: What exists today.
+Problem: What gap this solves.
+User value: Why it matters.
+Dependencies: Required earlier work.
 Implementation steps:
 - Concrete step.
 - Concrete step.
@@ -250,12 +250,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. The exported chat content was replaced with a single structured roadmap, one H1, the requested 18 H2 sections, normalized Markdown hierarchy, and no legacy export footer or broken character artifacts.
 
 
-Priority: P0 Foundation  
-Area: Documentation  
-Current state: The audit exists as a chat export with repeated response blocks, inconsistent headings, duplicated ideas, and corrupted characters.  
-Problem: The document cannot be used directly as an implementation roadmap.  
-User value: Contributors get a readable source of truth for priorities, sequence, and ambition.  
-Dependencies: None.  
+Priority: P0 Foundation
+Area: Documentation
+Current state: The audit exists as a chat export with repeated response blocks, inconsistent headings, duplicated ideas, and corrupted characters.
+Problem: The document cannot be used directly as an implementation roadmap.
+User value: Contributors get a readable source of truth for priorities, sequence, and ambition.
+Dependencies: None.
 Implementation steps:
 - Rewrite the audit as one Markdown roadmap with a single H1 and the 18-section structure in this document.
 - Remove chat-export artifacts, repeated pass language, broken emoji, and footer content.
@@ -274,12 +274,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. The glossary now defines ETW, WFP, DoH, DoT, IPC, SIEM, GPO, BSSID, PAC, DDNS, WMI, MDM, NLA, PCAP, WinDivert, and related roadmap terms in one place.
 
 
-Priority: P0 Foundation  
-Area: Documentation  
-Current state: Advanced terms appear throughout the audit without a consolidated glossary.  
-Problem: Readers may confuse near-term implementation terms with research-only networking concepts.  
-User value: Engineers, users, and future contributors can interpret the roadmap consistently.  
-Dependencies: R-001.  
+Priority: P0 Foundation
+Area: Documentation
+Current state: Advanced terms appear throughout the audit without a consolidated glossary.
+Problem: Readers may confuse near-term implementation terms with research-only networking concepts.
+User value: Engineers, users, and future contributors can interpret the roadmap consistently.
+Dependencies: R-001.
 Implementation steps:
 - Add definitions for ETW, WFP, DoH, DoT, IPC, SIEM, GPO, BSSID, PAC, DDNS, WMI, MDM, NLA, and PCAP.
 - Mark terms associated with research or frontier work.
@@ -314,12 +314,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. The roadmap now distinguishes current repo facts, committed near-term work, product expansion, advanced architecture, enterprise goals, research, and frontier ambitions using the P0-P6 priority system.
 
 
-Priority: P0 Foundation  
-Area: Product governance  
-Current state: Practical improvements and speculative ideas are mixed together with similar emphasis.  
-Problem: The roadmap can be misread as promising advanced capabilities before feasibility and safety review.  
-User value: Users and contributors understand what is planned, what is exploratory, and what is only visionary.  
-Dependencies: R-001.  
+Priority: P0 Foundation
+Area: Product governance
+Current state: Practical improvements and speculative ideas are mixed together with similar emphasis.
+Problem: The roadmap can be misread as promising advanced capabilities before feasibility and safety review.
+User value: Users and contributors understand what is planned, what is exploratory, and what is only visionary.
+Dependencies: R-001.
 Implementation steps:
 - Apply the priority system to every roadmap item.
 - Add a warning that `P5 Research` and `P6 Frontier` items are not committed features.
@@ -337,12 +337,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added `branding.py` as the product identity source of truth, documented the brand system in `docs/PRODUCT_VISION_AND_BRANDING.md`, wired product name/version/tagline/promise into core constants, GUI header, GUI About, CLI `about`, `vision`, and `brand` commands, smoke checks, and tests. A hardening pass also centralized technical identifiers for runtime app ID, Event Log source, hosts-file markers, installer basename, policy root, broker pipe, and panel branding. `Lucid Net` is the active product name; `OmniRoute`, `Synapse`, `ForgeHub`, `AtlasFleet`, and `PulseGuard` are larger capability-family brands; core tabs remain plainly named; `PhantomCore` is restricted to research-only frontier review.
 
 
-Priority: P0 Foundation  
-Area: Product identity  
-Current state: Product vision and brand names existed mostly as roadmap prose.  
-Problem: Without an executable source of truth, GUI, CLI, docs, diagnostics, and release material can drift or over-promise research concepts.  
-User value: Users and contributors see one consistent product promise, naming system, maturity framing, and safety boundary.  
-Dependencies: R-001, R-003.  
+Priority: P0 Foundation
+Area: Product identity
+Current state: Product vision and brand names existed mostly as roadmap prose.
+Problem: Without an executable source of truth, GUI, CLI, docs, diagnostics, and release material can drift or over-promise research concepts.
+User value: Users and contributors see one consistent product promise, naming system, maturity framing, and safety boundary.
+Dependencies: R-001, R-003.
 Implementation steps:
 - Add a product identity module with product name, version, tagline, promise, pillars, maturity-layer vision, brand architecture, and safety boundary.
 - Expose the same identity through GUI, CLI, docs, smoke checks, and tests.
@@ -364,12 +364,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. `pytest` was already present in `requirements-dev.txt`; added `tests/conftest.py` for import path and optional dependency stubs, added `tests/test_foundation.py` with initial isolated tests, and verified the suite with `python -m pytest` plus the existing smoke check.
 
 
-Priority: P1 Next Release  
-Area: Testing  
-Current state: Verification relies on `py_compile` and `scripts\smoke_check.py`; no unit test suite is present.  
-Problem: Config, validation, redaction, history, and plugin behavior can regress without targeted tests.  
-User value: Releases become safer and easier to maintain.  
-Dependencies: R-001.  
+Priority: P1 Next Release
+Area: Testing
+Current state: Verification relies on `py_compile` and `scripts\smoke_check.py`; no unit test suite is present.
+Problem: Config, validation, redaction, history, and plugin behavior can regress without targeted tests.
+User value: Releases become safer and easier to maintain.
+Dependencies: R-001.
 Implementation steps:
 - Add `pytest` and `pytest-mock` to development requirements.
 - Create a `tests` folder with isolated unit tests that avoid mutating real Windows settings.
@@ -387,12 +387,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Added `.github/workflows/ci.yml` with Windows GitHub Actions coverage for Python 3.11, 3.12, and 3.13. The workflow installs runtime and dev dependencies, compiles all Python sources, runs `pytest`, and runs `scripts\smoke_check.py`.
 
 
-Priority: P1 Next Release  
-Area: DevOps  
-Current state: The repo defines Ruff settings and smoke checks, but no CI contract is documented in the roadmap.  
-Problem: Contributors need automatic feedback before release packaging.  
-User value: Fewer broken builds and clearer contribution standards.  
-Dependencies: R-004.  
+Priority: P1 Next Release
+Area: DevOps
+Current state: The repo defines Ruff settings and smoke checks, but no CI contract is documented in the roadmap.
+Problem: Contributors need automatic feedback before release packaging.
+User value: Fewer broken builds and clearer contribution standards.
+Dependencies: R-004.
 Implementation steps:
 - Add a GitHub Actions workflow for supported Python versions.
 - Run `python -m py_compile`, `python scripts\smoke_check.py`, Ruff, and `pytest`.
@@ -410,12 +410,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Expanded pytest coverage now validates config normalization, unknown key dropping, interval clamping, DNS validation, proxy validation including hostname normalization, port bounds, IPv6 bracket rules, DDNS URL validation including required/optional behavior, invalid schemes, invalid ports, placeholder rejection, and config save/load roundtrip.
 
 
-Priority: P1 Next Release  
-Area: Configuration  
-Current state: `core.py` normalizes config and validates DNS, proxy, and DDNS values.  
-Problem: Edge cases can break user config or silently drop unexpected values.  
-User value: Safer upgrades and fewer confusing config failures.  
-Dependencies: R-004.  
+Priority: P1 Next Release
+Area: Configuration
+Current state: `core.py` normalizes config and validates DNS, proxy, and DDNS values.
+Problem: Edge cases can break user config or silently drop unexpected values.
+User value: Safer upgrades and fewer confusing config failures.
+Dependencies: R-004.
 Implementation steps:
 - Add tests for default config creation, unknown key dropping, DNS validation, proxy validation, and interval clamping.
 - Add regression cases for IPv4, IPv6, bracketed IPv6 proxy hosts, invalid ports, and placeholder DDNS URLs.
@@ -432,12 +432,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Added `tests/test_ddns.py` covering DDNS update success, HTTP status failure, invalid URL rejection before HTTP calls, public IP success caching, public IP failure backoff, monitor auto-DDNS failure retry suppression, and monitor success state marking.
 
 
-Priority: P1 Next Release  
-Area: DDNS reliability  
-Current state: Public IP lookup and DDNS update use HTTP requests and monitor retry logic.  
-Problem: Network failures, invalid URLs, and retry states can regress without mocks.  
-User value: DDNS automation becomes more reliable and explainable.  
-Dependencies: R-004.  
+Priority: P1 Next Release
+Area: DDNS reliability
+Current state: Public IP lookup and DDNS update use HTTP requests and monitor retry logic.
+Problem: Network failures, invalid URLs, and retry states can regress without mocks.
+User value: DDNS automation becomes more reliable and explainable.
+Dependencies: R-004.
 Implementation steps:
 - Mock HTTP responses for public IP lookup, DDNS success, timeouts, and failures.
 - Test monitor retry scheduling without real sleeping.
@@ -455,12 +455,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Added `tests/test_redaction.py` covering URL credential redaction, path/query redaction, proxy credential redaction, recursive secret-key redaction, diagnostics summary sanitization, and diagnostics bundle log/history redaction.
 
 
-Priority: P1 Next Release  
-Area: Privacy  
-Current state: Redaction handles DDNS URL path/query values, sensitive keys, proxy credentials, and plugin event details.  
-Problem: Diagnostics could accidentally expose secrets if redaction changes regress.  
-User value: Users can share diagnostics with more confidence.  
-Dependencies: R-004.  
+Priority: P1 Next Release
+Area: Privacy
+Current state: Redaction handles DDNS URL path/query values, sensitive keys, proxy credentials, and plugin event details.
+Problem: Diagnostics could accidentally expose secrets if redaction changes regress.
+User value: Users can share diagnostics with more confidence.
+Dependencies: R-004.
 Implementation steps:
 - Add tests for token, key, secret, pass, auth, credential, proxy credential, DDNS URL, and nested plugin detail cases.
 - Add diagnostics export tests that verify sanitized output.
@@ -477,12 +477,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Added `tests/test_plugin_manager.py` covering missing manifest keys, invalid plugin IDs, unsupported API versions, invalid permissions, entrypoint path traversal rejection, disabled plugin skipping, enabled plugin loading, and duplicate plugin ID failure reporting.
 
 
-Priority: P1 Next Release  
-Area: Plugins  
-Current state: Plugin manifests are validated for API version, ID format, permissions, entrypoint location, and enablement.  
-Problem: Unsafe or malformed plugins can fail unpredictably if manifest validation regresses.  
-User value: Trusted plugin loading becomes more predictable.  
-Dependencies: R-004.  
+Priority: P1 Next Release
+Area: Plugins
+Current state: Plugin manifests are validated for API version, ID format, permissions, entrypoint location, and enablement.
+Problem: Unsafe or malformed plugins can fail unpredictably if manifest validation regresses.
+User value: Trusted plugin loading becomes more predictable.
+Dependencies: R-004.
 Implementation steps:
 - Add tests for duplicate IDs, invalid IDs, unsupported API versions, non-list permissions, and entrypoint path traversal.
 - Add tests for disabled plugins not loading.
@@ -499,12 +499,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Replaced runtime JSONL history with SQLite at `history\events.sqlite3`, enabled WAL mode, added indexed event storage, kept the existing `append`, `recent`, and `clear` API shape, exported sanitized JSONL only inside diagnostics bundles, removed old runtime JSONL code paths, updated docs and UI path display, and added SQLite history tests.
 
 
-Priority: P1 Next Release  
-Area: Data integrity  
-Current state: `history_store.py` stores event history as JSON lines and rotates with file replacement.  
-Problem: File locking can break rotation, and querying history for filters or charts is limited.  
-User value: Reliable history, faster UI queries, future analytics, and safer diagnostics export.  
-Dependencies: R-004.  
+Priority: P1 Next Release
+Area: Data integrity
+Current state: `history_store.py` stores event history as JSON lines and rotates with file replacement.
+Problem: File locking can break rotation, and querying history for filters or charts is limited.
+User value: Reliable history, faster UI queries, future analytics, and safer diagnostics export.
+Dependencies: R-004.
 Implementation steps:
 - Add a SQLite database under `%LOCALAPPDATA%\LucidNet`.
 - Create an `events` table with timestamp, type, summary, details JSON, and source metadata.
@@ -526,12 +526,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Added `core.log_event(level, event, **fields)` for structured redacted logging, documented the event naming and redaction convention in this roadmap, and added pytest coverage proving event names are normalized and secrets are not logged raw.
 
 
-Priority: P1 Next Release  
-Area: Observability  
-Current state: Logging exists, but event names and diagnostic context are not governed by a written convention.  
-Problem: Logs become harder to search as features expand.  
-User value: Support and diagnostics become clearer.  
-Dependencies: R-001.  
+Priority: P1 Next Release
+Area: Observability
+Current state: Logging exists, but event names and diagnostic context are not governed by a written convention.
+Problem: Logs become harder to search as features expand.
+User value: Support and diagnostics become clearer.
+Dependencies: R-001.
 Implementation steps:
 - Define event naming rules such as `domain.action` and consistent fields.
 - Update docs to require redaction before logging sensitive values.
@@ -556,12 +556,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Added `CONFIG_VERSION`, forced normalized configs to the current schema version, backed up invalid JSON configs to `.invalid.<timestamp>.bak`, backed up unsupported future schemas to `.unsupported.<timestamp>.bak`, preserved atomic config writes, and added pytest coverage for invalid JSON, unsupported future configs, and schema version normalization.
 
 
-Priority: P1 Next Release  
-Area: Configuration  
-Current state: Config normalization exists, and unknown keys are dropped.  
-Problem: Future schema migrations need explicit versioning, backups, and recovery behavior.  
-User value: Users do not lose settings during upgrades.  
-Dependencies: R-006.  
+Priority: P1 Next Release
+Area: Configuration
+Current state: Config normalization exists, and unknown keys are dropped.
+Problem: Future schema migrations need explicit versioning, backups, and recovery behavior.
+User value: Users do not lose settings during upgrades.
+Dependencies: R-006.
 Implementation steps:
 - Add migration functions keyed by `config_version`.
 - Back up the previous config before writing a migrated config.
@@ -581,12 +581,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Added `keyring` as a runtime dependency, introduced DDNS credential-store helpers, updated GUI saving so new DDNS URLs are stored through keyring and plaintext config is cleared, retained config fallback only for unsaved/imported legacy state, updated security/config docs, and added pytest coverage for keyring storage, keyring absence, and fallback behavior.
 
 
-Priority: P1 Next Release  
-Area: Secrets  
-Current state: `ddns_update_url` is stored in plaintext config and can contain tokens.  
-Problem: Plaintext secrets increase exposure if config or diagnostics are mishandled.  
-User value: DDNS credentials are stored in an OS-backed secret store.  
-Dependencies: R-012.  
+Priority: P1 Next Release
+Area: Secrets
+Current state: `ddns_update_url` is stored in plaintext config and can contain tokens.
+Problem: Plaintext secrets increase exposure if config or diagnostics are mishandled.
+User value: DDNS credentials are stored in an OS-backed secret store.
+Dependencies: R-012.
 Implementation steps:
 - Add `keyring` as a runtime dependency after packaging compatibility is verified.
 - Store sensitive DDNS URL material in Windows Credential Manager.
@@ -606,12 +606,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Updated security documentation to state that the GUI, monitoring, DDNS, diagnostics, history, and enabled plugins currently share one elevated process after admin launch, and documented the future elevated broker or Windows Service direction.
 
 
-Priority: P1 Next Release  
-Area: Security documentation  
-Current state: Security docs state that the app requests administrator rights and plugins run in-process.  
-Problem: The roadmap and docs need a sharper risk explanation before plugin and service expansion.  
-User value: Users understand the trust model and can make informed decisions.  
-Dependencies: R-001.  
+Priority: P1 Next Release
+Area: Security documentation
+Current state: Security docs state that the app requests administrator rights and plugins run in-process.
+Problem: The roadmap and docs need a sharper risk explanation before plugin and service expansion.
+User value: Users understand the trust model and can make informed decisions.
+Dependencies: R-001.
 Implementation steps:
 - Add a roadmap item and docs language explaining that GUI, plugins, monitoring, and DNS changes currently share the elevated process.
 - State that privilege separation is planned under Phase 6.
@@ -628,12 +628,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Added explicit `PermissionError` enforcement for missing PluginAPI permissions, retained warnings for denied access, updated smoke checks, and added pytest coverage for missing and granted permissions across network state, events, UI tabs, and scheduled tasks.
 
 
-Priority: P1 Next Release  
-Area: Plugin security  
-Current state: Plugin API permissions gate API methods, but plugins remain arbitrary Python code in-process.  
-Problem: Permissions can be mistaken for sandboxing.  
-User value: Plugin behavior is clearer and accidental over-permission is reduced.  
-Dependencies: R-009.  
+Priority: P1 Next Release
+Area: Plugin security
+Current state: Plugin API permissions gate API methods, but plugins remain arbitrary Python code in-process.
+Problem: Permissions can be mistaken for sandboxing.
+User value: Plugin behavior is clearer and accidental over-permission is reduced.
+Dependencies: R-009.
 Implementation steps:
 - Audit PluginAPI methods for permission checks.
 - Add explicit denial errors for missing permissions.
@@ -651,12 +651,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Updated plugin documentation, security documentation, and the plugin center UI copy to clearly state that v1 plugins are trusted-only, permissions are API gates rather than a sandbox, and untrusted plugins require future subprocess, signed bundle, WASM, or service boundaries.
 
 
-Priority: P1 Next Release  
-Area: Plugin governance  
-Current state: Plugins load only when enabled, but the roadmap needs a clear trust policy.  
-Problem: Users may assume downloaded plugins are safe because permissions exist.  
-User value: Users avoid installing untrusted code into an elevated process.  
-Dependencies: R-014, R-015.  
+Priority: P1 Next Release
+Area: Plugin governance
+Current state: Plugins load only when enabled, but the roadmap needs a clear trust policy.
+Problem: Users may assume downloaded plugins are safe because permissions exist.
+User value: Users avoid installing untrusted code into an elevated process.
+Dependencies: R-014, R-015.
 Implementation steps:
 - Add UI and documentation language that plugins must be trusted.
 - Add warning text near plugin enablement.
@@ -674,12 +674,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Consolidated plugin signing research into `docs/RESEARCH_AND_FRONTIER_BACKLOG.md` with the recommended signed-bundle direction, trust-root/key-rotation questions, and prototype acceptance criteria for signed, tampered, unknown, and revoked bundles.
 
 
-Priority: P5 Research  
-Area: Plugin supply chain  
-Current state: Plugins are local folders with manifests and Python entrypoints.  
-Problem: There is no authenticity or integrity model for distributed plugins.  
-User value: Future plugin distribution can be safer.  
-Dependencies: R-016.  
+Priority: P5 Research
+Area: Plugin supply chain
+Current state: Plugins are local folders with manifests and Python entrypoints.
+Problem: There is no authenticity or integrity model for distributed plugins.
+User value: Future plugin distribution can be safer.
+Dependencies: R-016.
 Implementation steps:
 - Research signed plugin manifests and bundle signatures.
 - Compare PGP, sigstore, Authenticode, and repository-pinned signatures.
@@ -697,12 +697,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Added `docs/ELEVATED_BROKER_DESIGN.md` choosing a staged on-demand elevated broker before a full Windows Service, defining GUI and broker responsibilities, named-pipe IPC direction, service comparison, and prototype acceptance criteria.
 
 
-Priority: P3 Advanced Architecture  
-Area: Privilege separation  
-Current state: The full GUI runs elevated because DNS changes require administrator rights.  
-Problem: Running the GUI and plugins as administrator increases blast radius.  
-User value: Safer day-to-day operation with narrow elevation only where required.  
-Dependencies: R-014.  
+Priority: P3 Advanced Architecture
+Area: Privilege separation
+Current state: The full GUI runs elevated because DNS changes require administrator rights.
+Problem: Running the GUI and plugins as administrator increases blast radius.
+User value: Safer day-to-day operation with narrow elevation only where required.
+Dependencies: R-014.
 Implementation steps:
 - Compare Windows Service and on-demand elevated broker models.
 - Define privileged commands for DNS, proxy, hosts, firewall, and route operations.
@@ -723,12 +723,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Added `ui_state.json` under the runtime data folder, restored saved window geometry, active tab, theme, selected interface, selected DNS profile, selected proxy profile, and onboarding completion state, and saved UI state on close/theme changes with atomic replacement.
 
 
-Priority: P1 Next Release  
-Area: UX  
-Current state: Window state, active tab, theme preference, and selected interface are not treated as persistent product state.  
-Problem: The app can feel reset after minimize, close, or relaunch.  
-User value: The app resumes where the user left off.  
-Dependencies: R-012.  
+Priority: P1 Next Release
+Area: UX
+Current state: Window state, active tab, theme preference, and selected interface are not treated as persistent product state.
+Problem: The app can feel reset after minimize, close, or relaunch.
+User value: The app resumes where the user left off.
+Dependencies: R-012.
 Implementation steps:
 - Add a `ui_state.json` or equivalent config section for non-sensitive UI state.
 - Save window geometry, active tab, theme, selected interface, and selected profiles.
@@ -746,12 +746,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Expanded the tray menu with DNS profile submenu actions, Disable Proxy, Force DDNS Sync, and Export Diagnostics. Tray actions dispatch safely onto the GUI thread and reuse the existing app workflows instead of duplicating network mutation logic.
 
 
-Priority: P2 Product Expansion  
-Area: UX  
-Current state: The tray menu opens the manager or exits.  
-Problem: Common actions require opening the full window.  
-User value: Users can apply frequent actions quickly.  
-Dependencies: R-019.  
+Priority: P2 Product Expansion
+Area: UX
+Current state: The tray menu opens the manager or exits.
+Problem: Common actions require opening the full window.
+User value: Users can apply frequent actions quickly.
+Dependencies: R-019.
 Implementation steps:
 - Add tray actions for applying DNS profiles, toggling proxy, forcing DDNS sync, exporting diagnostics, and opening settings.
 - Keep destructive or risky actions confirmed in the main UI.
@@ -769,12 +769,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. History and Plugins render through sortable `ttk.Treeview` grids, and the Traffic tab now uses a sortable process grid with stable PID, established connection, connection count, process name, and remote endpoint columns plus a system totals label.
 
 
-Priority: P2 Product Expansion  
-Area: UX  
-Current state: History, Traffic, and Plugins views use textbox-style monospaced output.  
-Problem: Textbox tables are hard to sort, scan, and extend.  
-User value: Users can inspect events, processes, and plugins faster.  
-Dependencies: R-010.  
+Priority: P2 Product Expansion
+Area: UX
+Current state: History, Traffic, and Plugins views use textbox-style monospaced output.
+Problem: Textbox tables are hard to sort, scan, and extend.
+User value: Users can inspect events, processes, and plugins faster.
+Dependencies: R-010.
 Implementation steps:
 - Replace textbox tables with sortable grid widgets using existing CustomTkinter-compatible patterns.
 - Add columns for timestamp/type/summary in History, PID/name/connections/remotes in Traffic, and ID/name/version/status in Plugins.
@@ -792,12 +792,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Added a first-run guide panel on the dashboard covering interface/IP confirmation, DNS profile use, DDNS URL setup, and diagnostics export. Users can dismiss it with `Got it`, and completion is persisted in `ui_state.json`.
 
 
-Priority: P2 Product Expansion  
-Area: UX  
-Current state: Users rely on docs such as Quickstart.  
-Problem: First-run workflows are discoverable only if users read documentation.  
-User value: New users learn DNS, proxy, DDNS, diagnostics, and restore behavior inside the app.  
-Dependencies: R-019.  
+Priority: P2 Product Expansion
+Area: UX
+Current state: Users rely on docs such as Quickstart.
+Problem: First-run workflows are discoverable only if users read documentation.
+User value: New users learn DNS, proxy, DDNS, diagnostics, and restore behavior inside the app.
+Dependencies: R-019.
 Implementation steps:
 - Add a first-run checklist or guided overlay.
 - Cover current interface, DNS profile application, restore snapshots, proxy toggles, diagnostics export, and plugin trust.
@@ -815,12 +815,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Added keyboard shortcuts for refreshing the current tab, applying DNS, disabling proxy, exporting diagnostics, and jumping to primary tabs. Documented the shortcuts in `docs/USAGE.md` and kept review-heavy panels in sortable grid controls.
 
 
-Priority: P2 Product Expansion  
-Area: Accessibility  
-Current state: CustomTkinter UI may not provide complete keyboard traversal and screen reader support.  
-Problem: Users who rely on keyboard navigation may struggle with complex tabs and controls.  
-User value: The app becomes more usable and professional.  
-Dependencies: R-021.  
+Priority: P2 Product Expansion
+Area: Accessibility
+Current state: CustomTkinter UI may not provide complete keyboard traversal and screen reader support.
+Problem: Users who rely on keyboard navigation may struggle with complex tabs and controls.
+User value: The app becomes more usable and professional.
+Dependencies: R-021.
 Implementation steps:
 - Define tab order for major controls.
 - Add keyboard shortcuts for primary non-destructive actions.
@@ -838,12 +838,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Added a friendly error-message mapper for permission/admin failures, timeouts, registry failures, credential/keyring failures, and invalid DNS input. Error toasts now include actionable recovery hints while preserving the original message.
 
 
-Priority: P1 Next Release  
-Area: UX reliability  
-Current state: Toasts and errors exist, but deeper failures can be technical or terse.  
-Problem: Users need actionable recovery steps after DNS, proxy, DDNS, plugin, or diagnostics failures.  
-User value: Fewer support requests and safer self-recovery.  
-Dependencies: R-011.  
+Priority: P1 Next Release
+Area: UX reliability
+Current state: Toasts and errors exist, but deeper failures can be technical or terse.
+Problem: Users need actionable recovery steps after DNS, proxy, DDNS, plugin, or diagnostics failures.
+User value: Fewer support requests and safer self-recovery.
+Dependencies: R-011.
 Implementation steps:
 - Map common failures to user-facing explanations and recovery actions.
 - Include sanitized technical detail for diagnostics.
@@ -863,12 +863,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added normalized `network_profiles` config support, SSID/BSSID/interface/gateway rule matching, current-network context detection, non-mutating previews, explicit `auto_apply` consent, executable apply-plan generation, monitor-driven DNS/proxy application, rollback on failed connectivity checks, GUI and CLI previews, event logging, BSSID normalization, config documentation, and unit tests.
 
 
-Priority: P2 Product Expansion  
-Area: Automation  
-Current state: DNS and proxy profiles are manually selected.  
-Problem: Users repeat the same changes when moving between home, work, public Wi-Fi, and tethered networks.  
-User value: The app applies the right settings automatically for known contexts.  
-Dependencies: R-024.  
+Priority: P2 Product Expansion
+Area: Automation
+Current state: DNS and proxy profiles are manually selected.
+Problem: Users repeat the same changes when moving between home, work, public Wi-Fi, and tethered networks.
+User value: The app applies the right settings automatically for known contexts.
+Dependencies: R-024.
 Implementation steps:
 - Add network profile rules keyed by SSID, BSSID, adapter alias, and optional gateway.
 - Let users bind DNS, proxy, DDNS, and future DoH settings to a context.
@@ -886,12 +886,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added a consent-safe captive portal classifier using a known connectivity endpoint, redirect detection, modified-content detection, monitor-state capture, visible GUI status, documentation, mocked unit tests, and context-profile auto-apply pause behavior while login is required.
 
 
-Priority: P2 Product Expansion  
-Area: Network automation  
-Current state: The app can change DNS/proxy without checking whether a public network requires login.  
-Problem: Custom DNS or proxy settings can interfere with captive portal login.  
-User value: Public Wi-Fi setup becomes less fragile.  
-Dependencies: R-025.  
+Priority: P2 Product Expansion
+Area: Network automation
+Current state: The app can change DNS/proxy without checking whether a public network requires login.
+Problem: Custom DNS or proxy settings can interfere with captive portal login.
+User value: Public Wi-Fi setup becomes less fragile.
+Dependencies: R-025.
 Implementation steps:
 - Add a consent-based captive portal check using safe, well-known connectivity endpoints.
 - Pause automatic DNS/proxy overrides when a portal is detected.
@@ -909,12 +909,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added config flags for metered background policy, a best-effort Windows connection-cost probe, reduced polling policy, auto-DDNS pause behavior, monitor-state capture, visible GUI controls, documentation, and policy tests. Future native refinements can happen inside the service/broker track, but the roadmap acceptance criteria for metered reduced-mode behavior and user override are complete.
 
 
-Priority: P2 Product Expansion  
-Area: Power and network cost  
-Current state: Monitor and DDNS checks run based on configured interval.  
-Problem: Background polling can waste data or battery on metered networks.  
-User value: Users avoid unexpected data use and battery drain.  
-Dependencies: R-025.  
+Priority: P2 Product Expansion
+Area: Power and network cost
+Current state: Monitor and DDNS checks run based on configured interval.
+Problem: Background polling can waste data or battery on metered networks.
+User value: Users avoid unexpected data use and battery drain.
+Dependencies: R-025.
 Implementation steps:
 - Query Windows network cost or NetworkListManager state.
 - Add settings to reduce polling, pause DDNS, and pause plugin scheduled tasks while metered.
@@ -932,12 +932,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. DNS and proxy apply/clear actions now capture pre-change snapshots, run post-change connectivity checks, and automatically restore the previous DNS/proxy state when rollback is enabled and connectivity fails. Rollback results are surfaced in toasts and event history, with unit coverage for the rollback decision policy.
 
 
-Priority: P2 Product Expansion  
-Area: Safety  
-Current state: Restore snapshots exist for app-driven DNS and proxy changes.  
-Problem: A bad DNS or proxy profile can leave users without connectivity.  
-User value: The app can recover automatically from harmful changes.  
-Dependencies: R-024, R-025.  
+Priority: P2 Product Expansion
+Area: Safety
+Current state: Restore snapshots exist for app-driven DNS and proxy changes.
+Problem: A bad DNS or proxy profile can leave users without connectivity.
+User value: The app can recover automatically from harmful changes.
+Dependencies: R-024, R-025.
 Implementation steps:
 - Capture pre-change DNS/proxy snapshots.
 - Run post-change connectivity checks.
@@ -955,12 +955,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added PAC profile config normalization, PAC URL validation, visible PAC profile management in the Proxy tab, core-level WinINet `AutoConfigURL` application, CLI `proxy pac`, restore compatibility through existing proxy snapshots, docs, and tests. Optional local PAC generation remains a future enhancement outside this acceptance scope.
 
 
-Priority: P2 Product Expansion  
-Area: Proxy management  
-Current state: Proxy profiles are simple `host:port` values with restore support for PAC settings.  
-Problem: Users with complex proxy routing need PAC generation or management.  
-User value: The proxy tab supports real-world enterprise and developer workflows.  
-Dependencies: R-012.  
+Priority: P2 Product Expansion
+Area: Proxy management
+Current state: Proxy profiles are simple `host:port` values with restore support for PAC settings.
+Problem: Users with complex proxy routing need PAC generation or management.
+User value: The proxy tab supports real-world enterprise and developer workflows.
+Dependencies: R-012.
 Implementation steps:
 - Add PAC profile type.
 - Validate local or remote PAC URL input.
@@ -979,12 +979,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added SOCKS5 profile normalization, `socks5://` endpoint validation, visible Proxy tab save/apply controls, core-level WinINet `socks=` application, CLI `proxy socks5`, compatibility documentation for apps that ignore WinINet, and tests.
 
 
-Priority: P2 Product Expansion  
-Area: Proxy management  
-Current state: Proxy profiles are simple endpoint strings and avoid per-protocol WinINet rules.  
-Problem: Users commonly need SOCKS5 endpoints for developer and privacy tools.  
-User value: Proxy management covers more practical local proxy configurations.  
-Dependencies: R-029.  
+Priority: P2 Product Expansion
+Area: Proxy management
+Current state: Proxy profiles are simple endpoint strings and avoid per-protocol WinINet rules.
+Problem: Users commonly need SOCKS5 endpoints for developer and privacy tools.
+User value: Proxy management covers more practical local proxy configurations.
+Dependencies: R-029.
 Implementation steps:
 - Decide how SOCKS5 profiles map to Windows proxy settings.
 - Add validation for SOCKS5 host and port.
@@ -1002,12 +1002,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added a safety-first hosts manager module with entry validation, managed block rendering, preview, apply, disable/remove behavior, backup-before-write, atomic replacement, GUI controls, CLI `hosts preview/apply`, docs, and temp-file tests. Broker handoff for privileged writes was completed under `R-040`.
 
 
-Priority: P2 Product Expansion  
-Area: Local network configuration  
-Current state: The app does not manage `C:\Windows\System32\drivers\etc\hosts`.  
-Problem: Users need safe toggles and backups for local host overrides.  
-User value: Hosts overrides become reversible and auditable.  
-Dependencies: R-028, R-018.  
+Priority: P2 Product Expansion
+Area: Local network configuration
+Current state: The app does not manage `C:\Windows\System32\drivers\etc\hosts`.
+Problem: Users need safe toggles and backups for local host overrides.
+User value: Hosts overrides become reversible and auditable.
+Dependencies: R-028, R-018.
 Implementation steps:
 - Add a hosts management design that always backs up before editing.
 - Support named groups of entries that can be toggled.
@@ -1025,12 +1025,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added `ddns_update_url_v4` and `ddns_update_url_v6` config fields, separate public IPv4/IPv6 detection helpers, dual-stack URL selection, provider-agnostic update orchestration, visible DDNS UI controls, CLI `ddns force --dual-stack`, docs, and tests. Continuous monitor automation can build on this without changing the completed manual dual-stack workflow.
 
 
-Priority: P2 Product Expansion  
-Area: DDNS  
-Current state: Public IP lookup uses an IPv4-oriented endpoint.  
-Problem: Dual-stack and IPv6-only users may need AAAA record updates.  
-User value: DDNS works on more modern networks.  
-Dependencies: R-007, R-013.  
+Priority: P2 Product Expansion
+Area: DDNS
+Current state: Public IP lookup uses an IPv4-oriented endpoint.
+Problem: Dual-stack and IPv6-only users may need AAAA record updates.
+User value: DDNS works on more modern networks.
+Dependencies: R-007, R-013.
 Implementation steps:
 - Add separate IPv4 and IPv6 public IP resolution.
 - Add provider-agnostic placeholders or profile fields for A and AAAA update URLs.
@@ -1050,12 +1050,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. The Traffic tab uses a sortable grid for PID, process name, connection counts, established connections, and remote endpoints. Refresh output now includes truthful best-effort wording and recent aggregate trend data without claiming per-process bandwidth accuracy.
 
 
-Priority: P2 Product Expansion  
-Area: Traffic visibility  
-Current state: `traffic_collector.py` uses `psutil` to show best-effort process connection counts and system totals.  
-Problem: Users cannot sort or trend traffic, and per-process bandwidth is not accurate.  
-User value: The Traffic tab becomes useful for daily troubleshooting.  
-Dependencies: R-021.  
+Priority: P2 Product Expansion
+Area: Traffic visibility
+Current state: `traffic_collector.py` uses `psutil` to show best-effort process connection counts and system totals.
+Problem: Users cannot sort or trend traffic, and per-process bandwidth is not accurate.
+User value: The Traffic tab becomes useful for daily troubleshooting.
+Dependencies: R-021.
 Implementation steps:
 - Show process name, PID, connection counts, remote endpoints, and total system counters in a sortable grid.
 - Add refresh status and failure messages for permission issues.
@@ -1073,12 +1073,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added SQLite-backed aggregate traffic metrics under `%LOCALAPPDATA%\LucidNet\history\traffic_metrics.sqlite3`, append/list helpers, bandwidth delta summaries, latency summary fields, UI refresh integration, CLI `traffic-history`, docs, and tests. Rich daily/weekly charting remains a future UX enhancement.
 
 
-Priority: P2 Product Expansion  
-Area: Analytics  
-Current state: The app stores recent actions and detected setting changes, not long-term metrics.  
-Problem: Users cannot see trends across hours or days.  
-User value: Slowdowns and outages become easier to explain.  
-Dependencies: R-010, R-033.  
+Priority: P2 Product Expansion
+Area: Analytics
+Current state: The app stores recent actions and detected setting changes, not long-term metrics.
+Problem: Users cannot see trends across hours or days.
+User value: Slowdowns and outages become easier to explain.
+Dependencies: R-010, R-033.
 Implementation steps:
 - Store periodic aggregate bandwidth snapshots in SQLite.
 - Store latency checks to configured safe targets.
@@ -1096,12 +1096,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Diagnostics bundles now include a versioned `manifest.json`, structured `summary.json`, sanitized environment metadata, runtime paths, config schema version, enabled plugin IDs, redacted event history, and aggregate traffic metrics when present. Tests verify manifest contents and redaction.
 
 
-Priority: P1 Next Release  
-Area: Supportability  
-Current state: Diagnostics export redacted logs and configuration support data.  
-Problem: Future features need clearer diagnostics without leaking secrets.  
-User value: Support becomes faster and safer.  
-Dependencies: R-008, R-011.  
+Priority: P1 Next Release
+Area: Supportability
+Current state: Diagnostics export redacted logs and configuration support data.
+Problem: Future features need clearer diagnostics without leaking secrets.
+User value: Support becomes faster and safer.
+Dependencies: R-008, R-011.
 Implementation steps:
 - Add versioned diagnostics manifest.
 - Include sanitized runtime paths, config schema version, enabled plugin IDs, recent event summaries, and environment metadata.
@@ -1119,12 +1119,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Consolidated ETW per-process bandwidth research into `docs/RESEARCH_AND_FRONTIER_BACKLOG.md` with provider candidates, implementation options, prototype acceptance path, overhead checks, packaging considerations, and a clear observability-only safety boundary. The backlog recommends ETW before packet drivers, WFP, or WinDivert.
 
 
-Priority: P5 Research  
-Area: Network telemetry  
-Current state: Traffic visibility uses `psutil` and cannot measure accurate bandwidth per process.  
-Problem: Accurate per-process bandwidth requires lower-level Windows telemetry.  
-User value: Users can identify which process is consuming bandwidth.  
-Dependencies: R-033, R-034.  
+Priority: P5 Research
+Area: Network telemetry
+Current state: Traffic visibility uses `psutil` and cannot measure accurate bandwidth per process.
+Problem: Accurate per-process bandwidth requires lower-level Windows telemetry.
+User value: Users can identify which process is consuming bandwidth.
+Dependencies: R-033, R-034.
 Implementation steps:
 - Research ETW providers and Python, C#, or Rust collection options.
 - Prototype collection of bytes in/out per PID without requiring packet drivers.
@@ -1144,12 +1144,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Defined the standard-user GUI versus elevated broker responsibilities in architecture docs, kept the broker command surface minimal, added testable command-contract scaffolding, and implemented `broker_runtime.py` with injectable broker dispatch for status, DNS set/clear, and hosts apply commands. The GUI can now be treated as standard-user capable at the contract layer while privileged mutations route through broker-owned command handlers.
 
 
-Priority: P3 Advanced Architecture  
-Area: Privilege separation  
-Current state: Full application runs elevated.  
-Problem: GUI and plugins do not need administrator rights for most operations.  
-User value: Reduced security risk while retaining privileged network operations.  
-Dependencies: R-018.  
+Priority: P3 Advanced Architecture
+Area: Privilege separation
+Current state: Full application runs elevated.
+Problem: GUI and plugins do not need administrator rights for most operations.
+User value: Reduced security risk while retaining privileged network operations.
+Dependencies: R-018.
 Implementation steps:
 - Define GUI process responsibilities.
 - Define elevated worker responsibilities.
@@ -1168,12 +1168,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Converted the broker note into accepted ADR-001, choosing a staged on-demand elevated broker first and deferring a Windows Service until enterprise or persistent-management needs justify it. The ADR now includes command scope, service comparison, migration plan, failure behavior, and prototype acceptance criteria.
 
 
-Priority: P3 Advanced Architecture  
-Area: Architecture decision  
-Current state: Both options are proposed but not decided.  
-Problem: Implementation cannot proceed safely without choosing the elevation model.  
-User value: The product gets a maintainable security architecture.  
-Dependencies: R-018.  
+Priority: P3 Advanced Architecture
+Area: Architecture decision
+Current state: Both options are proposed but not decided.
+Problem: Implementation cannot proceed safely without choosing the elevation model.
+User value: The product gets a maintainable security architecture.
+Dependencies: R-018.
 Implementation steps:
 - Compare install complexity, UX prompts, permissions, update behavior, crash recovery, and attack surface.
 - Decide whether to use a Windows Service, on-demand elevated broker, or staged approach.
@@ -1191,12 +1191,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added `broker_contract.py` with schema versioning, request IDs, command validation, required arguments, structured responses, command ownership metadata, and a privileged command catalog. Added `broker_runtime.named_pipe_policy()` for `\\.\pipe\LucidNet.Broker` with Administrators/SYSTEM/current-user ACL intent, timeout metadata, newline-delimited JSON framing, docs, and tests.
 
 
-Priority: P3 Advanced Architecture  
-Area: IPC  
-Current state: There is no process boundary or IPC contract.  
-Problem: Privilege separation requires authenticated local commands.  
-User value: Privileged operations are constrained and auditable.  
-Dependencies: R-038.  
+Priority: P3 Advanced Architecture
+Area: IPC
+Current state: There is no process boundary or IPC contract.
+Problem: Privilege separation requires authenticated local commands.
+User value: Privileged operations are constrained and auditable.
+Dependencies: R-038.
 Implementation steps:
 - Define request/response schema for privileged commands.
 - Use named pipes with ACLs limited to the current interactive user and the elevated component.
@@ -1214,12 +1214,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Identified broker-owned privileged commands for DNS apply/reset, hosts group application, and future firewall mutations; documented that current-user proxy can remain GUI-owned unless policy requires elevation; and added `BrokerDispatcher` routing for DNS set, DNS clear, and hosts apply-group mutations with injectable handlers and tests.
 
 
-Priority: P3 Advanced Architecture  
-Area: Privileged operations  
-Current state: DNS, proxy, startup, and future hosts/firewall changes are called from the main process.  
-Problem: Privileged operations need a minimal, auditable surface.  
-User value: Safer architecture and clearer audit history.  
-Dependencies: R-037, R-039.  
+Priority: P3 Advanced Architecture
+Area: Privileged operations
+Current state: DNS, proxy, startup, and future hosts/firewall changes are called from the main process.
+Problem: Privileged operations need a minimal, auditable surface.
+User value: Safer architecture and clearer audit history.
+Dependencies: R-037, R-039.
 Implementation steps:
 - Move DNS apply/reset, hosts edits, firewall operations, and any HKLM operations into broker/service commands.
 - Keep current-user proxy behavior in GUI unless policy requires elevation.
@@ -1239,12 +1239,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added `enterprise_policy.py` with the reserved `HKLM\SOFTWARE\Policies\LucidNet` root, normalized machine policy values, user-config override application, startup policy application before GUI/monitor/plugins/history initialization, managed-state reporting, managed UI state helpers, GUI managed-state display, enterprise documentation, ADMX/ADML templates, and tests.
 
 
-Priority: P4 Enterprise  
-Area: Policy  
-Current state: User config lives under `%LOCALAPPDATA%\LucidNet`.  
-Problem: IT administrators need central control over allowed behavior.  
-User value: The app can be deployed safely in managed environments.  
-Dependencies: R-037.  
+Priority: P4 Enterprise
+Area: Policy
+Current state: User config lives under `%LOCALAPPDATA%\LucidNet`.
+Problem: IT administrators need central control over allowed behavior.
+User value: The app can be deployed safely in managed environments.
+Dependencies: R-037.
 Implementation steps:
 - Define policy keys under `HKLM\SOFTWARE\Policies\LucidNet`.
 - Support locking or overriding features such as plugins, proxy changes, DoH, diagnostics, and update behavior.
@@ -1262,12 +1262,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added `docs/ENTERPRISE_DEPLOYMENT.md` with Intune Win32 app packaging guidance, install/uninstall commands, detection rule, GPO deployment model, policy deployment options, and ADMX ingestion direction. Added `enterprise/LucidNet.admx` and `enterprise/en-US/LucidNet.adml` with tests verifying template coverage.
 
 
-Priority: P4 Enterprise  
-Area: Fleet deployment  
-Current state: The app has an installer but no enterprise deployment guide.  
-Problem: Organizations need repeatable installation and policy configuration.  
-User value: Lucid Net can be deployed across managed workstations.  
-Dependencies: R-041.  
+Priority: P4 Enterprise
+Area: Fleet deployment
+Current state: The app has an installer but no enterprise deployment guide.
+Problem: Organizations need repeatable installation and policy configuration.
+User value: Lucid Net can be deployed across managed workstations.
+Dependencies: R-041.
 Implementation steps:
 - Document silent install and uninstall commands.
 - Provide ADMX/ADML policy template research or implementation.
@@ -1285,12 +1285,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added `event_log.py` with sanitized payload formatting, Event Log source registration command generation, installer registration command generation, a Windows `Write-EventLog` wrapper, policy-enabled mirroring from local event history to Event Log, Inno Setup source registration, and tests for redaction, source escaping, mirrored sanitized payloads, and installer registration.
 
 
-Priority: P4 Enterprise  
-Area: Audit logging  
-Current state: Events are stored locally in app history.  
-Problem: Enterprise security teams need OS-level audit sources.  
-User value: DNS, proxy, plugin, and policy changes can be monitored centrally.  
-Dependencies: R-010, R-040.  
+Priority: P4 Enterprise
+Area: Audit logging
+Current state: Events are stored locally in app history.
+Problem: Enterprise security teams need OS-level audit sources.
+User value: DNS, proxy, plugin, and policy changes can be monitored centrally.
+Dependencies: R-010, R-040.
 Implementation steps:
 - Register a Windows Event Log source during install or first elevated setup.
 - Write important sanitized events to Windows Event Log.
@@ -1308,12 +1308,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Consolidated SIEM/OpenTelemetry research into `docs/RESEARCH_AND_FRONTIER_BACKLOG.md`, comparing Windows Event Forwarding, OpenTelemetry, Syslog, Splunk HEC, Datadog, and Microsoft Sentinel. The research recommends Windows Event Log plus Windows Event Forwarding first, with OTLP and vendor exporters deferred until local audit events stabilize.
 
 
-Priority: P5 Research  
-Area: Enterprise observability  
-Current state: There is no remote audit export.  
-Problem: SIEM integration requires careful schema, privacy, and transport decisions.  
-User value: Enterprises can centralize network setting changes and anomaly reports.  
-Dependencies: R-043.  
+Priority: P5 Research
+Area: Enterprise observability
+Current state: There is no remote audit export.
+Problem: SIEM integration requires careful schema, privacy, and transport decisions.
+User value: Enterprises can centralize network setting changes and anomaly reports.
+Dependencies: R-043.
 Implementation steps:
 - Compare Syslog, OpenTelemetry, Windows Event Forwarding, Splunk HEC, Datadog, and Microsoft Sentinel paths.
 - Define opt-in transport and redaction model.
@@ -1331,12 +1331,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Documented supported Inno Setup silent install/uninstall switches in `docs/INSTALL.md` and enterprise deployment guidance, preserved user data by default, and added explicit `/PURGEUSERDATA` uninstaller behavior for managed cleanup scenarios. Tests verify the installer script contains the purge gate.
 
 
-Priority: P4 Enterprise  
-Area: Packaging  
-Current state: Release builds use Inno Setup.  
-Problem: Enterprise deployment needs predictable installer switches and optional cleanup behavior.  
-User value: Admins can install, upgrade, and uninstall without manual prompts.  
-Dependencies: R-042.  
+Priority: P4 Enterprise
+Area: Packaging
+Current state: Release builds use Inno Setup.
+Problem: Enterprise deployment needs predictable installer switches and optional cleanup behavior.
+User value: Admins can install, upgrade, and uninstall without manual prompts.
+Dependencies: R-042.
 Implementation steps:
 - Document supported Inno Setup silent switches.
 - Add optional uninstall behavior for preserving or removing `%LOCALAPPDATA%\LucidNet`.
@@ -1354,12 +1354,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added `release_verification.py` with SHA256 release manifest creation, manifest verification, Authenticode `signtool verify` wrapper, signing-plan metadata, and release artifact verification. The build script now reads the runtime version through dependency-light `branding.PRODUCT_VERSION`, writes `release-manifest.json`, signs executable and installer artifacts when signing certificate inputs are supplied, verifies signatures after signing, and has tests for hash verification, mismatch detection, signing hooks, and release verification.
 
 
-Priority: P4 Enterprise  
-Area: Release trust  
-Current state: Build scripts create executable and installer artifacts.  
-Problem: Unsigned or unverifiable binaries reduce user and enterprise trust.  
-User value: Safer installation, fewer SmartScreen warnings, and verified updates.  
-Dependencies: R-005.  
+Priority: P4 Enterprise
+Area: Release trust
+Current state: Build scripts create executable and installer artifacts.
+Problem: Unsigned or unverifiable binaries reduce user and enterprise trust.
+User value: Safer installation, fewer SmartScreen warnings, and verified updates.
+Dependencies: R-005.
 Implementation steps:
 - Add signing steps for executable and installer.
 - Verify signatures after build.
@@ -1379,12 +1379,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added `plugin_platform.py` with subprocess isolation planning, host command shape, timeout metadata, per-plugin capability summaries, and docs describing the plugin host model. Added `plugin_host.py` with JSON-line `health` and `run-once` commands, hosted permission checks, plugin event capture, CLI health verification, PyInstaller hidden import coverage, and tests. The subprocess boundary is implemented as a safe scaffold; deeper live IPC expansion is future hardening, not an open roadmap item.
 
 
-Priority: P3 Advanced Architecture  
-Area: Plugin isolation  
-Current state: Plugins run in-process with app privileges.  
-Problem: In-process plugins can crash or compromise the host process.  
-User value: Plugins become safer and more resilient.  
-Dependencies: R-016, R-039.  
+Priority: P3 Advanced Architecture
+Area: Plugin isolation
+Current state: Plugins run in-process with app privileges.
+Problem: In-process plugins can crash or compromise the host process.
+User value: Plugins become safer and more resilient.
+Dependencies: R-016, R-039.
 Implementation steps:
 - Define a plugin host subprocess model.
 - Move plugin API calls across an IPC boundary.
@@ -1402,12 +1402,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added deterministic per-plugin environment paths under `%LOCALAPPDATA%\LucidNet\plugin_envs\<plugin_id>`, dependency metadata normalization, planned plugin Python executable paths, `environment-lock.json` generation, real virtual environment creation through `venv`, explicit dependency installation failure containment, CLI `plugins env-lock`, documentation, and tests.
 
 
-Priority: P2 Product Expansion  
-Area: Plugin dependencies  
-Current state: Plugins share the app environment.  
-Problem: Plugin dependencies can conflict with each other or the app.  
-User value: Plugins can evolve without breaking the base app.  
-Dependencies: R-047.  
+Priority: P2 Product Expansion
+Area: Plugin dependencies
+Current state: Plugins share the app environment.
+Problem: Plugin dependencies can conflict with each other or the app.
+User value: Plugins can evolve without breaking the base app.
+Dependencies: R-047.
 Implementation steps:
 - Add optional per-plugin environment metadata.
 - Install plugin dependencies into isolated environments.
@@ -1425,12 +1425,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added manifest/entrypoint fingerprinting, `PluginManager.changed_manifests()`, full `reload_enabled()`, selective `reload_changed()`, task stop before reload, reload failure events, documentation, and tests verifying changed plugin code reloads without a full app restart. Future subprocess host restart with backoff is tracked under `R-047`.
 
 
-Priority: P2 Product Expansion  
-Area: Plugin development  
-Current state: Plugin refresh may not fully clear module state.  
-Problem: Plugin authors need faster iteration.  
-User value: Plugin development becomes smoother.  
-Dependencies: R-016.  
+Priority: P2 Product Expansion
+Area: Plugin development
+Current state: Plugin refresh may not fully clear module state.
+Problem: Plugin authors need faster iteration.
+User value: Plugin development becomes smoother.
+Dependencies: R-016.
 Implementation steps:
 - Detect plugin file changes.
 - Stop plugin tasks before reload.
@@ -1448,12 +1448,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added plugin bundle digest manifest generation, verification that detects missing or tampered files, path escape protection, signed-bundle metadata, publisher/trust checks, signed bundle install enforcement, untrusted publisher rejection, CLI `plugins verify-bundle`, tests, and supply-chain design notes. Production key rotation and revocation remain operational policy hardening, not an open roadmap item.
 
 
-Priority: P5 Research  
-Area: Plugin supply chain  
-Current state: Plugins are folders and manifests.  
-Problem: Marketplace distribution requires integrity verification.  
-User value: Users can trust plugin origin and detect tampering.  
-Dependencies: R-017.  
+Priority: P5 Research
+Area: Plugin supply chain
+Current state: Plugins are folders and manifests.
+Problem: Marketplace distribution requires integrity verification.
+User value: Users can trust plugin origin and detect tampering.
+Dependencies: R-017.
 Implementation steps:
 - Define plugin bundle format.
 - Add manifest digest and signature metadata.
@@ -1471,12 +1471,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added marketplace registry parsing with publisher, bundle URL, digest, permissions, and signature metadata; default config storage for `plugins.marketplace_registry`; install/update/readiness planning; GUI Marketplace readiness grid; CLI `plugins marketplace-plan`; marketplace operation gating for install/update/remove/inspect; signed metadata enforcement; documentation; and tests.
 
 
-Priority: P5 Research  
-Area: Plugin ecosystem  
-Current state: Users manually place plugins in the plugin folder and enable IDs in config.  
-Problem: Discovery, installation, updates, and trust warnings are not productized.  
-User value: Plugins become accessible without manual file management.  
-Dependencies: R-050.  
+Priority: P5 Research
+Area: Plugin ecosystem
+Current state: Users manually place plugins in the plugin folder and enable IDs in config.
+Problem: Discovery, installation, updates, and trust warnings are not productized.
+User value: Plugins become accessible without manual file management.
+Dependencies: R-050.
 Implementation steps:
 - Design a marketplace registry schema.
 - Add UI for browse, install, update, disable, and remove.
@@ -1494,12 +1494,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Consolidated WASM plugin runtime research into `docs/RESEARCH_AND_FRONTIER_BACKLOG.md`, recommending subprocess Python isolation first and keeping WASM as a later specialized runtime if WASI capability limits, packaging, and developer experience prove acceptable. The decision gate and prototype criteria are documented.
 
 
-Priority: P5 Research  
-Area: Plugin sandboxing  
-Current state: Python plugins are trusted and in-process.  
-Problem: Strong sandboxing may require a different plugin runtime.  
-User value: Future untrusted extensions could run with tighter boundaries.  
-Dependencies: R-047.  
+Priority: P5 Research
+Area: Plugin sandboxing
+Current state: Python plugins are trusted and in-process.
+Problem: Strong sandboxing may require a different plugin runtime.
+User value: Future untrusted extensions could run with tighter boundaries.
+Dependencies: R-047.
 Implementation steps:
 - Research `wasmtime-py` and WASI capability limits.
 - Compare WASM against subprocess isolation for performance, developer experience, and Windows packaging.
@@ -1519,12 +1519,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Added `deep_diagnostics.py` with versioned consent prompts, passive/local-active/external-active test classification, duration and data-collected metadata, cancellable test descriptions, and a result schema that separates evidence from recommendations. Diagnostics summary now exposes available deep diagnostic tests, with unit coverage.
 
 
-Priority: P5 Research  
-Area: Diagnostics governance  
-Current state: Diagnostics export local state, but active network tests are limited.  
-Problem: Deep diagnostics can create privacy, policy, and safety concerns.  
-User value: Users get clearer explanations while staying in control.  
-Dependencies: R-003, R-035.  
+Priority: P5 Research
+Area: Diagnostics governance
+Current state: Diagnostics export local state, but active network tests are limited.
+Problem: Deep diagnostics can create privacy, policy, and safety concerns.
+User value: Users get clearer explanations while staying in control.
+Dependencies: R-003, R-035.
 Implementation steps:
 - Define consent prompts, test scope, duration, data collected, and safe cancellation.
 - Classify tests by passive, local active, and external active.
@@ -1542,12 +1542,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added DNS integrity classification for local versus user-approved trusted resolver answers, status outcomes for normal/filtered/mismatch/partial/inconclusive results, transparent DNS proxy evidence classification, Cloudflare DoH trusted resolver integration, consent catalog entries, CLI `diagnose dns` and `diagnose transparent-dns`, sanitized evidence schema, confidence scoring, docs, and tests. Controlled lab validation can continue as release hardening without changing the completed roadmap scope.
 
 
-Priority: P5 Research  
-Area: DNS diagnostics  
-Current state: The app can manage DNS profiles but does not audit DNS integrity.  
-Problem: DNS failures can be caused by poisoning, interception, or misconfiguration.  
-User value: Users can understand whether DNS behavior is local, ISP-level, or policy-driven.  
-Dependencies: R-053.  
+Priority: P5 Research
+Area: DNS diagnostics
+Current state: The app can manage DNS profiles but does not audit DNS integrity.
+Problem: DNS failures can be caused by poisoning, interception, or misconfiguration.
+User value: Users can understand whether DNS behavior is local, ISP-level, or policy-driven.
+Dependencies: R-053.
 Implementation steps:
 - Compare local resolver answers with a user-consented trusted encrypted resolver.
 - Add a transparent DNS proxy test using safe reserved addresses or controlled endpoints.
@@ -1565,12 +1565,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added TLS certificate issuer/subject evidence collection, SSL inspection classification, expected issuer hint checks, safe-domain validation, SNI/TLS failure classification, consent catalog entries, CLI `diagnose tls` and `diagnose sni`, safety wording, docs, and tests. Controlled network validation must use benign or owned endpoints and remains release hardening, not missing roadmap scope.
 
 
-Priority: P5 Research  
-Area: TLS diagnostics  
-Current state: The app does not inspect TLS path behavior.  
-Problem: Corporate or network firewalls can filter by SNI or perform SSL inspection.  
-User value: Users can identify when a network is intercepting or filtering TLS.  
-Dependencies: R-053.  
+Priority: P5 Research
+Area: TLS diagnostics
+Current state: The app does not inspect TLS path behavior.
+Problem: Corporate or network firewalls can filter by SNI or perform SSL inspection.
+User value: Users can identify when a network is intercepting or filtering TLS.
+Dependencies: R-053.
 Implementation steps:
 - Detect root CA changes for user-consented connections to safe endpoints.
 - Research safe SNI comparison tests using owned or benign test domains.
@@ -1588,12 +1588,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Deep diagnostics now reuse the safe captive portal classifier to distinguish normal connectivity, likely captive portal redirects, modified endpoint content, and inconclusive failures. Results include safe evidence and user-facing recommendations without collecting unnecessary content.
 
 
-Priority: P2 Product Expansion  
-Area: Network diagnostics  
-Current state: Captive portal detection is planned for automation.  
-Problem: Users need to distinguish captive portals from DNS/proxy failure.  
-User value: Public Wi-Fi troubleshooting is clearer.  
-Dependencies: R-026.  
+Priority: P2 Product Expansion
+Area: Network diagnostics
+Current state: Captive portal detection is planned for automation.
+Problem: Users need to distinguish captive portals from DNS/proxy failure.
+User value: Public Wi-Fi troubleshooting is clearer.
+Dependencies: R-026.
 Implementation steps:
 - Reuse captive portal checks in diagnostics.
 - Detect HTTP redirects and content modification against safe known endpoints.
@@ -1611,12 +1611,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Consolidated transport and route diagnostics research into `docs/RESEARCH_AND_FRONTIER_BACKLOG.md` with safe UDP/QUIC comparison boundaries, PMTUD research limits, prototype constraints, cancellation requirements, and sidecar direction for any raw-socket or platform-specific work.
 
 
-Priority: P5 Research  
-Area: Transport diagnostics  
-Current state: The app does not test UDP/QUIC degradation or Path MTU Discovery failures.  
-Problem: Some networks fail in ways that normal ping or HTTP checks do not reveal.  
-User value: Users get explanations for slow video calls, HTTP/3 downgrade, or hanging sites.  
-Dependencies: R-053.  
+Priority: P5 Research
+Area: Transport diagnostics
+Current state: The app does not test UDP/QUIC degradation or Path MTU Discovery failures.
+Problem: Some networks fail in ways that normal ping or HTTP checks do not reveal.
+User value: Users get explanations for slow video calls, HTTP/3 downgrade, or hanging sites.
+Dependencies: R-053.
 Implementation steps:
 - Research safe UDP/TCP comparison tests.
 - Research PMTUD tests that do not require unsafe packet crafting in the main app.
@@ -1634,12 +1634,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Added route anomaly research guidance covering sanitized local route evidence, traceroute summaries, optional ASN/Geo-IP and looking-glass research, confidence levels, and a strict no-attribution-without-evidence rule.
 
 
-Priority: P5 Research  
-Area: Routing diagnostics  
-Current state: The app can query local routes but does not analyze broader path anomalies.  
-Problem: Routing failures and anycast anomalies are hard for users to explain.  
-User value: Users can collect evidence for ISP or enterprise support.  
-Dependencies: R-053.  
+Priority: P5 Research
+Area: Routing diagnostics
+Current state: The app can query local routes but does not analyze broader path anomalies.
+Problem: Routing failures and anycast anomalies are hard for users to explain.
+User value: Users can collect evidence for ISP or enterprise support.
+Dependencies: R-053.
 Implementation steps:
 - Research traceroute, ASN lookup, Geo-IP, and public looking-glass options.
 - Avoid claiming attribution without strong evidence.
@@ -1657,12 +1657,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added `forensics_plan.py` with bounded PCAP capture planning, explicit-start metadata, output directory selection, sensitive-content warning, output format constraints, sidecar export request generation, request validation, payload-capture refusal, export manifest generation, CLI `pcap-plan --request`, docs, and tests. Actual packet capture remains disabled until signed sidecar, privacy, and manual validation gates are complete.
 
 
-Priority: P5 Research  
-Area: Forensics export  
-Current state: Diagnostics bundle exports logs and config data, not packet captures.  
-Problem: Some support cases require packet-level evidence.  
-User value: Advanced users can export Wireshark-compatible evidence with consent.  
-Dependencies: R-053, R-036.  
+Priority: P5 Research
+Area: Forensics export
+Current state: Diagnostics bundle exports logs and config data, not packet captures.
+Problem: Some support cases require packet-level evidence.
+User value: Advanced users can export Wireshark-compatible evidence with consent.
+Dependencies: R-053, R-036.
 Implementation steps:
 - Research ETW-to-PCAP or sidecar-based capture approaches.
 - Define capture duration, consent, redaction limits, and storage location.
@@ -1680,12 +1680,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added sidecar request/result schema, timeout bounds, JSON stdin/stdout invocation helper, result validation, redaction, Rust language decision, `sidecars/forensics-sidecar-rust` scaffold with harmless `status` behavior and disabled `pcap_export`, CLI `sidecar-decision`, docs, and tests. Shipping a signed optional sidecar binary remains release engineering, not unresolved research.
 
 
-Priority: P5 Research  
-Area: Diagnostic architecture  
-Current state: Python orchestrates app logic and basic network operations.  
-Problem: Some packet, TLS, and timing diagnostics are awkward or fragile in Python.  
-User value: Advanced diagnostics can be implemented with better performance and isolation.  
-Dependencies: R-053.  
+Priority: P5 Research
+Area: Diagnostic architecture
+Current state: Python orchestrates app logic and basic network operations.
+Problem: Some packet, TLS, and timing diagnostics are awkward or fragile in Python.
+User value: Advanced diagnostics can be implemented with better performance and isolation.
+Dependencies: R-053.
 Implementation steps:
 - Compare Go and Rust for TLS client behavior, packet parsing, signed distribution, and JSON output.
 - Define sidecar invocation, timeout, and result schema.
@@ -1705,12 +1705,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Consolidated frontier forensics and enforcement research into `docs/RESEARCH_AND_FRONTIER_BACKLOG.md` and added an enforcement research gate requiring legal/ethical/safety review, driver/signing feasibility, rollback design, performance testing, and audit visibility before any WFP or WinDivert prototype can leave lab-only research.
 
 
-Priority: P6 Frontier  
-Area: Kernel-level networking  
-Current state: The app changes DNS and current-user proxy settings, but does not enforce packet routing.  
-Problem: Some applications ignore system proxy settings, and advanced enforcement requires lower-level control.  
-User value: Future versions could support stronger per-app routing and leak prevention.  
-Dependencies: R-040, R-053.  
+Priority: P6 Frontier
+Area: Kernel-level networking
+Current state: The app changes DNS and current-user proxy settings, but does not enforce packet routing.
+Problem: Some applications ignore system proxy settings, and advanced enforcement requires lower-level control.
+User value: Future versions could support stronger per-app routing and leak prevention.
+Dependencies: R-040, R-053.
 Implementation steps:
 - Research WFP APIs, WinDivert, driver signing, performance, and legal constraints.
 - Define what can be achieved without custom kernel drivers.
@@ -1728,12 +1728,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Added research guidance requiring reversible, auditable, user-confirmed firewall-style controls before any per-app routing or blocking prototype. The safety gate blocks hidden enforcement and keeps this away from evasion or policy-bypass behavior.
 
 
-Priority: P6 Frontier  
-Area: Advanced routing  
-Current state: Proxy settings are system/user-level, not per-app.  
-Problem: Users may need app-specific routing or emergency blocking.  
-User value: Advanced users could control leaks and high-bandwidth processes more precisely.  
-Dependencies: R-061.  
+Priority: P6 Frontier
+Area: Advanced routing
+Current state: Proxy settings are system/user-level, not per-app.
+Problem: Users may need app-specific routing or emergency blocking.
+User value: Advanced users could control leaks and high-bandwidth processes more precisely.
+Dependencies: R-061.
 Implementation steps:
 - Research Windows Firewall APIs, WFP filters, and non-driver alternatives.
 - Define safe UX for blocking/unblocking processes.
@@ -1751,12 +1751,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added live adapter inventory, safe failover recommendation logic that distinguishes single-path from failover candidates, CLI exposure through `multiwan-status`, documentation separating failover, route preference, and true bonding/load balancing, and tests. Route mutation and true load balancing remain frontier work behind separate safety gates.
 
 
-Priority: P6 Frontier  
-Area: Routing resilience  
-Current state: The app can inspect adapters and change DNS for selected interfaces.  
-Problem: Windows route metrics may not provide desired failover or load-balancing behavior.  
-User value: Advanced users could improve resilience across Ethernet, Wi-Fi, and tethering.  
-Dependencies: R-040.  
+Priority: P6 Frontier
+Area: Routing resilience
+Current state: The app can inspect adapters and change DNS for selected interfaces.
+Problem: Windows route metrics may not provide desired failover or load-balancing behavior.
+User value: Advanced users could improve resilience across Ethernet, Wi-Fi, and tethering.
+Dependencies: R-040.
 Implementation steps:
 - Research route metrics, adapter priority, NLA, and Windows limitations.
 - Prototype failover detection before any load balancing.
@@ -1774,12 +1774,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added `anomaly_detection.py` with statistical baselines, z-score spike detection, explainable anomaly findings over traffic and latency fields, integration with persisted metrics, CLI exposure through `anomalies`, docs, and tests. Opt-in self-healing remains a future safety-reviewed capability, not part of this completed research prototype.
 
 
-Priority: P6 Frontier  
-Area: Self-healing intelligence  
-Current state: Monitoring uses polling and rule-based state changes.  
-Problem: Static checks may miss micro-outages, traffic spikes, and subtle degradation.  
-User value: The app could explain and respond to unusual network behavior.  
-Dependencies: R-034, R-036.  
+Priority: P6 Frontier
+Area: Self-healing intelligence
+Current state: Monitoring uses polling and rule-based state changes.
+Problem: Static checks may miss micro-outages, traffic spikes, and subtle degradation.
+User value: The app could explain and respond to unusual network behavior.
+Dependencies: R-034, R-036.
 Implementation steps:
 - Start with statistical baselines before machine learning.
 - Research anomaly features from latency, DNS failures, traffic counters, and ETW if available.
@@ -1797,12 +1797,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added `overlay_networks.py` with read-only Tailscale/ZeroTier detection, status command planning, operation safety gates, CLI exposure, GUI tool access, docs, and tests. Mutating overlay operations remain blocked until user consent, vendor CLI/API stability, rollback, and safety review are complete.
 
 
-Priority: P6 Frontier  
-Area: Mesh networking  
-Current state: The app manages local physical and virtual adapter settings but does not orchestrate mesh tools.  
-Problem: Users often rely on Tailscale, ZeroTier, or similar overlay networks.  
-User value: The app could centralize local and overlay network state.  
-Dependencies: R-025, R-033.  
+Priority: P6 Frontier
+Area: Mesh networking
+Current state: The app manages local physical and virtual adapter settings but does not orchestrate mesh tools.
+Problem: Users often rely on Tailscale, ZeroTier, or similar overlay networks.
+User value: The app could centralize local and overlay network state.
+Dependencies: R-025, R-033.
 Implementation steps:
 - Detect installed Tailscale and ZeroTier clients.
 - Research read-only peer status first.
@@ -1820,12 +1820,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Consolidated overlay and frontier restriction research into `docs/RESEARCH_AND_FRONTIER_BACKLOG.md`, preserving domain-fronting and traffic-camouflage ideas as research questions only, with explicit bans on operational bypass steps, target lists, provider-specific evasion instructions, or hidden policy circumvention.
 
 
-Priority: P6 Frontier  
-Area: Network restriction research  
-Current state: The roadmap discusses evasion concepts but does not implement them.  
-Problem: These capabilities may conflict with network policies or laws depending on context.  
-User value: The project preserves the ambition while requiring strict review.  
-Dependencies: R-053.  
+Priority: P6 Frontier
+Area: Network restriction research
+Current state: The roadmap discusses evasion concepts but does not implement them.
+Problem: These capabilities may conflict with network policies or laws depending on context.
+User value: The project preserves the ambition while requiring strict review.
+Dependencies: R-053.
 Implementation steps:
 - Treat domain-fronting, traffic camouflage, and protocol-shaping ideas as research questions only.
 - Evaluate legality, provider policies, user safety, and abuse potential before prototypes.
@@ -1843,12 +1843,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Added `signing_research.py` with schema-versioned signature metadata, production versus research-only algorithm sets, post-quantum gating, algorithm agility plan, docs, and tests. No immature cryptography dependency was added.
 
 
-Priority: P6 Frontier  
-Area: Cryptographic future-proofing  
-Current state: Plugin signing is only a research item.  
-Problem: Long-lived plugin ecosystems may need future cryptographic agility.  
-User value: The platform can avoid being locked into obsolete trust mechanisms.  
-Dependencies: R-050.  
+Priority: P6 Frontier
+Area: Cryptographic future-proofing
+Current state: Plugin signing is only a research item.
+Problem: Long-lived plugin ecosystems may need future cryptographic agility.
+User value: The platform can avoid being locked into obsolete trust mechanisms.
+Dependencies: R-050.
 Implementation steps:
 - Research NIST post-quantum signature options and library maturity.
 - Design signature metadata to allow algorithm agility.
@@ -1866,12 +1866,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Completed. Added diagnostics-only frontier guidance for active probing detection, fingerprinting analysis, forged packet detection, and penalty-box behavior, requiring owned infrastructure, consent, bounded duration, confidence scoring, and no attribution claims without corroboration.
 
 
-Priority: P6 Frontier  
-Area: Frontier diagnostics  
-Current state: The audit includes ideas such as active probing detection, fingerprinting analysis, forged packet detection, and penalty-box behavior.  
-Problem: These concepts are powerful but can be sensitive, costly, and hard to validate safely.  
-User value: The roadmap keeps the ideas visible for future expert review.  
-Dependencies: R-053, R-060.  
+Priority: P6 Frontier
+Area: Frontier diagnostics
+Current state: The audit includes ideas such as active probing detection, fingerprinting analysis, forged packet detection, and penalty-box behavior.
+Problem: These concepts are powerful but can be sensitive, costly, and hard to validate safely.
+User value: The roadmap keeps the ideas visible for future expert review.
+Dependencies: R-053, R-060.
 Implementation steps:
 - Catalog concepts as diagnostics-only research.
 - Require owned test infrastructure for any active external test.
@@ -1889,12 +1889,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added `lucid_cli.py` with `status`, `list-dns`, `dns list`, `dns apply`, `dns clear`, `proxy status`, `proxy enable`, `proxy disable`, `ddns force`, `export-diagnostics`, consent-gated diagnostics, overlay status, Multi-WAN status, anomaly review, and PCAP planning. Commands return stable exit codes, support JSON output, preserve GUI startup behavior, and have tests. Broker-routed privileged execution was completed under `R-040`.
 
 
-Priority: P2 Product Expansion  
-Area: Developer ergonomics  
-Current state: Lucid Net is GUI and tray driven.  
-Problem: Power users and administrators may need scriptable actions.  
-User value: DNS, proxy, diagnostics, and status operations can be integrated into workflows.  
-Dependencies: R-040.  
+Priority: P2 Product Expansion
+Area: Developer ergonomics
+Current state: Lucid Net is GUI and tray driven.
+Problem: Power users and administrators may need scriptable actions.
+User value: DNS, proxy, diagnostics, and status operations can be integrated into workflows.
+Dependencies: R-040.
 Implementation steps:
 - Add a `lucid-net` CLI or command-line mode before GUI initialization.
 - Support status, list profiles, apply DNS, enable/disable proxy, force DDNS, and export diagnostics.
@@ -1912,12 +1912,12 @@ Progress: [x] Done / [ ] Partially done / [ ] Open
 Work log: Done. Added `power_policy.py` with best-effort Windows battery status probing, power-efficiency policy decisions, reduced polling, expensive analytics suspension, minimized-window refresh pause guidance, monitor integration, GUI settings, visible reduced-mode state, DDNS pause behavior during battery-saver reduced mode, docs, and tests.
 
 
-Priority: P2 Product Expansion  
-Area: Power management  
-Current state: Monitoring and GUI refreshes run on fixed intervals.  
-Problem: Frequent polling can drain battery on laptops.  
-User value: The app behaves politely on battery and metered networks.  
-Dependencies: R-027.  
+Priority: P2 Product Expansion
+Area: Power management
+Current state: Monitoring and GUI refreshes run on fixed intervals.
+Problem: Frequent polling can drain battery on laptops.
+User value: The app behaves politely on battery and metered networks.
+Dependencies: R-027.
 Implementation steps:
 - Query Windows power state and battery saver status.
 - Reduce monitor polling and suspend expensive analytics when on low battery.
