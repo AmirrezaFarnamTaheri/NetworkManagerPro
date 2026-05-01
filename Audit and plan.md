@@ -1,4 +1,4 @@
-# Lucid Net: Complete Audit, Roadmap, And Vision
+﻿# Lucid Net: Complete Audit, Roadmap, And Vision
 
 Version: 2.0.0  
 Prepared: 2026-04-30  
@@ -122,7 +122,7 @@ Completed the final 11 partially done items: `R-037`, `R-039`, `R-040`, `R-041`,
 All roadmap items now have completed implementation, research, documentation, or safety-gated scaffolding in the repository. The final frontier pass made the remaining research surface explicit, queryable, and consolidated.
 
 - Added `frontier_policy.py` as the executable catalog and gate for ETW, plugin sandboxing, plugin marketplace, Windows Service architecture, DoH/DoT, PCAP, forensics sidecar, WFP, WinDivert, per-app routing, Multi-WAN, AI anomaly detection, overlay orchestration, domain-fronting research, traffic-camouflage research, advanced anti-censorship concepts, post-quantum plugin signing, SIEM/OpenTelemetry export, transport/route diagnostics, and WASM plugin runtime research.
-- Added CLI parity through `python nmp_cli.py frontier catalog --json`, `frontier status --json`, and `frontier gate ...`.
+- Added CLI parity through `python lucid_cli.py frontier catalog --json`, `frontier status --json`, and `frontier gate ...`.
 - Added GUI parity through the Tools action `Review frontier gates`, which records the current frontier catalog summary in local history.
 - Added diagnostics export visibility for frontier-policy counts and the safety boundary.
 - Consolidated unimplemented research/frontier work into `docs/RESEARCH_AND_FRONTIER_BACKLOG.md` and removed the old fragmented one-topic research notes.
@@ -1886,7 +1886,7 @@ Risk: High.
 
 ### R-069: CLI Companion
 Progress: [x] Done / [ ] Partially done / [ ] Open
-Work log: Done. Added `nmp_cli.py` with `status`, `list-dns`, `dns list`, `dns apply`, `dns clear`, `proxy status`, `proxy enable`, `proxy disable`, `ddns force`, `export-diagnostics`, consent-gated diagnostics, overlay status, Multi-WAN status, anomaly review, and PCAP planning. Commands return stable exit codes, support JSON output, preserve GUI startup behavior, and have tests. Broker-routed privileged execution was completed under `R-040`.
+Work log: Done. Added `lucid_cli.py` with `status`, `list-dns`, `dns list`, `dns apply`, `dns clear`, `proxy status`, `proxy enable`, `proxy disable`, `ddns force`, `export-diagnostics`, consent-gated diagnostics, overlay status, Multi-WAN status, anomaly review, and PCAP planning. Commands return stable exit codes, support JSON output, preserve GUI startup behavior, and have tests. Broker-routed privileged execution was completed under `R-040`.
 
 
 Priority: P2 Product Expansion  
@@ -1896,7 +1896,7 @@ Problem: Power users and administrators may need scriptable actions.
 User value: DNS, proxy, diagnostics, and status operations can be integrated into workflows.  
 Dependencies: R-040.  
 Implementation steps:
-- Add an `nmp` CLI or command-line mode before GUI initialization.
+- Add a `lucid-net` CLI or command-line mode before GUI initialization.
 - Support status, list profiles, apply DNS, enable/disable proxy, force DDNS, and export diagnostics.
 - Route privileged actions through the broker once Phase 6 is implemented.
 Acceptance criteria:

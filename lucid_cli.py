@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 import json
@@ -20,7 +20,7 @@ import traffic_collector
 
 
 def build_parser():
-    parser = argparse.ArgumentParser(prog="nmp", description=f"{core.APP_DISPLAY_NAME} command-line companion")
+    parser = argparse.ArgumentParser(prog="lucid-net", description=f"{core.APP_DISPLAY_NAME} command-line companion")
     parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON output.")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("about")

@@ -37,7 +37,7 @@ COLORS = {
 }
 
 
-class NetworkManagerGUI(ctk.CTk):
+class LucidNetGUI(ctk.CTk):
     def __init__(self, config, on_close_callback, config_path=None, monitor=None, event_store=None):
         super().__init__()
         self.config = config

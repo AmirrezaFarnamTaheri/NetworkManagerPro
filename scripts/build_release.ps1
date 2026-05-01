@@ -1,7 +1,7 @@
 param(
     [switch]$SkipInstaller,
-    [string]$SigningCertPath = $env:NMP_SIGNING_CERT_PATH,
-    [string]$SigningCertPassword = $env:NMP_SIGNING_CERT_PASSWORD,
+    [string]$SigningCertPath = $env:LUCID_NET_SIGNING_CERT_PATH,
+    [string]$SigningCertPassword = $env:LUCID_NET_SIGNING_CERT_PASSWORD,
     [string]$TimestampUrl = "http://timestamp.digicert.com"
 )
 

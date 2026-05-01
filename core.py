@@ -156,10 +156,10 @@ def setup_logging(level=logging.INFO):
     root = logging.getLogger()
     root.setLevel(level)
     log_path = log_file_path()
-    already_configured = any(getattr(h, "_network_manager_handler", False) for h in root.handlers)
+    already_configured = any(getattr(h, "_lucid_net_handler", False) for h in root.handlers)
     if not already_configured:
         handler = RotatingFileHandler(log_path, maxBytes=1_000_000, backupCount=5, encoding="utf-8")
-        handler._network_manager_handler = True
+        handler._lucid_net_handler = True
         handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s"))
         root.addHandler(handler)
     logger().info(

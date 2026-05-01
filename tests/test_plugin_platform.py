@@ -1,7 +1,7 @@
-import json
+﻿import json
 import zipfile
 
-import nmp_cli
+import lucid_cli
 import plugin_host
 import plugin_platform
 from plugin_manager import PluginManager
@@ -127,7 +127,7 @@ def test_signed_bundle_install_enforces_trusted_publisher(tmp_path):
     signature = plugin_platform.signed_bundle_metadata(str(plugin_dir), "Lab", "key-1", signature="placeholder")
     (plugin_dir / "bundle-manifest.json").write_text(json.dumps(bundle), encoding="utf-8")
     (plugin_dir / "signature.json").write_text(json.dumps(signature), encoding="utf-8")
-    archive = tmp_path / "signed.nmp-plugin"
+    archive = tmp_path / "signed.lucid-plugin"
     with zipfile.ZipFile(archive, "w") as zf:
         for path in plugin_dir.iterdir():
             zf.write(path, path.name)
@@ -182,7 +182,7 @@ def test_plugin_host_run_once_captures_plugin_events(tmp_path):
 
 
 def test_cli_plugin_host_health_json(capsys):
-    code = nmp_cli.run(["--json", "plugins", "host-health"])
+    code = lucid_cli.run(["--json", "plugins", "host-health"])
     output = json.loads(capsys.readouterr().out)
 
     assert code == 0

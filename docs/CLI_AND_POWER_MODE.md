@@ -1,46 +1,46 @@
-# CLI And Power Efficiency
+﻿# CLI And Power Efficiency
 
 Status: implementation note for R-069 and R-070.
 
 ## CLI Companion
 
-`nmp_cli.py` provides the first command-line companion surface without changing normal GUI startup.
+`lucid_cli.py` provides the command-line companion surface without changing normal GUI startup. Source checkouts can run `python lucid_cli.py ...`; package installs expose the `lucid-net` console command through `pyproject.toml`.
 
 Current commands:
 
 ```powershell
-python nmp_cli.py status
-python nmp_cli.py status --json
-python nmp_cli.py about --json
-python nmp_cli.py vision --json
-python nmp_cli.py brand --json
-python nmp_cli.py profiles preview --ssid CorpWifi --json
-python nmp_cli.py list-dns --json
-python nmp_cli.py dns list --json
-python nmp_cli.py dns apply --profile Cloudflare --interface "Wi-Fi" --json
-python nmp_cli.py dns apply --servers 1.1.1.1 1.0.0.1 --interface "Wi-Fi" --json
-python nmp_cli.py dns clear --interface "Wi-Fi" --json
-python nmp_cli.py proxy status --json
-python nmp_cli.py proxy enable --server 127.0.0.1:8080 --json
-python nmp_cli.py proxy pac --url https://proxy.example/wpad.pac --json
-python nmp_cli.py proxy socks5 --server 127.0.0.1:1080 --json
-python nmp_cli.py proxy disable --json
-python nmp_cli.py ddns force --json
-python nmp_cli.py ddns force --dual-stack --json
-python nmp_cli.py hosts preview --file C:\Windows\System32\drivers\etc\hosts --group dev --entry 10.0.0.2,dev.local,dev --json
-python nmp_cli.py hosts apply --file C:\Windows\System32\drivers\etc\hosts --group dev --entry 10.0.0.2,dev.local,dev --json
-python nmp_cli.py export-diagnostics --path-only
-python nmp_cli.py diagnose captive --i-consent --json
-python nmp_cli.py diagnose dns --domain example.com --i-consent --json
-python nmp_cli.py diagnose tls --host example.com --i-consent --json
-python nmp_cli.py overlay-status --json
-python nmp_cli.py multiwan-status --json
-python nmp_cli.py anomalies --json
-python nmp_cli.py traffic-history --limit 24 --json
-python nmp_cli.py pcap-plan --duration 30 --interface "Wi-Fi" --json
-python nmp_cli.py frontier catalog --json
-python nmp_cli.py frontier status --json
-python nmp_cli.py frontier gate --capability wfp_enforcement --operation prototype --i-consent --lab-mode --review legal --review ethical --review safety --review feasibility --review driver_signing --review rollback --review performance --json
+python lucid_cli.py status
+python lucid_cli.py status --json
+python lucid_cli.py about --json
+python lucid_cli.py vision --json
+python lucid_cli.py brand --json
+python lucid_cli.py profiles preview --ssid CorpWifi --json
+python lucid_cli.py list-dns --json
+python lucid_cli.py dns list --json
+python lucid_cli.py dns apply --profile Cloudflare --interface "Wi-Fi" --json
+python lucid_cli.py dns apply --servers 1.1.1.1 1.0.0.1 --interface "Wi-Fi" --json
+python lucid_cli.py dns clear --interface "Wi-Fi" --json
+python lucid_cli.py proxy status --json
+python lucid_cli.py proxy enable --server 127.0.0.1:8080 --json
+python lucid_cli.py proxy pac --url https://proxy.example/wpad.pac --json
+python lucid_cli.py proxy socks5 --server 127.0.0.1:1080 --json
+python lucid_cli.py proxy disable --json
+python lucid_cli.py ddns force --json
+python lucid_cli.py ddns force --dual-stack --json
+python lucid_cli.py hosts preview --file C:\Windows\System32\drivers\etc\hosts --group dev --entry 10.0.0.2,dev.local,dev --json
+python lucid_cli.py hosts apply --file C:\Windows\System32\drivers\etc\hosts --group dev --entry 10.0.0.2,dev.local,dev --json
+python lucid_cli.py export-diagnostics --path-only
+python lucid_cli.py diagnose captive --i-consent --json
+python lucid_cli.py diagnose dns --domain example.com --i-consent --json
+python lucid_cli.py diagnose tls --host example.com --i-consent --json
+python lucid_cli.py overlay-status --json
+python lucid_cli.py multiwan-status --json
+python lucid_cli.py anomalies --json
+python lucid_cli.py traffic-history --limit 24 --json
+python lucid_cli.py pcap-plan --duration 30 --interface "Wi-Fi" --json
+python lucid_cli.py frontier catalog --json
+python lucid_cli.py frontier status --json
+python lucid_cli.py frontier gate --capability wfp_enforcement --operation prototype --i-consent --lab-mode --review legal --review ethical --review safety --review feasibility --review driver_signing --review rollback --review performance --json
 ```
 
 The current CLI is support-focused and now covers the same high-value operator actions exposed through the GUI: product identity, product vision, brand architecture, status, context-aware profile preview, DNS profile listing and application, DNS reset, proxy status and mutation, PAC/SOCKS5 proxy modes, forced legacy and dual-stack DDNS sync, hosts preview/apply, diagnostics export, consent-gated active diagnostics, overlay status, multi-adapter recommendations, anomaly review, traffic history, and PCAP capture planning.

@@ -128,7 +128,7 @@ class PluginManager:
         if not os.path.isfile(entrypoint):
             raise FileNotFoundError(entrypoint)
 
-        spec = importlib.util.spec_from_file_location(f"nmp_plugin_{manifest['id']}", entrypoint)
+        spec = importlib.util.spec_from_file_location(f"lucid_plugin_{manifest['id']}", entrypoint)
         if spec is None or spec.loader is None:
             raise ImportError(f"Could not load plugin entrypoint: {entrypoint}")
         module = importlib.util.module_from_spec(spec)

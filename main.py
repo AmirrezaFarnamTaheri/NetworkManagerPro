@@ -113,12 +113,14 @@ def create_icon_image():
                 return Image.open(p).convert("RGBA")
             except OSError:
                 core.logger().debug("tray_icon_load_failed path=%s", p, exc_info=True)
-    image = Image.new("RGBA", (64, 64), color=(30, 32, 38, 255))
+    image = Image.new("RGBA", (64, 64), color=(0, 0, 0, 0))
     dc = ImageDraw.Draw(image)
-    dc.rounded_rectangle((8, 8, 56, 56), radius=12, fill=(46, 164, 114, 255))
-    dc.rectangle((22, 24, 42, 28), fill=(255, 255, 255, 255))
-    dc.rectangle((22, 32, 42, 36), fill=(255, 255, 255, 200))
-    dc.rectangle((22, 40, 34, 44), fill=(255, 255, 255, 180))
+    dc.rounded_rectangle((4, 4, 60, 60), radius=14, fill=(15, 118, 110, 255))
+    dc.rounded_rectangle((6, 32, 58, 60), radius=12, fill=(11, 18, 32, 150))
+    dc.line((16, 42, 16, 22, 24, 22, 24, 36, 38, 36), fill=(248, 250, 252, 255), width=5)
+    dc.line((27, 43, 27, 24, 43, 41, 43, 22), fill=(94, 234, 212, 255), width=5)
+    for x, y in ((16, 22), (24, 36), (43, 22), (43, 41)):
+        dc.ellipse((x - 3, y - 3, x + 3, y + 3), fill=(224, 242, 254, 255))
     return image
 
 
@@ -271,10 +273,10 @@ def main():
         pystray.MenuItem("Export Diagnostics", tray_export_diagnostics),
         pystray.MenuItem("Exit", exit_action),
     )
-    tray_icon = pystray.Icon("netmgr", create_icon_image(), core.APP_DISPLAY_NAME, menu)
+    tray_icon = pystray.Icon("LucidNet", create_icon_image(), core.APP_DISPLAY_NAME, menu)
     threading.Thread(target=tray_icon.run, daemon=True).start()
 
-    app = gui.NetworkManagerGUI(
+    app = gui.LucidNetGUI(
         config,
         on_close_callback=on_gui_close,
         config_path=_config_path(),

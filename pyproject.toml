@@ -6,6 +6,9 @@ requires-python = ">=3.11,<3.14"
 license = "AGPL-3.0-only"
 license-files = ["LICENSE"]
 
+[project.scripts]
+lucid-net = "lucid_cli:run"
+
 [tool.ruff]
 line-length = 120
 target-version = "py311"

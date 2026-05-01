@@ -1,5 +1,5 @@
-[package]
-name = "nmp-forensics-sidecar"
+﻿[package]
+name = "lucid-net-forensics-sidecar"
 version = "0.1.0"
 edition = "2021"
 

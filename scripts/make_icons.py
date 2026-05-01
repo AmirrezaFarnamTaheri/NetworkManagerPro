@@ -1,36 +1,95 @@
-"""Generate tray PNG and Windows .ico from vector-inspired geometry (Pillow only)."""
+"""Generate Lucid Net tray PNG and Windows .ico assets with Pillow only."""
 from __future__ import annotations
 
 import os
 import sys
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS = os.path.join(ROOT, "assets")
 
 
+def _lerp(a: int, b: int, t: float) -> int:
+    return int(a + (b - a) * t)
+
+
+def _gradient(size: int) -> Image.Image:
+    top = (15, 118, 110, 255)
+    mid = (19, 78, 74, 255)
+    bottom = (11, 18, 32, 255)
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    pixels = img.load()
+    for y in range(size):
+        t = y / max(1, size - 1)
+        if t < 0.52:
+            local = t / 0.52
+            color = tuple(_lerp(top[i], mid[i], local) for i in range(4))
+        else:
+            local = (t - 0.52) / 0.48
+            color = tuple(_lerp(mid[i], bottom[i], local) for i in range(4))
+        for x in range(size):
+            shade = int((x / max(1, size - 1)) * 10)
+            pixels[x, y] = (
+                max(0, color[0] - shade),
+                max(0, color[1] - shade),
+                max(0, color[2] - shade),
+                color[3],
+            )
+    return img
+
+
+def _rounded_mask(size: int, radius: int) -> Image.Image:
+    mask = Image.new("L", (size, size), 0)
+    d = ImageDraw.Draw(mask)
+    margin = max(1, size // 16)
+    d.rounded_rectangle((margin, margin, size - margin, size - margin), radius=radius, fill=255)
+    return mask
+
+
 def draw_mark(size: int) -> Image.Image:
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    mask = _rounded_mask(size, max(6, size // 5))
+    shadow = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    shadow_alpha = mask.filter(ImageFilter.GaussianBlur(max(1, size // 24)))
+    shadow.putalpha(shadow_alpha.point(lambda p: int(p * 0.35)))
+    img.alpha_composite(shadow)
+    bg = _gradient(size)
+    bg.putalpha(mask)
+    img.alpha_composite(bg)
+
     d = ImageDraw.Draw(img)
-    margin = max(2, size // 10)
-    d.rounded_rectangle(
-        (margin, margin, size - margin, size - margin),
-        radius=size // 6,
-        fill=(30, 32, 38, 255),
+    s = size / 128
+    line_w = max(2, round(size * 0.075))
+    accent_w = max(2, round(size * 0.07))
+
+    d.line(
+        [(31 * s, 82 * s), (31 * s, 43 * s), (47 * s, 43 * s), (47 * s, 73 * s), (76 * s, 73 * s)],
+        fill=(248, 250, 252, 255),
+        width=line_w,
+        joint="curve",
     )
-    inset = size // 4
-    d.rounded_rectangle(
-        (inset, inset, size - inset, size - inset),
-        radius=size // 10,
-        fill=(46, 164, 114, 255),
+    d.line(
+        [(53 * s, 84 * s), (53 * s, 47 * s), (84 * s, 81 * s), (84 * s, 44 * s)],
+        fill=(94, 234, 212, 255),
+        width=accent_w,
+        joint="curve",
     )
-    bar_w = size // 2
-    bar_h = max(2, size // 16)
-    cx, cy = size // 2, size // 2
-    d.rectangle((cx - bar_w // 2, cy - size // 5, cx + bar_w // 2, cy - size // 5 + bar_h), fill=(255, 255, 255, 255))
-    d.rectangle((cx - bar_w // 2, cy - size // 12, cx + bar_w // 2, cy - size // 12 + bar_h), fill=(255, 255, 255, 220))
-    d.rectangle((cx - bar_w // 2, cy + size // 40, cx + bar_w // 3, cy + size // 40 + bar_h), fill=(255, 255, 255, 200))
+    if size >= 32:
+        dot_r = max(2, round(size * 0.04))
+        for x, y in ((31, 43), (47, 73), (84, 44), (84, 81)):
+            d.ellipse(
+                ((x * s) - dot_r, (y * s) - dot_r, (x * s) + dot_r, (y * s) + dot_r),
+                fill=(224, 242, 254, 255),
+            )
+    if size >= 48:
+        d.arc(
+            (24 * s, 76 * s, 106 * s, 112 * s),
+            start=20,
+            end=157,
+            fill=(153, 246, 228, 190),
+            width=max(1, round(size * 0.03)),
+        )
     return img
 
 

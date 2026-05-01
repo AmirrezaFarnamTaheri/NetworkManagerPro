@@ -1,9 +1,9 @@
-import json
+﻿import json
 from pathlib import Path
 
 import diagnostics
 import frontier_policy
-import nmp_cli
+import lucid_cli
 
 
 def test_frontier_catalog_contains_all_major_capability_families():
@@ -81,18 +81,18 @@ def test_diagnostics_summary_exposes_frontier_policy_counts():
 
 
 def test_cli_frontier_catalog_and_gate_are_machine_readable(capsys):
-    assert nmp_cli.run(["--json", "frontier", "catalog"]) == 0
+    assert lucid_cli.run(["--json", "frontier", "catalog"]) == 0
     catalog = json.loads(capsys.readouterr().out)
     assert catalog["ok"] is True
     assert any(item["id"] == "wfp_enforcement" for item in catalog["capabilities"])
 
-    assert nmp_cli.run(["--json", "frontier", "gate", "--capability", "advanced_anti_censorship", "--operation", "bypass"]) == 2
+    assert lucid_cli.run(["--json", "frontier", "gate", "--capability", "advanced_anti_censorship", "--operation", "bypass"]) == 2
     blocked = json.loads(capsys.readouterr().out)
     assert blocked["ok"] is False
     assert blocked["decision"] == "blocked_operational_bypass"
 
     assert (
-        nmp_cli.run(
+        lucid_cli.run(
             [
                 "--json",
                 "frontier",

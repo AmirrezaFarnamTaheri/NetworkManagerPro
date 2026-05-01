@@ -1,4 +1,4 @@
-# Plugin Platform Roadmap
+﻿# Plugin Platform Roadmap
 
 Status: implementation and research note for R-047 through R-052.
 
@@ -15,7 +15,7 @@ Current implementation:
 - `plugin_platform.isolation_plan(...)` defines host command, timeout, venv path, and permissions.
 - `plugin_host.py` exposes a JSON-line health command and a `run-once` command that loads one manifest in a separate process boundary.
 - `broker_contract.py` gives the pattern for request IDs, schema versions, and structured responses.
-- CLI command `nmp plugins host-health --json` verifies the host contract.
+- CLI command `lucid-net plugins host-health --json` verifies the host contract.
 
 Remaining work:
 
@@ -65,7 +65,7 @@ Remaining signature work must define:
       "name": "Example",
       "version": "1.0.0",
       "publisher": "Example Publisher",
-      "bundle_url": "https://plugins.example/example.nmp-plugin",
+      "bundle_url": "https://plugins.example/example.lucid-plugin",
       "sha256": "...",
       "permissions": ["events"],
       "signature": {}
@@ -74,7 +74,7 @@ Remaining signature work must define:
 }
 ```
 
-The GUI Plugins tab now includes a Marketplace readiness grid backed by `plugins.marketplace_registry` config. `plugin_platform.marketplace_operation(...)` gates install, update, remove, and inspect actions against signed metadata readiness. The CLI can inspect the same plan with `nmp plugins marketplace-plan --registry registry.json --json`.
+The GUI Plugins tab now includes a Marketplace readiness grid backed by `plugins.marketplace_registry` config. `plugin_platform.marketplace_operation(...)` gates install, update, remove, and inspect actions against signed metadata readiness. The CLI can inspect the same plan with `lucid-net plugins marketplace-plan --registry registry.json --json`.
 
 ## WASM Research
 

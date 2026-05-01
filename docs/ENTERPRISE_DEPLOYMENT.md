@@ -93,4 +93,4 @@ Release trust requires:
 4. Generate a SHA256 release manifest.
 5. Publish the manifest beside the installer.
 
-`scripts\build_release.ps1` writes `release-manifest.json` for the executable-only path and for the full installer path. It also signs and verifies artifacts when `NMP_SIGNING_CERT_PATH` or `-SigningCertPath` is supplied. `release_verification.py` provides testable SHA256 manifest creation, manifest verification, signing-plan metadata, and a `signtool verify` wrapper. The signing certificate and timestamp URL should be supplied by CI secrets, not committed to the repository.
+`scripts\build_release.ps1` writes `release-manifest.json` for the executable-only path and for the full installer path. It also signs and verifies artifacts when `LUCID_NET_SIGNING_CERT_PATH` or `-SigningCertPath` is supplied. `release_verification.py` provides testable SHA256 manifest creation, manifest verification, signing-plan metadata, and a `signtool verify` wrapper. The signing certificate and timestamp URL should be supplied by CI secrets, not committed to the repository.

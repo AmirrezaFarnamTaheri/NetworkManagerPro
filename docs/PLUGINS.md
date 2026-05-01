@@ -1,4 +1,4 @@
-# Plugins
+﻿# Plugins
 
 Plugins are trusted local extensions. Normal app startup still loads enabled plugins in-process with the same OS privileges as Lucid Net, while the new `plugin_host.py` subprocess host provides the first isolated execution path for smoke checks and future IPC hardening.
 
@@ -90,11 +90,11 @@ Long-running plugin work must use timeouts and should regularly return. Shutdown
 Useful plugin inspection commands:
 
 ```powershell
-python nmp_cli.py plugins list --json
-python nmp_cli.py plugins host-health --json
-python nmp_cli.py plugins env-lock --manifest path\to\plugin.json --json
-python nmp_cli.py plugins verify-bundle --dir path\to\plugin --manifest path\to\bundle-manifest.json --json
-python nmp_cli.py plugins marketplace-plan --registry path\to\registry.json --json
+python lucid_cli.py plugins list --json
+python lucid_cli.py plugins host-health --json
+python lucid_cli.py plugins env-lock --manifest path\to\plugin.json --json
+python lucid_cli.py plugins verify-bundle --dir path\to\plugin --manifest path\to\bundle-manifest.json --json
+python lucid_cli.py plugins marketplace-plan --registry path\to\registry.json --json
 ```
 
 `env-lock` writes deterministic per-plugin dependency metadata under `%LOCALAPPDATA%\LucidNet\plugin_envs\<plugin_id>\environment-lock.json`. It does not install packages yet.

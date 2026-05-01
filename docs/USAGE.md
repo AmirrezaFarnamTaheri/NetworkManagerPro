@@ -1,4 +1,4 @@
-# Usage
+﻿# Usage
 
 ## Dashboard
 
@@ -73,12 +73,12 @@ Diagnostics are sanitized and exported under `%LOCALAPPDATA%\LucidNet`.
 Advanced diagnostic CLI commands are also available:
 
 ```powershell
-python nmp_cli.py diagnose transparent-dns --domain example.com --i-consent --json
-python nmp_cli.py diagnose sni --host example.com --i-consent --json
-python nmp_cli.py pcap-plan --duration 30 --interface "Wi-Fi" --request --json
-python nmp_cli.py sidecar-decision --json
-python nmp_cli.py frontier status --json
-python nmp_cli.py frontier gate --capability advanced_anti_censorship --operation diagnose --i-consent --json
+python lucid_cli.py diagnose transparent-dns --domain example.com --i-consent --json
+python lucid_cli.py diagnose sni --host example.com --i-consent --json
+python lucid_cli.py pcap-plan --duration 30 --interface "Wi-Fi" --request --json
+python lucid_cli.py sidecar-decision --json
+python lucid_cli.py frontier status --json
+python lucid_cli.py frontier gate --capability advanced_anti_censorship --operation diagnose --i-consent --json
 ```
 
 These commands report evidence and confidence only. They do not attempt bypass, evasion, identity rotation, or destructive network changes.

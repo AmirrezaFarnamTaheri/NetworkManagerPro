@@ -1,4 +1,4 @@
-# Research And Frontier Backlog
+﻿# Research And Frontier Backlog
 
 Status: single source of truth for research/frontier capabilities that are not fully shipped in Lucid Net.
 
@@ -14,9 +14,9 @@ This backlog preserves ambitious ideas without turning them into operational byp
 
 - `frontier_policy.py` registers a capability catalog for research and frontier work.
 - CLI commands expose the catalog and gate decisions:
-  - `python nmp_cli.py frontier catalog --json`
-  - `python nmp_cli.py frontier status --json`
-  - `python nmp_cli.py frontier gate --capability wfp_enforcement --operation prototype --i-consent --lab-mode --review legal --review ethical --review safety --review feasibility --review driver_signing --review rollback --review performance --json`
+  - `python lucid_cli.py frontier catalog --json`
+  - `python lucid_cli.py frontier status --json`
+  - `python lucid_cli.py frontier gate --capability wfp_enforcement --operation prototype --i-consent --lab-mode --review legal --review ethical --review safety --review feasibility --review driver_signing --review rollback --review performance --json`
 - Diagnostics exports include frontier-policy counts and the safety boundary.
 - GUI Tools includes `Review frontier gates`, which records a local event with the catalog summary.
 - PCAP is plan-only in Python, bounded, explicit, and payload capture is disabled.

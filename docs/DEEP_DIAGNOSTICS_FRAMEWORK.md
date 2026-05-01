@@ -1,4 +1,4 @@
-# Deep Diagnostics Framework
+﻿# Deep Diagnostics Framework
 
 Status: implementation and safety note for R-053 through R-056.
 
@@ -32,11 +32,11 @@ The module is testable with injected resolvers, fetchers, and certificate provid
 The CLI exposes consent-gated entry points:
 
 ```powershell
-python nmp_cli.py diagnose captive --i-consent --json
-python nmp_cli.py diagnose dns --domain example.com --i-consent --json
-python nmp_cli.py diagnose tls --host example.com --i-consent --json
-python nmp_cli.py frontier catalog --json
-python nmp_cli.py frontier status --json
+python lucid_cli.py diagnose captive --i-consent --json
+python lucid_cli.py diagnose dns --domain example.com --i-consent --json
+python lucid_cli.py diagnose tls --host example.com --i-consent --json
+python lucid_cli.py frontier catalog --json
+python lucid_cli.py frontier status --json
 ```
 
 Unimplemented research and frontier work is consolidated in `docs/RESEARCH_AND_FRONTIER_BACKLOG.md`.
